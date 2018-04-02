@@ -24,21 +24,21 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class Dom4jDemo {
+public class ScannerDemo {
 
 	public static void main(String[] args) {
 		ScannerDemo scannerDemo = new ScannerDemo();
 		
-		String htmlUrl = "http://9.111.221.116:8080/CTAP/app/#/login";
-		String content = scannerDemo.getHtmlContent(htmlUrl).toString();
-		System.out.println(content);
+//		String htmlUrl = "http://9.111.221.116:8080/CTAP/app/#/login";
+//		String content = scannerDemo.getHtmlContent(htmlUrl).toString();
+//		System.out.println(content);
 		
 		DOMParser parser = new DOMParser();
 		DOMReader domReader = new DOMReader();
 		Document document = null;
 		try {
 //			parser.parse(new InputSource(new ByteArrayInputStream(content.getBytes("UTF-8"))));
-			parser.parse(new InputSource(new FileInputStream("C:/WebElementsScanner/login.html")));
+			parser.parse(new InputSource(new FileInputStream("login.html")));
 			document = domReader.read(parser.getDocument());
 			Element root = document.getRootElement();
 			System.out.println(root.getUniquePath());
@@ -104,7 +104,7 @@ public class Dom4jDemo {
 			}
 		
 		} catch (MalformedURLException e) {
-			System.out.println("输入的URL格式有误");
+			System.out.println("");
 			e.printStackTrace();
 		}
 		return sbuffer.toString();

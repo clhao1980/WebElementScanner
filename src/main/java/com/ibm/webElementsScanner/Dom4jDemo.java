@@ -24,25 +24,29 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class ScannerDemo {
+public class Dom4jDemo {
 
 	public static void main(String[] args) {
-		ScannerDemo scannerDemo = new ScannerDemo();
+		Dom4jDemo scannerDemo = new Dom4jDemo();
 		
 		String htmlUrl = "http://9.111.221.116:8080/CTAP/app/#/login";
 		String content = scannerDemo.getHtmlContent(htmlUrl).toString();
 		System.out.println(content);
-		
+		//cyberneko的DOMParser
 		DOMParser parser = new DOMParser();
+		//Dome4j的reader
 		DOMReader domReader = new DOMReader();
+		//Dome4j的document
 		Document document = null;
 		try {
 //			parser.parse(new InputSource(new ByteArrayInputStream(content.getBytes("UTF-8"))));
 			parser.parse(new InputSource(new FileInputStream("C:/WebElementsScanner/login.html")));
 			document = domReader.read(parser.getDocument());
+			//dome4j's element
 			Element root = document.getRootElement();
 			System.out.println(root.getUniquePath());
 			Map<String, String> map =new ConcurrentHashMap<String, String>();
+			//解析dom并且存入map
 			dom2XpathMap(root, map);
 			System.out.println(map.size());
 			for(String key : map.keySet()){
@@ -61,8 +65,9 @@ public class ScannerDemo {
 	}
 	
 	private static void dom2XpathMap(Element root, Map<String, String> map){
+		//
 		if(root == null || root.isTextOnly()){
-			if(!root.getText().equals("")){
+			if(!root.getText().equals("") && root.getText() != null){
 				map.put(root.getUniquePath(), root.getText());
 				System.out.println(root.getUniquePath().toLowerCase() + " now put key");
 			}else{
