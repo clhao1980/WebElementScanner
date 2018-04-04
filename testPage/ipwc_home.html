@@ -1,0 +1,768 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- ***************************************************** {COPYRIGHT-TOP} ***
+* Licensed Materials - Property of IBM
+* M&A Accelerator
+*
+* (C) Copyright IBM Corp. 2002, 2007
+*
+* US Government Users Restricted Rights - Use, duplication, or
+* disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
+********************************************************** {COPYRIGHT-END} -->
+<html id="ext-element-3"><head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	  	<meta http-equiv="Pragma" content="no-cache">
+		<title>IBM Program Work Center &gt; Home</title>
+		<link href="ipwc_home_files/common.css" rel="stylesheet" type="text/css">
+		<link href="ipwc_home_files/WorkcenterLayout.css" type="text/css" rel="stylesheet">
+   	    
+
+<script type="text/javascript" src="ipwc_home_files/maa.js"></script>
+<script type="text/javascript">
+maa.require("app.common.WindowManager");
+maa.lang.AddClassImplementation (window, app.common.WindowManager);
+</script>
+
+
+
+
+
+
+
+
+<script>
+
+var oSessionManager = window.GetSessionManager();
+oSessionManager.SetSessionStatusUpdateInterval(180000);
+oSessionManager.SetIdleTimeBeforeReauthenticate(600000);
+oSessionManager.SetIdleTimeBeforeReauthenticationExpire(300000);
+
+//Set the comma deliminated messages to the session manager
+var aSystemMessages = [];
+if (aSystemMessages.length > 0)
+{
+	oSessionManager.SetServerEventMessages(aSystemMessages);
+}
+</script>
+<script src="ipwc_home_files/jsRemoteClient.js"></script>		
+
+
+
+   	    <script src="ipwc_home_files/domutil.js" type="text/javascript"></script>
+		<script src="ipwc_home_files/sniffer.js" type="text/javascript"></script>
+   	    <script src="ipwc_home_files/forms_util.js" type="text/javascript"></script>
+
+        <link href="ipwc_home_files/NavBar.css" type="text/css" rel="stylesheet">
+
+		<!-- maemenu menu including select deal menu object-->
+		<script src="ipwc_home_files/maemenu.js" type="text/javascript"></script>
+		<link href="ipwc_home_files/maemenu.css" type="text/css" rel="stylesheet">
+
+		<!-- calendar popup  -->
+		<link href="ipwc_home_files/calendar-win2k-cold-1.css" type="text/css" rel="stylesheet">
+		<script src="ipwc_home_files/calendar.js" type="text/javascript"></script>
+		<script src="ipwc_home_files/calendar-en.js" type="text/javascript"></script>
+		<script src="ipwc_home_files/calendar-setup.js" type="text/javascript"></script>
+		<script src="ipwc_home_files/calendar4sheet.js" type="text/javascript"></script>
+
+        <script src="ipwc_home_files/beforeUnloadObject.js" type="text/javascript"></script>
+        
+        <script src="ipwc_home_files/ckeditor.js"></script><style>.cke{visibility:hidden;}</style>
+		<script type="text/javascript" src="ipwc_home_files/config.js"></script>
+		<script type="text/javascript" src="ipwc_home_files/skin.js"></script>
+		<link rel="stylesheet" type="text/css" href="ipwc_home_files/editor_webkit.css">
+		<script type="text/javascript" src="ipwc_home_files/en.js"></script>
+		<link type="text/css" href="ipwc_home_files/icons.css" rel="stylesheet" id="svg-icons-css">
+		<script type="text/javascript" src="ipwc_home_files/styles.js"></script>
+        
+		<script>
+maa.require("app.common.WorkcenterLayoutManager");
+maa.require("app.control.menu.accordionNavBar.NavBar");
+maa.require("app.common.WorkcenterPage");
+		
+new app.common.WorkcenterLayoutManager();
+
+var pageDirtyFlag = new BeforeUnloadObject();
+
+
+var ieNum = getIEVersionNumber();
+var isBack;
+function handleBackButton()
+{
+  var oFirstTime = document.getElementById("isFirstTime");
+  var bGoBack = (oFirstTime.value != 1);
+  oFirstTime.value = 2;
+  if (bGoBack) 
+  {
+    var oForm = document.getElementById("applicationBackForm");
+    oForm.submit();
+  }
+}
+
+function initLayout()
+{
+  // delegates handleBackButton, also calls pageEventNotifier.init() if it's defined, per page basis
+  handleBackButton();
+
+  // inform the PageEventNotifier we have an event! (update menu buttons to reflect any type of page loaded state)
+  if( this.pageEventNotifier != null)
+  {
+    this.pageEventNotifier.pageEventFired(); // may need to update menu buttons based on _onload_ page state here
+  }
+  if(this.onloadOverride != null)
+  {
+    onloadOverride();
+  }
+};
+
+function changeScrollState() 
+{
+	if(this.onChangeScrollState != null) {
+		onChangeScrollState();
+	}
+}
+
+/// Trap unspecified errors thrown by browser bug (6.0) on close button of datasheets...
+/// FF fix
+///function window.onerror(strError) 
+///{
+///	if (strError.toLowerCase().indexOf("unspecified error") >= 0) 
+///	{
+///		window.event.returnValue = true;
+///	} 
+///	else 
+///	{
+///		window.event.returnValue = false;
+///	}
+///};
+		</script><link rel="stylesheet" type="text/css" href="ipwc_home_files/pmo-ext-all.css"><script type="text/javascript" src="ipwc_home_files/ext-all_6.js"></script>
+	<link rel="stylesheet" type="text/css" href="ipwc_home_files/default.css"><link rel="stylesheet" type="text/css" href="ipwc_home_files/custom.css"><script type="text/javascript" src="ipwc_home_files/app.js"></script><script type="text/javascript" charset="UTF-8" src="ipwc_home_files/BorderBoxFix.js"></script><script type="text/javascript" charset="UTF-8" src="ipwc_home_files/EditorPMO.js"></script><link id="footer.css" rel="stylesheet" type="text/css" href="ipwc_home_files/Footer.css"><link id="mastheadsearch.css" rel="stylesheet" type="text/css" href="ipwc_home_files/MastheadSearch.css"><style charset="utf-8" type="text/css" class="firebugResetStyles">/* See license.txt for terms of usage */
+/** reset styling **/
+.firebugResetStyles {
+    z-index: 2147483646 !important;
+    top: 0 !important;
+    left: 0 !important;
+    display: block !important;
+    border: 0 none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    outline: 0 !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    position: fixed !important;
+    transform: rotate(0deg) !important;
+    transform-origin: 50% 50% !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent none !important;
+    pointer-events: none !important;
+    white-space: normal !important;
+}
+style.firebugResetStyles {
+    display: none !important;
+}
+
+.firebugBlockBackgroundColor {
+    background-color: transparent !important;
+}
+
+.firebugResetStyles:before, .firebugResetStyles:after {
+    content: "" !important;
+}
+/**actual styling to be modified by firebug theme**/
+.firebugCanvas {
+    display: none !important;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.firebugLayoutBox {
+    width: auto !important;
+    position: static !important;
+}
+
+.firebugLayoutBoxOffset {
+    opacity: 0.8 !important;
+    position: fixed !important;
+}
+
+.firebugLayoutLine {
+    opacity: 0.4 !important;
+    background-color: #000000 !important;
+}
+
+.firebugLayoutLineLeft, .firebugLayoutLineRight {
+    width: 1px !important;
+    height: 100% !important;
+}
+
+.firebugLayoutLineTop, .firebugLayoutLineBottom {
+    width: 100% !important;
+    height: 1px !important;
+}
+
+.firebugLayoutLineTop {
+    margin-top: -1px !important;
+    border-top: 1px solid #999999 !important;
+}
+
+.firebugLayoutLineRight {
+    border-right: 1px solid #999999 !important;
+}
+
+.firebugLayoutLineBottom {
+    border-bottom: 1px solid #999999 !important;
+}
+
+.firebugLayoutLineLeft {
+    margin-left: -1px !important;
+    border-left: 1px solid #999999 !important;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.firebugLayoutBoxParent {
+    border-top: 0 none !important;
+    border-right: 1px dashed #E00 !important;
+    border-bottom: 1px dashed #E00 !important;
+    border-left: 0 none !important;
+    position: fixed !important;
+    width: auto !important;
+}
+
+.firebugRuler{
+    position: absolute !important;
+}
+
+.firebugRulerH {
+    top: -15px !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 14px !important;
+    background: url("data:image/png,%89PNG%0D%0A%1A%0A%00%00%00%0DIHDR%00%00%13%88%00%00%00%0E%08%02%00%00%00L%25a%0A%00%00%00%04gAMA%00%00%D6%D8%D4OX2%00%00%00%19tEXtSoftware%00Adobe%20ImageReadyq%C9e%3C%00%00%04%F8IDATx%DA%EC%DD%D1n%E2%3A%00E%D1%80%F8%FF%EF%E2%AF2%95%D0D4%0E%C1%14%B0%8Fa-%E9%3E%CC%9C%87n%B9%81%A6W0%1C%A6i%9A%E7y%0As8%1CT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AATE9%FE%FCw%3E%9F%AF%2B%2F%BA%97%FDT%1D~K(%5C%9D%D5%EA%1B%5C%86%B5%A9%BDU%B5y%80%ED%AB*%03%FAV9%AB%E1%CEj%E7%82%EF%FB%18%BC%AEJ8%AB%FA'%D2%BEU9%D7U%ECc0%E1%A2r%5DynwVi%CFW%7F%BB%17%7Dy%EACU%CD%0E%F0%FA%3BX%FEbV%FEM%9B%2B%AD%BE%AA%E5%95v%AB%AA%E3E5%DCu%15rV9%07%B5%7F%B5w%FCm%BA%BE%AA%FBY%3D%14%F0%EE%C7%60%0EU%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5JU%88%D3%F5%1F%AE%DF%3B%1B%F2%3E%DAUCNa%F92%D02%AC%7Dm%F9%3A%D4%F2%8B6%AE*%BF%5C%C2Ym~9g5%D0Y%95%17%7C%C8c%B0%7C%18%26%9CU%CD%13i%F7%AA%90%B3Z%7D%95%B4%C7%60%E6E%B5%BC%05%B4%FBY%95U%9E%DB%FD%1C%FC%E0%9F%83%7F%BE%17%7DkjMU%E3%03%AC%7CWj%DF%83%9An%BCG%AE%F1%95%96yQ%0Dq%5Dy%00%3Et%B5'%FC6%5DS%95pV%95%01%81%FF'%07%00%00%00%00%00%00%00%00%00%F8x%C7%F0%BE%9COp%5D%C9%7C%AD%E7%E6%EBV%FB%1E%E0(%07%E5%AC%C6%3A%ABi%9C%8F%C6%0E9%AB%C0'%D2%8E%9F%F99%D0E%B5%99%14%F5%0D%CD%7F%24%C6%DEH%B8%E9rV%DFs%DB%D0%F7%00k%FE%1D%84%84%83J%B8%E3%BA%FB%EF%20%84%1C%D7%AD%B0%8E%D7U%C8Y%05%1E%D4t%EF%AD%95Q%BF8w%BF%E9%0A%BF%EB%03%00%00%00%00%00%00%00%00%00%B8vJ%8E%BB%F5%B1u%8Cx%80%E1o%5E%CA9%AB%CB%CB%8E%03%DF%1D%B7T%25%9C%D5(%EFJM8%AB%CC'%D2%B2*%A4s%E7c6%FB%3E%FA%A2%1E%80~%0E%3E%DA%10x%5D%95Uig%15u%15%ED%7C%14%B6%87%A1%3B%FCo8%A8%D8o%D3%ADO%01%EDx%83%1A~%1B%9FpP%A3%DC%C6'%9C%95gK%00%00%00%00%00%00%00%00%00%20%D9%C9%11%D0%C0%40%AF%3F%EE%EE%92%94%D6%16X%B5%BCMH%15%2F%BF%D4%A7%C87%F1%8E%F2%81%AE%AAvzr%DA2%ABV%17%7C%E63%83%E7I%DC%C6%0Bs%1B%EF6%1E%00%00%00%00%00%00%00%00%00%80cr%9CW%FF%7F%C6%01%0E%F1%CE%A5%84%B3%CA%BC%E0%CB%AA%84%CE%F9%BF)%EC%13%08WU%AE%AB%B1%AE%2BO%EC%8E%CBYe%FE%8CN%ABr%5Dy%60~%CFA%0D%F4%AE%D4%BE%C75%CA%EDVB%EA(%B7%F1%09g%E5%D9%12%00%00%00%00%00%00%00%00%00H%F6%EB%13S%E7y%5E%5E%FB%98%F0%22%D1%B2'%A7%F0%92%B1%BC%24z3%AC%7Dm%60%D5%92%B4%7CEUO%5E%F0%AA*%3BU%B9%AE%3E%A0j%94%07%A0%C7%A0%AB%FD%B5%3F%A0%F7%03T%3Dy%D7%F7%D6%D4%C0%AAU%D2%E6%DFt%3F%A8%CC%AA%F2%86%B9%D7%F5%1F%18%E6%01%F8%CC%D5%9E%F0%F3z%88%AA%90%EF%20%00%00%00%00%00%00%00%00%00%C0%A6%D3%EA%CFi%AFb%2C%7BB%0A%2B%C3%1A%D7%06V%D5%07%A8r%5D%3D%D9%A6%CAu%F5%25%CF%A2%99%97zNX%60%95%AB%5DUZ%D5%FBR%03%AB%1C%D4k%9F%3F%BB%5C%FF%81a%AE%AB'%7F%F3%EA%FE%F3z%94%AA%D8%DF%5B%01%00%00%00%00%00%00%00%00%00%8E%FB%F3%F2%B1%1B%8DWU%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*UiU%C7%BBe%E7%F3%B9%CB%AAJ%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5J%95*U%AAT%A9R%A5*%AAj%FD%C6%D4%5Eo%90%B5Z%ADV%AB%D5j%B5Z%ADV%AB%D5j%B5Z%ADV%AB%D5j%B5Z%ADV%AB%D5j%B5Z%ADV%AB%D5j%B5Z%ADV%AB%D5j%B5Z%ADV%AB%D5j%B5%86%AF%1B%9F%98%DA%EBm%BBV%AB%D5j%B5Z%ADV%AB%D5j%B5Z%ADV%AB%D5j%B5Z%ADV%AB%D5j%B5Z%ADV%AB%D5j%B5Z%ADV%AB%D5j%B5Z%ADV%AB%D5j%B5Z%AD%D6%E4%F58%01%00%00%00%00%00%00%00%00%00%00%00%00%00%40%85%7F%02%0C%008%C2%D0H%16j%8FX%00%00%00%00IEND%AEB%60%82") repeat-x !important;
+    border-top: 1px solid #BBBBBB !important;
+    border-right: 1px dashed #BBBBBB !important;
+    border-bottom: 1px solid #000000 !important;
+}
+
+.firebugRulerV {
+    top: 0 !important;
+    left: -15px !important;
+    width: 14px !important;
+    height: 100% !important;
+    background: url("data:image/png,%89PNG%0D%0A%1A%0A%00%00%00%0DIHDR%00%00%00%0E%00%00%13%88%08%02%00%00%00%0E%F5%CB%10%00%00%00%04gAMA%00%00%D6%D8%D4OX2%00%00%00%19tEXtSoftware%00Adobe%20ImageReadyq%C9e%3C%00%00%06~IDATx%DA%EC%DD%D1v%A20%14%40Qt%F1%FF%FF%E4%97%D9%07%3BT%19%92%DC%40(%90%EEy%9A5%CB%B6%E8%F6%9Ac%A4%CC0%84%FF%DC%9E%CF%E7%E3%F1%88%DE4%F8%5D%C7%9F%2F%BA%DD%5E%7FI%7D%F18%DDn%BA%C5%FB%DF%97%BFk%F2%10%FF%FD%B4%F2M%A7%FB%FD%FD%B3%22%07p%8F%3F%AE%E3%F4S%8A%8F%40%EEq%9D%BE8D%F0%0EY%A1Uq%B7%EA%1F%81%88V%E8X%3F%B4%CEy%B7h%D1%A2E%EBohU%FC%D9%AF2fO%8BBeD%BE%F7X%0C%97%A4%D6b7%2Ck%A5%12%E3%9B%60v%B7r%C7%1AI%8C%BD%2B%23r%00c0%B2v%9B%AD%CA%26%0C%1Ek%05A%FD%93%D0%2B%A1u%8B%16-%95q%5Ce%DCSO%8E%E4M%23%8B%F7%C2%FE%40%BB%BD%8C%FC%8A%B5V%EBu%40%F9%3B%A72%FA%AE%8C%D4%01%CC%B5%DA%13%9CB%AB%E2I%18%24%B0n%A9%0CZ*Ce%9C%A22%8E%D8NJ%1E%EB%FF%8F%AE%CAP%19*%C3%BAEKe%AC%D1%AAX%8C*%DEH%8F%C5W%A1e%AD%D4%B7%5C%5B%19%C5%DB%0D%EF%9F%19%1D%7B%5E%86%BD%0C%95%A12%AC%5B*%83%96%CAP%19%F62T%86%CAP%19*%83%96%CA%B8Xe%BC%FE)T%19%A1%17xg%7F%DA%CBP%19*%C3%BA%A52T%86%CAP%19%F62T%86%CA%B0n%A9%0CZ%1DV%C6%3D%F3%FCH%DE%B4%B8~%7F%5CZc%F1%D6%1F%AF%84%F9%0F6%E6%EBVt9%0E~%BEr%AF%23%B0%97%A12T%86%CAP%19%B4T%86%CA%B8Re%D8%CBP%19*%C3%BA%A52huX%19%AE%CA%E5%BC%0C%7B%19*CeX%B7h%A9%0C%95%E1%BC%0C%7B%19*CeX%B7T%06%AD%CB%5E%95%2B%BF.%8F%C5%97%D5%E4%7B%EE%82%D6%FB%CF-%9C%FD%B9%CF%3By%7B%19%F62T%86%CA%B0n%D1R%19*%A3%D3%CA%B0%97%A12T%86uKe%D0%EA%B02*%3F1%99%5DB%2B%A4%B5%F8%3A%7C%BA%2B%8Co%7D%5C%EDe%A8%0C%95a%DDR%19%B4T%C66%82fA%B2%ED%DA%9FC%FC%17GZ%06%C9%E1%B3%E5%2C%1A%9FoiB%EB%96%CA%A0%D5qe4%7B%7D%FD%85%F7%5B%ED_%E0s%07%F0k%951%ECr%0D%B5C%D7-g%D1%A8%0C%EB%96%CA%A0%A52T%C6)*%C3%5E%86%CAP%19%D6-%95A%EB*%95q%F8%BB%E3%F9%AB%F6%E21%ACZ%B7%22%B7%9B%3F%02%85%CB%A2%5B%B7%BA%5E%B7%9C%97%E1%BC%0C%EB%16-%95%A12z%AC%0C%BFc%A22T%86uKe%D0%EA%B02V%DD%AD%8A%2B%8CWhe%5E%AF%CF%F5%3B%26%CE%CBh%5C%19%CE%CB%B0%F3%A4%095%A1%CAP%19*Ce%A8%0C%3BO*Ce%A8%0C%95%A12%3A%AD%8C%0A%82%7B%F0v%1F%2FD%A9%5B%9F%EE%EA%26%AF%03%CA%DF9%7B%19*Ce%A8%0C%95%A12T%86%CA%B8Ze%D8%CBP%19*Ce%A8%0C%95%D1ae%EC%F7%89I%E1%B4%D7M%D7P%8BjU%5C%BB%3E%F2%20%D8%CBP%19*Ce%A8%0C%95%A12T%C6%D5*%C3%5E%86%CAP%19*Ce%B4O%07%7B%F0W%7Bw%1C%7C%1A%8C%B3%3B%D1%EE%AA%5C%D6-%EBV%83%80%5E%D0%CA%10%5CU%2BD%E07YU%86%CAP%19*%E3%9A%95%91%D9%A0%C8%AD%5B%EDv%9E%82%FFKOee%E4%8FUe%A8%0C%95%A12T%C6%1F%A9%8C%C8%3D%5B%A5%15%FD%14%22r%E7B%9F%17l%F8%BF%ED%EAf%2B%7F%CF%ECe%D8%CBP%19*Ce%A8%0C%95%E1%93~%7B%19%F62T%86%CAP%19*Ce%A8%0C%E7%13%DA%CBP%19*Ce%A8%0CZf%8B%16-Z%B4h%D1R%19f%8B%16-Z%B4h%D1R%19%B4%CC%16-Z%B4h%D1R%19%B4%CC%16-Z%B4h%D1%A2%A52%CC%16-Z%B4h%D1%A2%A52h%99-Z%B4h%D1%A2%A52h%99-Z%B4h%D1%A2EKe%98-Z%B4h%D1%A2EKe%D02%5B%B4h%D1%A2EKe%D02%5B%B4h%D1%A2E%8B%96%CA0%5B%B4h%D1%A2E%8B%96%CA%A0e%B6h%D1%A2E%8B%96%CA%A0e%B6h%D1%A2E%8B%16-%95a%B6h%D1%A2E%8B%16-%95A%CBl%D1%A2E%8B%16-%95A%CBl%D1%A2E%8B%16-Z*%C3l%D1%A2E%8B%16-Z*%83%96%D9%A2E%8B%16-Z*%83%96%D9%A2E%8B%16-Z%B4T%86%D9%A2E%8B%16-Z%B4T%06-%B3E%8B%16-Z%B4T%06-%B3E%8B%16-Z%B4h%A9%0C%B3E%8B%16-Z%B4h%A9%0CZf%8B%16-Z%B4h%A9%0CZf%8B%16-Z%B4h%D1R%19f%8B%16-Z%B4h%D1R%19%B4%CC%16-Z%B4h%D1R%19%B4%CC%16-Z%B4h%D1%A2%A52%CC%16-Z%B4h%D1%A2%A52h%99-Z%B4h%D1%A2%A52h%99-Z%B4h%D1%A2EKe%98-Z%B4h%D1%A2EKe%D02%5B%B4h%D1%A2EKe%D02%5B%B4h%D1%A2E%8B%96%CA0%5B%B4h%D1%A2E%8B%96%CA%A0e%B6h%D1%A2E%8B%96%CA%A0e%B6h%D1%A2E%8B%16-%95a%B6h%D1%A2E%8B%16-%95A%CBl%D1%A2E%8B%16-%95A%CBl%D1%A2E%8B%16-Z*%C3l%D1%A2E%8B%16-Z*%83%96%D9%A2E%8B%16-Z*%83%96%D9%A2E%8B%16-Z%B4T%86%D9%A2E%8B%16-Z%B4T%06-%B3E%8B%16-Z%B4T%06-%B3E%8B%16-Z%B4h%A9%0C%B3E%8B%16-Z%B4h%A9%0CZf%8B%16-Z%B4h%A9%0CZf%8B%16-Z%B4h%D1R%19f%8B%16-Z%B4h%D1R%19%B4%CC%16-Z%B4h%D1R%19%B4%CC%16-Z%B4h%D1%A2%A52%CC%16-Z%B4h%D1%A2%A52h%99-Z%B4h%D1%A2%A52h%99-Z%B4h%D1%A2EKe%98-Z%B4h%D1%A2EKe%D02%5B%B4h%D1%A2EKe%D02%5B%B4h%D1%A2E%8B%96%CA0%5B%B4h%D1%A2E%8B%96%CA%A0e%B6h%D1%A2E%8B%96%CA%A0e%B6h%D1%A2E%8B%16-%95a%B6h%D1%A2E%8B%16-%95A%CBl%D1%A2E%8B%16-%95A%CBl%D1%A2E%8B%16-Z*%C3l%D1%A2E%8B%16-Z*%83%96%D9%A2E%8B%16-Z*%83%96%D9%A2E%8B%16-Z%B4T%86%D9%A2E%8B%16-Z%B4T%06-%B3E%8B%16-Z%B4%AE%A4%F5%25%C0%00%DE%BF%5C'%0F%DA%B8q%00%00%00%00IEND%AEB%60%82") repeat-y !important;
+    border-left: 1px solid #BBBBBB !important;
+    border-right: 1px solid #000000 !important;
+    border-bottom: 1px dashed #BBBBBB !important;
+}
+
+.overflowRulerX > .firebugRulerV {
+    left: 0 !important;
+}
+
+.overflowRulerY > .firebugRulerH {
+    top: 0 !important;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+.fbProxyElement {
+    position: fixed !important;
+    pointer-events: auto !important;
+}
+</style></head>
+	<body id="ext-element-1" class="x-gecko x-windows x-desktop x-body x-scroller" style="overflow: auto;" topmargin="0" leftmargin="0" marginwidth="0" marginheight="0" bgcolor="#FFFFFF">
+		<form id="applicationBackForm" name="applicationBackForm" autocomplete="off" method="post" action="trailItem.do">
+			<input id="isFirstTime" name="isFirstTime" value="2" type="hidden">
+		</form>
+	
+		
+	
+		<table id="PageLayoutTable" cellspacing="0" cellpadding="0">
+			<tbody>
+				
+				<tr>
+					<td id="PageHeaderCell">
+						
+		        	
+		        
+
+
+
+
+
+
+
+
+
+<link href="ipwc_home_files/masthead.css" type="text/css" rel="stylesheet">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="ipwc_home_files/themeConfig.js"></script>
+
+
+
+
+
+
+
+
+<script src="ipwc_home_files/val_menu.js" type="text/javascript"></script>
+<script src="ipwc_home_files/moment.js" type="text/javascript"></script>
+
+<script>
+maa.require("app.control.dealSelector.DealSelector");
+maa.require("app.control.search.Search");
+maa.require("app.control.mastheadSearch.MastheadSearch");
+maa.require("app.control.quickLinkSelector.QuickLinkSelector");
+</script>
+
+<!-- select deal menu object -->
+<script type="text/javascript">
+        var curTransId = 1 ;
+</script>
+
+<script src="ipwc_home_files/submitCounter.js"></script>
+<!-- Script to support collapsing section header bar with optional buttons -->
+<script src="ipwc_home_files/togbar.js"></script>
+<script src="ipwc_home_files/popwin.js"></script>
+<script type="text/javascript">
+
+
+    
+    
+    var forwardUrl = "" ;
+    
+
+
+
+
+function selectDeal(id, forwardUrlOverride) {
+    document.dealselectform.id.value = id ;
+    addCounterValueToForm(document.dealselectform, curTransId);
+    if (id == -1 && forwardUrl != "" && (forwardUrl == 'showValueDriverHomePage.do' || forwardUrl == 'showProjectHomePage.do'
+    									 || forwardUrl == 'showRiskHomePage.do' || forwardUrl == 'showChangeRequestWorkcenter.do' 
+    									 || forwardUrl == 'showMyTimesheetsGridPage.do' || forwardUrl == 'showProgramTimesheetsGridPage.do') ) {
+        document.dealselectform.forwardUrl.value = 'home.do' ;
+    } else if (id != -1 && forwardUrl != "" && forwardUrl.indexOf("taskWorkcenterDispatch.do") != -1) {
+        document.dealselectform.forwardUrl.value = forwardUrl + "?Deal=" + id ;
+    } else if (id != -1 && forwardUrlOverride) {
+        document.dealselectform.forwardUrl.value = forwardUrlOverride;
+    }
+    document.dealselectform.submit() ;
+}
+
+function itemClick(id,type, url) {
+    document.crumbForm.action = url ;
+    document.crumbForm.id.value = id ;
+    document.crumbForm.componentType.value = type ;
+    addCounterValueToForm(document.crumbForm, curTransId);
+    document.crumbForm.submit() ;
+}
+function logout() 
+{
+	if (window.localStorage.getItem("selectedDepth")) {
+		window.localStorage.removeItem("selectedDepth");
+	}
+	if (typeof pageDirtyFlag != "undefined") {
+		pageDirtyFlag.setIgnoreDirty(true);
+	}
+
+	document.headerForm.action = 'logout.do';
+	document.headerForm.logoutClicked.value=true;
+	addCounterValueToForm(document.headerForm, curTransId);
+	document.headerForm.submit();
+}
+function userPreference() {
+    document.headerForm.action = 'userPreference.do' ;
+    addCounterValueToForm(document.headerForm, curTransId);
+    document.headerForm.submit();
+}
+
+new app.control.dealSelector.DealSelector();
+
+var quickLinkSelector = new app.control.quickLinkSelector.QuickLinkSelector();
+quickLinkSelector.setCurrentResource('Deal');
+</script>
+
+<form id="dealselectform" name="dealselectform" method="post" action="dealSelect.do">
+    <input name="id" value="" type="hidden">
+    <input name="componentType" value="DEAL" type="hidden">
+    <input name="version" value="1" type="hidden">
+    <input name="dealSelectorDropDown" value="true" type="hidden">
+    <input name="forwardUrl" value="" type="hidden">
+</form>
+<form id="headerForm" name="headerForm" method="post">
+    <input name="id" value="" type="hidden">
+    <input name="logoutClicked" value="false" type="hidden">
+</form>
+
+
+<script>
+function reportNavigate(id, compType, ver, action, forwardUrl) {
+    document.reportNavigateForm.id.value = id;
+    document.reportNavigateForm.componentType.value = compType;
+    document.reportNavigateForm.version.value = ver;
+    document.reportNavigateForm.action = action;
+    document.reportNavigateForm.forwardUrl.value = forwardUrl;
+    addCounterValueToForm(document.reportNavigateForm, curTransId);
+    document.reportNavigateForm.submit();
+}
+
+function newSelectionNavigation(id, compType, ver, action) {
+    // Selected item id
+    var oElement = document.createElement('INPUT');
+    oElement.type = 'hidden';
+    oElement.name = 'selectedComponent[0]id';
+    oElement.value = id;
+    document.reportNavNewSelectionForm.appendChild(oElement);
+    // Selected item type
+    var oElement = document.createElement('INPUT');
+    oElement.type = 'hidden';
+    oElement.name = 'selectedComponent[0]type';
+    oElement.value = compType;
+    document.reportNavNewSelectionForm.appendChild(oElement);
+    // Selected item version
+    var oElement = document.createElement('INPUT');
+    oElement.type = 'hidden';
+    oElement.name = 'selectedComponent[0]version';
+    oElement.value = ver;
+    document.reportNavNewSelectionForm.appendChild(oElement);
+
+    // numSelectedComponents
+    var oElement = document.createElement('INPUT');
+    oElement.type = 'hidden';
+    oElement.name = 'numSelectedComponents';
+    oElement.value = '1';
+    document.reportNavNewSelectionForm.appendChild(oElement);
+
+    document.reportNavNewSelectionForm.action = action;
+    addCounterValueToForm(document.reportNavNewSelectionForm, curTransId);
+    document.reportNavNewSelectionForm.submit();
+}
+</script>
+
+<form name="reportNavigateForm" method="post" action="action.do" target="_top">
+    <input name="id" value="" type="hidden">
+    <input name="componentType" value="" type="hidden">
+    <input name="version" value="1" type="hidden">
+    <input name="forwardUrl" value="" type="hidden">
+</form>
+
+<form name="reportNavNewSelectionForm" method="post" action="action.do" target="_top">
+</form>
+
+
+
+<!-- Begin: Masthead -->
+<div id="masthead">
+	<div id="masthead-toolbar">
+		<ul>
+			<li id="masthead-programname" style="display: none;">
+			           <span id="masthead-toolbar-programname">
+				         
+					         
+		                        <label>Deal: 
+		                            Deal001
+		                        </label>
+		                     
+		                     
+	                     	
+                        </span>	
+                     	
+			</li>
+
+			<li id="masthead-functions">
+			
+			   
+				
+					[<a href="javascript:logout();" title="Logout" id="masthead-logout">Logout</a>]
+				
+				<a id="masthead-toolbar-about" href="#" onclick="GetWindowManager().ShowAboutBox();" title="About Program Work Center">About Program Work Center</a>
+			</li>
+			<li id="masthead-user">
+	 			   <label>User: <span id="masthead-toolbar-username">System Administrator</span></label>
+			</li>
+		</ul>
+	</div>
+	<div id="masthead-mainbar">
+        <div id="nav_toggle">
+            <a href="#">
+                <span class="top"></span><span class="middle"></span><span class="bottom"></span>
+            </a>
+        </div>
+		<div id="masthead-logo">
+			<a href="http://www.ibm.com/" target="_blank"></a>
+		</div>
+		<div id="masthead-product-name">
+		</div>
+        <span id="masthead-separator"></span>
+        <div id="masthead-dropdown">
+            <span id="label">Current Deal:</span>
+            <button id="deal-switcher">
+                <span class="dropdown-body">Deal001</span>
+                <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                    <path d="M39 19.8L36.2 17 23.5 29.7 10.8 17 8 19.8l12.7 12.7 2.8 2.8 2.8-2.8z"></path>
+                </svg>
+            </button>
+            <ul id="deal_list" style="width: 250px; display: block;"><li class="no_program_selected" scopeid="-1"><a href="#"><span>(No Program Selected)</span></a></li><li scopeid="342326"><a href="#"><img src="ipwc_home_files/deal_active_002.svg"><span>Deal001</span></a></li><li scopeid="201401"><a href="#"><img src="ipwc_home_files/deal_active_002.svg"><span>Clarinet</span></a></li><li scopeid="420389"><a href="#"><img src="ipwc_home_files/deal_active_002.svg"><span>Deal002</span></a></li><li scopeid="413959"><a href="#"><img src="ipwc_home_files/deal_active_002.svg"><span>VeenaDeal</span></a></li><li scopeid="340812"><a href="#"><img src="ipwc_home_files/deal_active_002.svg"><span>CTAP-Rajat</span></a></li><li scopeid="180394"><a href="#"><img src="ipwc_home_files/deal_active_002.svg"><span>Trumpet</span></a></li><li scopeid="342317"><a href="#"><img src="ipwc_home_files/deal_active_002.svg"><span>General_deal_auto</span></a></li><li scopeid="423802"><a href="#"><img src="ipwc_home_files/deal_active_002.svg"><span>Deal_Sanity</span></a></li><li scopeid="417827"><a href="#"><img src="ipwc_home_files/deal_active_002.svg"><span>TaskDetailPg_Deal_RA</span></a></li><li scopeid="395809"><a href="#"><img src="ipwc_home_files/deal_active_002.svg"><span>Rajat-Test</span></a></li><div id="deal_list_footer"><a href="#"><span>Select Program...</span></a><a href="#"><span>Select Program Template...</span></a></div></ul>
+        </div>
+        <div id="masthead-quickLink">
+            <button id="workcenterPage-switcher">
+				<svg class="add" width="13px" height="12px" viewBox="0 0 13 12" xmlns="http://www.w3.org/2000/svg" style="fill: rgb(255, 255, 255);">
+        			<g transform="translate(-85.000000, -45.000000)">
+            			<polygon points="90.7943551 57 92.7943551 57 92.7943551 52 97.7943551 52 97.7943551 50 92.7943551 50 92.7943551 45 90.7943551 45 90.7943551 50 85.7943551 50 85.7943551 52 90.7943551 52"></polygon>
+        			</g>
+				</svg>
+            	<span class="dropdown-body" style="color: rgb(255, 255, 255);">New</span>
+            </button>
+            <ul id="workcenterPage_list"></ul>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" id="masthead-help" onclick="newWin('FlashHelp/VMA_Online_Help_System.htm','help', '800','622',true); return false;">
+            <g>
+                <path d="M9,0 C4.03007143,0 0,4.02975 0,9 C0,13.97025 4.03007143,18 9,18 C13.97025,18 18,13.97025 18,9 C18,4.02975 13.97025,0 9,0 L9,0 Z M9,17.3571429 C4.39183929,17.3571429 0.642857143,13.6081607 0.642857143,9 C0.642857143,4.39183929 4.39183929,0.642857143 9,0.642857143 C13.6081607,0.642857143 17.3571429,4.39183929 17.3571429,9 C17.3571429,13.6081607 13.6081607,17.3571429 9,17.3571429 L9,17.3571429 Z" id="Shape"></path>
+                <text font-family="HelveticaNeue-Medium, Helvetica Neue" font-size="12" font-weight="400">
+                    <tspan x="5.5" y="13.5">?</tspan>
+                </text>
+            </g>
+        </svg>
+        <span id="masthead-separator" class="right_aligned"></span>
+		<div id="SearchBar" class="masthead-search" style="display: inline-block;">
+	<div>
+		<input maxlength="100" class="masthead-search-bar" id="SearchBarSearchInput" type="text">
+        <svg id="SearchBarSearchButton" class="masthead-search-button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18">
+            <g>
+                <path d="M6.6,0 C2.95545,0 0,2.95545 0,6.6 C0,10.24425 2.95545,13.2 6.6,13.2 C10.24455,13.2 13.2,10.24425 13.2,6.6 C13.2,2.95545 10.24455,0 6.6,0 L6.6,0 Z M6.6,12.6 C3.2916,12.6 0.6,9.9084 0.6,6.6 C0.6,3.2916 3.2916,0.6 6.6,0.6 C9.9084,0.6 12.6,3.2916 12.6,6.6 C12.6,9.9084 9.9084,12.6 6.6,12.6 L6.6,12.6 Z" id="Shape"></path>
+                <rect id="Rectangle-path" transform="translate(14.999843, 14.999947) rotate(-45.000000) translate(-14.999843, -14.999947) " x="13.7270302" y="12.0301254" width="2.54562559" height="5.93964304"></rect>
+                <circle cx="12" cy="12" r="0.6"></circle>
+            </g>
+        </svg>
+	</div>
+</div>
+	</div>	
+</div>
+
+<!-- End: Masthead -->
+
+
+<!-- BEGIN CRUMB TRAIL -->
+<form id="crumbForm" name="crumbForm" method="post" action="taskDetail.do">
+<input name="itemIndex" value="" type="hidden">
+<input name="id" value="" type="hidden">
+<input name="componentType" value="TASK" type="hidden">
+<input name="version" value="1" type="hidden">
+</form>
+
+
+					</td>
+				</tr>
+				<tr>
+					<td height="100%" align="top">
+						<table width="100%" height="100%" cellspacing="0" cellpadding="0">
+							<tbody>
+								<tr>
+									
+									<td id="NavMenuCell" valign="top">
+										
+											
+											
+											
+											
+										
+                                        <div id="nav" style="height: 130px;"><ul><li><a href="https://9.111.213.165/ipwc-qa/pegasus1/home.do"><span><img src="ipwc_home_files/dashboard_active.svg" width="22px" height="22px">Home</span></a></li><li class="has-sub" menuid="PERSONAL"><a><span><img src="ipwc_home_files/personal_active.svg" width="22px" height="22px">Personal</span></a><ul><li wcid="MyTasksItem"><a class=""><span><img src="ipwc_home_files/task_active.svg" width="22px" height="22px">My Tasks</span></a></li><li wcid="MyRisksItem"><a class=""><span><img src="ipwc_home_files/risk_active.svg" width="22px" height="22px">My Risks</span></a></li><li wcid="MyIssuesItem"><a class=""><span><img src="ipwc_home_files/issue_active.svg" width="22px" height="22px">My Issues</span></a></li><li wcid="MyProfileItem"><a class=""><span><img src="ipwc_home_files/profile_active.svg" width="22px" height="22px">My Profile</span></a></li></ul></li><li class="has-sub active" menuid="PROGRAM"><a><span><img src="ipwc_home_files/deal_active.svg" width="22px" height="22px">Deal</span></a><ul style="display: block"><li wcid="OverviewItem"><a class=""><span><img src="ipwc_home_files/overview_active.svg" width="22px" height="22px">Overview</span></a></li><li wcid="ProjectsItem"><a class=""><span><img src="ipwc_home_files/project_active.svg" width="22px" height="22px">Projects</span></a></li><li wcid="TasksItem"><a class=""><span><img src="ipwc_home_files/task_active.svg" width="22px" height="22px">Tasks</span></a></li><li wcid="MyTimesheetsItem"><a class=""><span><img src="ipwc_home_files/timesheets_active.svg" width="22px" height="22px">Timesheets</span></a></li><li wcid="ChangesItem"><a class=""><span><img src="ipwc_home_files/changes_active.svg" width="22px" height="22px">Changes</span></a></li><li wcid="RisksItem"><a class=""><span><img src="ipwc_home_files/risk_active.svg" width="22px" height="22px">Risks</span></a></li><li wcid="IssuesItem"><a class=""><span><img src="ipwc_home_files/issue_active.svg" width="22px" height="22px">Issues</span></a></li><li wcid="ValueDriversItem"><a class=""><span><img src="ipwc_home_files/value_driver_active.svg" width="22px" height="22px">Value Drivers</span></a></li><li wcid="DocumentsItem"><a class=""><span><img src="ipwc_home_files/documents_active.svg" width="22px" height="22px">Documents</span></a></li><li wcid="ReportsItem"><a class=""><span><img src="ipwc_home_files/report_active.svg" width="22px" height="22px">Reports</span></a></li><li wcid="UsersItem"><a class=""><span><img src="ipwc_home_files/user_active.svg" width="22px" height="22px">Users</span></a></li></ul></li><li class="has-sub" menuid="PORTFOLIO"><a><span><img src="ipwc_home_files/portfolio_active.svg" width="22px" height="22px">Portfolio</span></a><ul><li wcid="PortfolioProgramsItem"><a class=""><span><img src="ipwc_home_files/deal_active.svg" width="22px" height="22px">Programs</span></a></li><li wcid="PortfolioDocumentsItem"><a class=""><span><img src="ipwc_home_files/documents_active.svg" width="22px" height="22px">Documents</span></a></li><li wcid="PortfolioReportsItem"><a class=""><span><img src="ipwc_home_files/report_active.svg" width="22px" height="22px">Reports</span></a></li></ul></li><li class="has-sub last" menuid="ADMIN"><a><span><img src="ipwc_home_files/admin_active.svg" width="22px" height="22px">Admin</span></a><ul><li wcid="AgreementsItem"><a class=""><span><img src="ipwc_home_files/agreement_active.svg" width="22px" height="22px">Agreements</span></a></li><li wcid="PreferencesItem"><a class=""><span><img src="ipwc_home_files/preferences_active.svg" width="22px" height="22px">Preferences</span></a></li><li wcid="PermissionsItem"><a class=""><span><img src="ipwc_home_files/permission_active.svg" width="22px" height="22px">Permissions</span></a></li><li wcid="DealTemplatesItem"><a class=""><span><img src="ipwc_home_files/deal_template_active.svg" width="22px" height="22px">Deal Templates</span></a></li><li wcid="TemplatesItem"><a class=""><span><img src="ipwc_home_files/template_active.svg" width="22px" height="22px">Templates</span></a></li><li wcid="SettingsItem"><a class=""><span><img src="ipwc_home_files/setting_active.svg" width="22px" height="22px">Settings</span></a></li><li wcid="CommunitiesItem"><a class=""><span><img src="ipwc_home_files/community_active.svg" width="22px" height="22px">Communities</span></a></li></ul></li></ul></div>
+										<script>
+                                            new app.control.menu.accordionNavBar.NavBar();
+										</script>
+									</td>
+									
+						    	<td id="MainViewPaneCell" valign="top">
+						    		<div id="MainViewPane" onscroll="changeScrollState();" style="height: 131px; width: 1230px;">
+								    	<div id="modalCrumbtrail" class="modalCrumbtrail">
+											<table style="table-layout: fixed; width:100%; margin-top: 10px;" cellspacing="0" cellpadding="0">
+												<tbody><tr>
+														<td style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; width:100%;">
+														        
+
+
+
+
+
+
+
+
+
+
+<!-- if item has a hierrachy process it, otherwise ignore -->
+ 
+
+
+														</td>
+													</tr>
+											</tbody></table>
+										</div>
+						    			<div id="MainViewPaneContent" style="width: 1213px;">
+												<img src="ipwc_home_files/i_calendar_16.gif" id="calendar1" name="calendar1" alt="Click here to select from calendar." width="16" height="16" border="0">
+												<marquee id="ServerEventMessagesTarget" direction="left" behavior="scroll" scrollamount="1" scrolldelay="10"></marquee>
+												<table id="MainViewPaneTable" width="100%" cellspacing="0" cellpadding="0">
+													<tbody>
+														<tr>
+															<td id="MainViewPaneTableCell">
+																
+
+
+
+
+
+
+
+<style type="text/css">
+  .title {
+    color: #666;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 12px 0px 0px 5px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .content {
+    padding: 12px 0px 0px 5px;
+  }
+  table.announcement td {
+    height: 18px;
+    padding: 0px 5px;
+  } 
+  .announcement {
+    border: 1px solid #98b1c4;
+    width: 100%;
+  }
+  .landing-header {
+    background: transparent;
+    font: bold 11px Verdana, Arial, sans-serif;
+    color: #293d6b;
+    height: 24px;
+    padding: 1px;
+    width: auto;
+    clear: both;
+    background: url("images/crumb_bg2.gif") repeat scroll 0 0 transparent;
+  }
+  table.announcement td > ul {
+    padding: 0px 0px 0px 20px;
+  }
+  table.announcement td > ul > li {
+    list-style: disc;
+    padding: 5px 0px 5px 0px;
+  }
+  table.announcement td > ul > li:only-child {
+    list-style: none;
+    margin-left: -20px;
+  }
+  
+  
+</style>
+<table style="border-style: hidden;" width="700" height="83" cellspacing="1" cellpadding="1" border="0">
+    <tbody>
+        <tr>
+            <td class="title">Welcome Administrator</td>
+        </tr>
+        <tr><td colspan="1"><span class="errormessage"></span></td></tr>
+        
+	        <tr>
+	            <td class="content">
+	              <table class="announcement">
+	              <tbody><tr class="landing-header">
+	                <td>Pegasus 1 QA URL</td>
+	              </tr>
+					<tr>
+					  <td>
+					    <ul>
+						    
+							      <li>
+							        Happy Pegasus 1 testing :-)
+							      </li>
+						     
+							      <li>
+							        The Pegasus 1 new features are as follows. 
+							      </li>
+						     
+							      <li>
+							        ....
+							      </li>
+						     
+							      <li>
+							        ......
+							      </li>
+						      
+						</ul>
+					  </td>
+					</tr>
+	              </tbody></table>
+	            </td>
+	        </tr>
+	        
+    </tbody>
+</table>
+
+
+
+
+															</td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+						    	</td>
+			    			</tr>
+			    		</tbody>
+		    		</table>
+		    	</td>
+				</tr>
+			</tbody>
+		</table>
+		
+
+
+<script type="text/javascript">
+maa.require("app.control.footer.Footer");
+</script>
+
+<div id="footer" style="width: 100%;" class="footer-control" eltype="footer-expended">
+	<div id="footer_ExpendedFooter" eltype="footer-expended" class="footer-expended" style="visibility: hidden; bottom: -180px;">
+		<div id="footer_Resources" eltype="footer-expended" class="footer-resources">
+			<div id="footer_Columns" eltype="footer-expended" class="footer-columns"><div class="footer-column" eltype="footer-expended"><h3 eltype="footer-expended">External Application Web Pages</h3><ul eltype="footer-expended"><li eltype="footer-expended"><a eltype="footer-expended" href="http://www-935.ibm.com/services/us/gbs/strategy/ibm-program-work-center-tm.html" target="_blank">IBM Program Work Center</a></li><li eltype="footer-expended"><a eltype="footer-expended" href="http://www-935.ibm.com/services/us/gbs/strategy/mna/" target="_blank">IBM M &amp; A Accelerator</a></li></ul></div><div class="footer-column" eltype="footer-expended"><h3 eltype="footer-expended">Getting Help</h3><ul eltype="footer-expended"><li eltype="footer-expended"><a eltype="footer-expended" href="https://w3-01.ibm.com/software/project/bluejay/FlashHelp/QuickRef.pdf" target="_blank">Quick Reference</a></li><li eltype="footer-expended"><a eltype="footer-expended" href="https://w3-01.ibm.com/software/project/bluejay/FlashHelp/AdminGuide.pdf" target="_blank">Administrators Guide</a></li><li eltype="footer-expended"><a eltype="footer-expended" href="https://w3-01.ibm.com/software/project/bluejay/FlashHelp/DevelopersGuide.pdf" target="_blank">Report Developers Guide</a></li><li eltype="footer-expended"><a eltype="footer-expended" href="http://nhbgsa.ibm.com/projects/p/projectservices/web/PS/News/ipwcissf.html" target="_blank">Requesting Support</a></li></ul></div><div class="footer-column" eltype="footer-expended"><h3 eltype="footer-expended">W3 Online Reference Sites</h3><ul eltype="footer-expended"><li eltype="footer-expended"><a eltype="footer-expended" href="https://w3-connections.ibm.com/communities/service/html/communityview?communityUuid=988de011-d50c-41cd-bd0f-91a7295e0dc1" target="_blank">IPWC Community of Practice</a></li><li eltype="footer-expended"><a eltype="footer-expended" href="http://w3-03.ibm.com/transform/project/home_0301.html" target="_blank">PMCoE</a></li><li eltype="footer-expended"><a eltype="footer-expended" href="http://nhbgsa.ibm.com/projects/p/projectservices/web/Tools/PM/IPWC/ipwcart.html" target="_blank">IPWC ART</a></li></ul></div><div class="footer-column" eltype="footer-expended"><h3 eltype="footer-expended">Training and RTC Integrator</h3><ul eltype="footer-expended"><li eltype="footer-expended"><a eltype="footer-expended" href="https://w3-01.sso.ibm.com/learning/lms/Saba/Web/Main/goto/learningActivity?courseNum=PM111G" target="_blank">Basic User Training</a></li><li eltype="footer-expended"><a eltype="footer-expended" href="https://w3-01.sso.ibm.com/hr/careersmart/html/search.html#pm112g" target="_blank">Administrator Training</a></li><li eltype="footer-expended"><a eltype="footer-expended" href="https://w3-01preprod.ibm.com/software/project/bluejay/launchRTCIntegrator.do" target="_blank">Download RTC Integrator</a></li></ul></div></div>
+		</div>
+		<div id="footer_Links" eltype="footer-expended" class="footer-links"><ul eltype="footer-expended"><li eltype="footer-collapsed"><a eltype="footer-collapsed" href="mailto:maahelp@us.ibm.com" target="_blank">Contact Us</a></li><li eltype="footer-collapsed"><a eltype="footer-collapsed" href="https://9.111.213.165/privacy/privacy.jsp" target="_blank">Privacy</a></li><li eltype="footer-collapsed"><a eltype="footer-collapsed" href="http://www.ibm.com/" target="_blank">Terms of use</a></li></ul></div>
+	</div>
+	<div id="footer_CollapsedFooter" eltype="footer-collapsed" style="bottom: 0px;" class="footer-collapsed">
+		<div id="footer_CollapsedLinks" eltype="footer-collapsed" class="footer-links-collapsed"><ul eltype="footer-collapsed"><li eltype="footer-collapsed"><a eltype="footer-collapsed" href="mailto:maahelp@us.ibm.com" target="_blank">Contact Us</a></li><li eltype="footer-collapsed"><a eltype="footer-collapsed" href="https://9.111.213.165/privacy/privacy.jsp" target="_blank">Privacy</a></li><li eltype="footer-collapsed"><a eltype="footer-collapsed" href="http://www.ibm.com/" target="_blank">Terms of use</a></li></ul></div>
+		<img src="ipwc_home_files/arrow.svg" eltype="footer-collapsed-indicator" width="9px" height="9px">
+	</div>
+</div>
+<script>
+maa.rte.wm.InstantiateWidget(document.getElementById("footer"));
+</script>
+	
+	<script>
+if (typeof document.SubmitForm != "function")
+	maa.lang.AddClassImplementation(document, app.common.WorkcenterPage);
+
+if (!maa.rte.wm.IsManualWidgetParsing()) 
+{	
+	maa.rte.wm.ParseForWidgets(document.body);
+}
+</script>
+
+
+
+
+<div class="x-tip x-layer x-tip-default x-border-box x-border-box-fix" role="tooltip" aria-hidden="true" aria-disabled="false" aria-labelledby="ext-quicktips-tip_header-title-textEl" id="ext-quicktips-tip" style="display: none;"><div id="ext-quicktips-tip-bodyWrap" data-ref="bodyWrap" class="x-tip-bodyWrap" role="presentation"><div class="x-tip-header x-header x-docked x-unselectable x-tip-header-default x-horizontal x-tip-header-horizontal x-tip-header-default-horizontal x-top x-tip-header-top x-tip-header-default-top x-box-layout-ct" role="presentation" id="ext-quicktips-tip_header"><span id="ext-quicktips-tip_header-tabGuardBeforeEl" data-ref="tabGuardBeforeEl" aria-hidden="true" class="x-tab-guard x-tab-guard-" style="width:0px;height:0px;"></span><div id="ext-quicktips-tip_header-innerCt" data-ref="innerCt" role="presentation" class="x-box-inner"><div id="ext-quicktips-tip_header-targetEl" data-ref="targetEl" class="x-box-target" role="presentation"><div class="x-title x-tip-header-title x-tip-header-title-default x-box-item x-title-default x-title-rotate-none x-title-align-left" role="presentation" unselectable="on" id="ext-quicktips-tip_header-title"><div id="ext-quicktips-tip_header-title-textEl" data-ref="textEl" class="x-title-text x-title-text-default x-title-item" unselectable="on" role="presentation">&nbsp;</div></div></div></div><span id="ext-quicktips-tip_header-tabGuardAfterEl" data-ref="tabGuardAfterEl" aria-hidden="true" class="x-tab-guard x-tab-guard-" style="width:0px;height:0px;"></span></div><div id="ext-quicktips-tip-body" data-ref="body" class="x-tip-body x-tip-body-default x-tip-body-default" role="presentation"><div id="ext-quicktips-tip-outerCt" data-ref="outerCt" class="x-autocontainer-outerCt" role="presentation"><div id="ext-quicktips-tip-innerCt" data-ref="innerCt" style="" role="presentation" class="x-autocontainer-innerCt"></div></div></div></div><div role="presentation" class="x-tip-anchor" id="ext-element-2"></div></div><div class="firebugResetStyles firebugBlockBackgroundColor" style="left: 386px !important; top: 109px !important; width: 250px !important; height: 34px !important; border-radius: 0px !important; box-shadow: 0px 0px 2px 2px highlight !important;"><div class="firebugResetStyles" style="width: 100% !important; height: 100% !important; background-color: transparent !important; opacity: 0.6 !important;"></div></div></body></html>

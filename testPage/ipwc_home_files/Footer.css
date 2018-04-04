@@ -1,0 +1,176 @@
+body .footer-control
+{
+	position: absolute;
+	bottom: 0px;
+	box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	-ms-box-sizing: content-box;
+	-webkit-box-sizing: content-box;	
+	font: 11px normal Arial, sans-serif;	
+}
+.footer-resources 
+{
+	border-top: 1px solid #666;
+	clear: both;
+	width: 100%;
+	float: left;
+	margin-bottom: -1px;
+}
+.footer-columns 
+{
+	font-size: 1em;
+	width: 900px;
+	padding: 0px;
+	margin: 0px auto;
+	clear: both;		
+}
+.footer-column 
+{
+	width: 180px;
+	float: left;
+	padding: 0px 10px;
+	min-height: 1px;	
+	font-family: Arial, sans-serif;
+	box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	-ms-box-sizing: content-box;
+	-webkit-box-sizing: content-box;		
+}
+.footer-column h3 
+{
+	font-size: 1em;
+	margin: 0px;
+	padding: 16px 0 0;
+}
+.footer-column  ul 
+{
+	line-height: 14px;
+	list-style: none;
+	padding: 0 0 2px 0;
+	margin: 0;
+}
+.footer-column li 
+{
+	background: url(../../../../../images/control/footer/bullets.gif) no-repeat -2px 2px;
+	color: #666;
+	margin: 4px 0;
+	padding: 0 0 0 10px;
+	font-family: Arial, sans-serif;
+}
+.footer-column li:hover 
+{
+	color: #FFCF01;
+	background-position: -2px -98px;
+}
+.footer-column a:hover, .footer-column a:focus  
+{
+	color: #FFF;
+}
+.footer-column a:focus  
+{
+	text-decoration: underline;
+	outline: 0px;
+}
+.footer-column a 
+{
+	display: block;
+	text-decoration: none;
+	text-shadow: 0 0 2px #000;
+}
+div .footer-expended
+{
+	position: absolute;
+	width: 100%;
+	box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	-ms-box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	z-index:1;
+}
+div .footer-collapsed
+{
+	width: 100%;
+	position: absolute;
+	bottom: 0px;
+	box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	-ms-box-sizing: content-box;
+	-webkit-box-sizing: content-box;		
+}
+.footer-collapsed img
+{
+	position: absolute;
+	bottom: 5px;
+	right: 10px;
+}
+div .footer-links-collapsed
+{
+	
+	height: 15px;
+	padding-top: 2px;	
+	border-top: 1px solid #0F161A;
+	border-bottom: 1px solid #404040;
+	clear: both;
+	color: #CCC;
+	margin: 0;
+	position: relative;	
+	font-family: Arial, sans-serif;	
+	box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	-ms-box-sizing: content-box;
+	-webkit-box-sizing: content-box;		
+}	
+div .footer-links
+{
+	border-bottom: 1px solid #404040;
+	clear: both;
+	color: #CCC;
+	height: 32px;
+	margin: 0;
+	padding-top: 15px;
+	position: relative;	
+	font-family: Arial, sans-serif;
+	box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	-ms-box-sizing: content-box;
+	-webkit-box-sizing: content-box;		
+}
+.footer-links ul, .footer-links-collapsed ul
+{
+	padding: 0px;
+	font-weight: normal;
+	font-size: 1em;
+	margin: 0 auto;
+	width: 900px;
+	height: 1%;
+	list-style-type: none;
+}
+.footer-links li, .footer-links-collapsed li
+{
+	float: left;
+	padding: 0px 20px 16px 5px;
+	overflow: inherit;
+	white-space: nowrap;
+}
+.footer-links li
+{
+	padding: 0px 20px 16px 5px;
+}
+.footer-links-collapsed li
+{
+	padding: 0px 20px 0px 5px;
+}
+.footer-links li a:link, .footer-links li a:visited, .footer-links-collapsed li a:link, .footer-links-collapsed li a:visited  
+{
+	text-decoration: none;
+}
+.footer-links li a:hover, .footer-links-collapsed li a:hover
+{
+	color: #A1A2A7;
+}
+.footer-navbar-cover
+{
+	background-color: ThreeDFace;
+	bottom: 0px;
+	position: absolute;	
+}

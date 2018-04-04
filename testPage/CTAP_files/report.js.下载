@@ -1,0 +1,695 @@
+'use strict';
+
+angular.module('myApp.report', ['ngRoute', 'data-table', 'ui.bootstrap', 'ui.grid'])
+
+.config(['$routeProvider', function($routeProvider) {
+    $routeProvider.when('/report', {
+        templateUrl: './modules/report/report.html',
+        controller: 'ReportCtrl'
+    });
+}])
+
+.controller('ReportCtrl', function($location, $scope,$rootScope,$log,$timeout,ReportService,uiGridConstants) {
+	if($rootScope.curUser == ""){
+		$location.path("/login");
+	}
+	//set the style to "active" for the users input URL directly.
+	$rootScope.activeNavButton("report");
+	
+	var lastId= "";
+	var hitCount = 0;
+	var reportsLens = 0;
+	var currentWidth = document.body.clientWidth;
+		
+	$scope.from_time = new Date();
+	$scope.to_time = new Date();
+	$scope.start_format = "MM/dd/yyyy";
+	$scope.end_format = "MM/dd/yyyy";
+	$scope.reports = [];
+	
+	$scope.init = function(){
+		$scope.results=[];
+		$scope.details=[];
+		$scope.from_time.setTime($scope.from_time.getTime()-7*24*60*60*1000);
+	};
+    
+	$scope.openStart = function($event) {
+	    $event.preventDefault();
+	    $event.stopPropagation();
+
+	    $scope.startOpened = true;
+	  };
+	  
+	$scope.openEnd = function($event) {
+		$event.preventDefault();
+		$event.stopPropagation();
+
+		$scope.endOpened = true;
+	};
+	  
+    $scope.screenWidth = document.body.clientWidth / 2 - 20;
+    
+    // Detail table configuration
+    $scope.detailTableOptions = {
+        selectable:true,
+        footerHeight: false,
+        headerHeight:30,
+        rowHeight: 300,
+        scrollbarV: true,
+        columns: [{
+            name: "Task",
+            prop: "step",
+            width: $scope.screenWidth * 0.1,
+            minWidth: $scope.screenWidth * 0.1,
+            sort: "asc",
+            canAutoResize: false,
+        },{
+            name: "Result",
+            prop: "result",
+            width:$scope.screenWidth * 0.12,
+            minWidth: $scope.screenWidth * 0.12,
+            canAutoResize: false
+        },{
+            name: "Name",
+            prop: "name",
+            width:$scope.screenWidth * 0.18,
+            minWidth: $scope.screenWidth * 0.18,
+            canAutoResize: false
+        },{
+            name: "Desc",
+            prop: "desc",
+            width:$scope.screenWidth * 0.1,
+            minWidth: $scope.screenWidth * 0.1,
+            canAutoResize: false
+        },{
+            name: "Details",
+            prop: "ss",
+            width:$scope.screenWidth * 0.5,
+            minWidth: $scope.screenWidth * 0.5,
+            canAutoResize: true
+        }]
+    };
+    
+    $scope.gridDummy = {
+			enableFullRowSelection : false,
+			enableRowHeaderSelection : false,
+			enableSorting : false,
+			enableColumnMenus : false,
+			minRowsToShow : 3,
+			enableCellEdit: false,
+			showTreeExpandNoChildren : true,
+
+		}
+		$scope.gridDummy.columnDefs = [
+				{
+					name : 'type',
+					displayName : '',
+					width : '38',
+					cellTemplate : '<div class="ui-grid-cell-contents" title="TOOLTIP">{{}}</div>',
+					cellClass : function(grid, row, col,
+							rowRenderIndex, colRenderIndex) {
+						return 'suite';
+
+					}
+				},
+				{
+					name : 'name',
+					displayName : '',
+					cellTemplate : '<div class="ui-grid-cell-contents" title="TOOLTIP">{{row.entity.title}}</div>',
+				} ];
+		;
+		$scope.gridDummy.data = [ {
+			title : "Please select time scope and query"
+		} ];
+		
+        $scope.gridResults = {
+			enableFullRowSelection : true,
+			enableRowHeaderSelection : false,
+			enableSorting : true,
+			enableColumnMenus : false,
+			enableCellEdit: false,
+			minRowsToShow : 3,
+			rowHeight: 60,
+			showTreeExpandNoChildren : false,
+		};
+    
+    $scope.gridResults.columnDefs = [
+		{
+			name : 'id',
+			visible : false
+		},
+		{
+			name : 'no',
+			type: 'number',
+			visible : false,
+            sort: {
+            direction: uiGridConstants.DESC,
+            priority: 0
+          }
+		},
+		{
+			name : 'level',
+			visible : false,
+			width : '3%'
+		},
+		{
+			name : 'type',
+			displayName : '',
+			width : '3%',
+			cellTemplate : '<div class="ui-grid-cell-contents" title="TOOLTIP">{{}}</div>',
+			cellTooltip : function(row, col) {
+				if (row.entity.type == 'sub') return 'sequential suite';
+				if (row.entity.type == 'single') return 'case';
+				return row.entity.type;
+			},
+			cellClass : function(grid, row, col,
+					rowRenderIndex, colRenderIndex) {
+				if (grid.getCellValue(row, col) === 'suite') {
+					return 'suite';
+				}
+				if (grid.getCellValue(row, col) === 'sub') {
+					return 'subsuite';
+				}
+				if (grid.getCellValue(row, col) === 'case' || grid.getCellValue(row, col) === 'single') {
+					return 'case';
+				}
+			},
+			enableSorting: false
+		}, {
+			field : 'testName',
+			displayName : 'Name',
+			width : '17%',
+			cellClass : function(grid, row, col,
+					rowRenderIndex, colRenderIndex) {
+				if (row.entity.passed ==null && row.entity.failed ==null) {
+					return 'grey';
+				}
+				if (row.entity.level == 1) {
+					return 'child';
+				}
+				return 'parent';
+			},
+			enableSorting: false
+		}, {
+			name : 'appName',
+			displayName : 'App Env',
+			width : '12%',
+			cellClass : function(grid, row, col,
+					rowRenderIndex, colRenderIndex) {
+				if (row.entity.level == 0) {
+					return 'parent';
+				}
+			},
+			enableSorting: false
+		}, {
+			name : 'browser',
+			displayName : 'Exec Env',
+			width : '13%',
+			headerCellClass: "center",
+			cellClass: function(grid, row, col,
+					rowRenderIndex, colRenderIndex) {
+				if (row.entity.level == 1) {
+					return "blank-break";
+				}
+				return 'blank-break-parent';
+			},
+			enableSorting: false
+		}, {
+			name : 'run',
+			displayName : 'Goal',
+			width : '6%',
+			headerCellClass: "center",
+			cellClass : function(grid, row, col,
+					rowRenderIndex, colRenderIndex) {
+				if (row.entity.level == 1) {
+					return 'center';
+				}
+				return 'center-parent';
+			},
+			enableSorting: false
+		}, {
+			name : 'passed',
+			displayName : 'Pass',
+			width : '6%',
+			headerCellClass: "center",
+			cellClass : function(grid, row, col,
+					rowRenderIndex, colRenderIndex) {
+				if (row.entity.passed == '●') {
+					return 'green';
+				}
+				if (row.entity.level == 1) {
+					return 'center';
+				}
+				return 'center-parent';
+			},
+			enableSorting: false
+		}, {
+			name : 'failed',
+			displayName : 'Fail',
+			width : '5%',
+			headerCellClass: "center",
+			cellClass : function(grid, row, col,
+					rowRenderIndex, colRenderIndex) {
+				if (row.entity.failed == '●') {
+					return 'red';
+				}
+				if (row.entity.level == 1) {
+					return 'center';
+				}
+				return 'center-parent';
+			},
+			enableSorting: false
+		},{
+			name : 'duration',
+			displayName : 'Duration',
+			width : '9%',
+			headerCellClass: "center",
+			cellClass : function(grid, row, col,
+					rowRenderIndex, colRenderIndex) {
+				if (row.entity.level == 1) {
+					return 'center';
+				}
+				return 'center-parent';
+			},
+			enableSorting: false
+		}, {
+			name : 'start',
+			displayName : 'Start Time',
+			width : '11%',
+			headerCellClass: "center",
+			cellClass: function(grid, row, col,
+					rowRenderIndex, colRenderIndex) {
+				if (row.entity.level == 1) {
+					return "blank-break";
+				}
+				return 'blank-break-parent';
+			},
+			enableSorting: false
+		}, {
+			name : 'end',
+			displayName : 'End Time',
+			headerCellClass: "center",
+			cellClass: function(grid, row, col,
+					rowRenderIndex, colRenderIndex) {
+				if (row.entity.level == 1) {
+					return "blank-break";
+				}
+				return 'blank-break-parent';
+			},
+			enableSorting: false
+		}];
+    
+        $scope.gridResults.multiSelect = false;
+        $scope.gridResults.onRegisterApi = function(gridApi) {
+		$scope.gridReportApi = gridApi;
+		$scope.gridReportApi.core.handleWindowResize();
+		gridApi.selection.on.rowSelectionChanged($scope,
+			function(wrow) {
+			    var row = wrow.entity;
+			    if (!((row.type== "case" && (typeof row.failed == "string"|| typeof row.passed == "string"))||row.type== "single")) {
+			    	    $scope.currentCase = null;
+			        	$scope.currentSuite = row;  
+			        	$scope.details=[];
+			        	$scope.currentSuite.children = []; 
+			        	$scope.currentSuite.envs = []; 
+			        	for (var n in wrow.treeNode.children) {
+			        		$scope.currentSuite.children.push(wrow.treeNode.children[n].row.entity.id);
+			        		$scope.currentSuite.envs.push(wrow.treeNode.children[n].row.entity.env);
+			        	}
+			    	    return;
+			    }
+				$scope.currentSuite = null;
+			    $scope.currentCase = row;
+			    $scope.details=[];
+			    ReportService.getDetailData(row.id,row.app_url,row.env).then(function (result) {
+			   	    if(result.value != null && result.value.tasks != null) {
+			   		    var data = result.value.tasks;
+			   		    for (var n in data) {
+			   			    var detail = {"step":data[n].task_no,"result":data[n].task_result,
+			   			        "name":data[n].task_name,"desc":data[n].task_desc};
+			   			    if (data[n].screenshots!=null && data[n].screenshots.length>0) {
+			   			    	detail.ss = '<div style="display: block;overflow: auto;max-height:290px;width: '+$scope.screenWidth * 0.48 + 'px"><img src=/images/'  +
+			   				    data[n].screenshots[0].externalURL + ' style=\"border:0px;"></div>';
+			   			    	$scope.details.push(detail);
+				   			    for (var m = 1; m<data[n].screenshots.length;m++) {
+				   				    var sdetail = {"step":'',"result":'',
+					   				    "name":'',"desc":'',
+					   					"ss":'<div style="display: block;overflow: auto;max-height:290px;width: '+$scope.screenWidth * 0.48 + 'px"><img src=/images/' +
+					   					data[n].screenshots[m].externalURL + ' style=\"border:0px;"></div>'};
+					   			    $scope.details.push(sdetail);
+				   			    }
+				   			    if (data[n].errors!=null && data[n].errors.length>0) {
+				   			    	var errorInfo = "";
+				   			    	for (var m in data[n].errors) {
+				   			    	     errorInfo += handleError(data[n].errors[m])+"<br>";
+				   			    	}
+				   			    	var sdetail = {"step":'',"result":'',
+						   				    "name":'',"desc":'',
+						   					"ss":"Error Information:<br>"+errorInfo};
+						   			$scope.details.push(sdetail);
+				   			    }
+			   			    } else {
+			   			    	if (data[n].errors!=null && data[n].errors.length>0) {
+				   			    	var errorInfo = "";
+				   			    	for (var m in data[n].errors) {
+				   			    	     errorInfo += handleError(data[n].errors[m])+"<br>";
+				   			    	}
+				   			    	detail.ss = "Error Information:<br>"+errorInfo;
+						   			$scope.details.push(detail);
+				   			    } else {
+				   			    	$scope.details.push(detail);
+				   			    }
+			   			    }
+			   			    
+			   		    }
+			   	    }
+			    }, function (reason) {
+			        $log.debug('Query failed');
+			        swal('','Query failed, please try later!', 'error');
+			    }); 
+		});
+	};
+    
+    $scope.query = function() {
+    		$scope.reports=[];
+    		$scope.results=[];
+    		$scope.details=[];
+    		$scope.gridResults.data=[];
+    		$scope.from_time.setHours(0,0,0);
+    		$scope.to_time.setHours(23,59,59);
+    		ReportService.getHistoryData($scope.from_time.getTime(),$scope.to_time.getTime()).then(function (data) {
+    			if(data.value != null) {
+    				if (data.value.length == 0) {
+    					$scope.gridDummy.data = [ {
+    						title : "No data to display"
+    					} ];
+    					$scope.queried=null;
+    				} else {
+    					$scope.dataToResult(data.value);
+    				}
+    			}
+    		}, function (reason) {
+    			$log.debug('Query failed');
+    			swal('','Query failed, please try later!', 'error');
+        });
+    };
+    
+    $scope.dataToResult = function(data) {
+    	hitCount = 0;
+    	reportsLens = data.length;
+    	for(var n in data) {
+    		var startTime = new Date(data[n].start_time);
+		var endTime = new Date(data[n].end_time);
+		var nameAndType = checkType(data[n].name);
+		var last = data[n].last_time/1000;
+		if (last > 1000) {
+    	        last = parseInt(last);
+        } else if (last > 100) {
+    	        last = parseInt(last*100)/100;
+        }
+    		var result = {"id":data[n].id, testName :nameAndType[0], appName: data[n].production_name,
+    			"passed":data[n].success_num,"failed":data[n].fail_num,"duration":last+'s',
+    			"start":(startTime.getMonth()+1)+'/'+startTime.getDate()+'/'+startTime.getFullYear()+
+	    		"\r\n" +startTime.getHours()+':'+startTime.getMinutes()+':'+startTime.getSeconds()
+	    		,"end":(endTime.getMonth()+1)+'/'+endTime.getDate()+'/'+endTime.getFullYear()+
+	    		"\r\n" +endTime.getHours()+':'+endTime.getMinutes()+':'+endTime.getSeconds(),
+	    		"app_url":data[n].app_url,"no":parseInt(n),"type":nameAndType[1]
+	    		};
+    		
+    		$scope.results.push(result);
+    		$scope.queryResult(data[n].id,n,data[n].app_url);
+    	}
+    	
+    };
+    
+    $scope.queryResult = function(resultId, index, app_url) {
+   	 ReportService.getResultData(resultId).then(function (report) {
+   		 if(report.value != null) {
+   			var data = report.value;
+   			$scope.results[index].subResults = [];
+   			for (var n in data) {
+   				var startTime = new Date(data[n].start_time);
+   				var endTime = new Date(data[n].end_time);
+   				var nameAndType = checkType(data[n].name);
+   				var p_env = data[n].env;
+   				var last = data[n].last_time/1000;
+   				if (last > 1000) {
+		    	    last = parseInt(last);
+		        } else if (last > 100) {
+		    	        last = parseInt(last*100)/100;
+		        }
+   				var result = {"id":data[n].id, testName:nameAndType[0],"duration":last+'s',
+	   	    		"start":(startTime.getMonth()+1)+'/'+startTime.getDate()+'/'+startTime.getFullYear()+
+	   	    		"\r\n" +startTime.getHours()+':'+startTime.getMinutes()+':'+startTime.getSeconds()
+	   	    		,"end":(endTime.getMonth()+1)+'/'+endTime.getDate()+'/'+endTime.getFullYear()+
+	   	    		"\r\n" +endTime.getHours()+':'+endTime.getMinutes()+':'+endTime.getSeconds(),
+	   	    		"app_url":app_url,"env":data[n].env, "type": data[n].low_type};
+   				if (data[n].env != null) {
+   					result.browser = data[n].env.platform+"+\r\n"+
+   					    data[n].env.browser+data[n].env.version;
+   				}
+   				result.testName = result.testName;
+   				if (data[n].low_type != "case") {
+   					if (data[n].result == "success") {
+   	   					result.passed = '●';
+   	   				} else if (data[n].result == "failed") {
+   	   					result.failed = '●';
+   	   				} else {
+   	   				    result.passed = parseInt(data[n].result.split('|')[0]);
+   					    result.failed = parseInt(data[n].result.split('|')[1]);
+   	   				}
+   					$scope.results[index].subResults.push(result);
+   					parseLowers(data[n].lowers,app_url,index,p_env);
+   				} else {
+   					if (startTime.getFullYear()==1970) {
+   						result.testName = result.testName;
+   						result.start = null;
+   						result.end = null;
+   						result.duration = 0;
+   					} else if (data[n].result == "success") {
+   	   					result.passed = '●';
+   	   				} else {
+   	   					result.failed = '●';
+   	   				}
+   	   				$scope.results[index].subResults.push(result);
+   				}
+   			}
+   			hitCount++;
+   			if (hitCount == reportsLens) {
+   				$scope.renderReports();
+   			}
+   		 }
+   	 }, function (reason) {
+       	$log.debug('Query failed');
+           swal('','Query failed, please try later!', 'error');
+       });
+   };
+    
+    //process nested data
+    var parseLowers = function (data,app_url,index,p_env) {
+	    for (var n in data) {
+		    var startTime = new Date(data[n].start_time);
+		    var endTime = new Date(data[n].end_time);
+		    var nameAndType = checkType(data[n].name);
+		    var last = data[n].last_time/1000;
+		    if (last > 1000) {
+		    	    last = parseInt(last);
+		    } else if (last > 100) {
+		    	    last = parseInt(last*100)/100;
+		    }
+			var result = {"id":data[n].id,"duration":last+'s',
+  				"start":(startTime.getMonth()+1)+'/'+startTime.getDate()+'/'+startTime.getFullYear()+
+  	    		"\r\n" +startTime.getHours()+':'+startTime.getMinutes()+':'+startTime.getSeconds()
+  	    		,"end":(endTime.getMonth()+1)+'/'+endTime.getDate()+'/'+endTime.getFullYear()+
+  	    		"\r\n" +endTime.getHours()+':'+endTime.getMinutes()+':'+endTime.getSeconds(),
+  	    		"app_url":app_url,"env":data[n].env==null ? p_env: data[n].env,"type":data[n].low_type};
+			if (data[n].env != null) {
+				result.browser = data[n].env.platform+"+\r\n"+data[n].env.browser+data[n].env.version;
+				p_env = data[n].env;
+			} else if (p_env != null) {
+				result.browser = p_env.platform+"+\r\n"+p_env.browser+p_env.version;
+			}
+			if (data[n].low_type != "case") {
+				result.testName = nameAndType[0];
+				result.passed = parseInt(data[n].result.split('|')[0]);
+				result.failed = parseInt(data[n].result.split('|')[1]);
+				$scope.results[index].subResults.push(result);
+				parseLowers(data[n].lowers,result.app_url,index,p_env);
+			} else {
+				if (startTime.getFullYear()==1970) {
+					result.testName = nameAndType[0];
+					result.duration = null;
+					result.start = null;
+					result.end = null;
+				} else if (data[n].result == "success") {
+					result.testName = nameAndType[0];
+	   				result.passed = '●';
+	   			} else {
+	   				result.testName = nameAndType[0];
+	   				result.failed = '●';
+	   			}
+	   			$scope.results[index].subResults.push(result);
+			}
+	   }
+   }
+    $scope.renderReports = function() {
+	   	 for (var n in $scope.results) {
+	   		 if ($scope.results[n].subResults != null) {
+	   			 var subResults = $scope.results[n].subResults;
+	   			 delete $scope.results[n].subResults;
+	   			 
+	   			 //process case debug report
+	   			 if ($scope.results[n].type=="case" && subResults.length==1 && subResults[0].type=="case") {
+	   				$scope.results[n].id = subResults[0].id;
+	   				$scope.results[n].browser = subResults[0].browser;
+	   				$scope.results[n].env = subResults[0].env;
+	   				$scope.results[n].type = "single";
+	   				$scope.results[n].level = 0;
+	   				$scope.results[n].run = 1;
+	   				$scope.reports.push($scope.results[n]);
+	   				continue;
+	   			 }
+	   			 if ($scope.results[n].type=="sub") {
+	   				var appName = $scope.results[n].appName;
+	   				for (var m=0; m<subResults.length; m++) {
+	   					if(subResults[m].type == 'sub') {
+	   						var report = subResults[m];
+	   						report.no = $scope.results[n].no;
+	   	   				    report.browser = null;
+	   	   				    report.env = null;
+	   	   				    var run = 0;
+	   	   				    var passed = 0;
+	   	   				    var failed = 0;
+	   	   				    for (var k=m+1; k<subResults.length; k++) {
+	   	   				       if (subResults[k].type == 'sub') break;
+	   	   				       run++;
+	   	   					   if (subResults[k].passed != null) passed++;
+	   	   					   else if (subResults[k].failed != null) failed++;
+	   			   		    }
+	   	   				    report.run = run;
+	   	   				    report.passed = passed;
+	   	   				    report.failed = failed;
+	   	   				    report.appName = appName;
+	   	   				    report.level = 0;
+	   	   				    $scope.reports.push(report);
+	   					} else {
+	   						subResults[m].no = $scope.results[n].no;
+				   			subResults[m].level = 1;
+				   			$scope.reports.push(subResults[m]);
+	   					}
+	   				}
+	   			} else {
+	   				var run = 0;
+	   				var passed = 0;
+	   				var failed = 0;
+	   				for (var m in subResults) {
+			   			 if (subResults[m].type!='case') continue;
+			   			 run++;
+			   			 if (subResults[m].passed!=null) passed++;
+			   			 else if (subResults[m].failed!=null) failed++;
+			   		 }
+	   				$scope.results[n].run = run;
+	   				$scope.results[n].passed = passed;
+	   				$scope.results[n].failed = failed;
+	   				$scope.results[n].level = 0;
+	   				$scope.reports.push($scope.results[n]);
+	   				if ($scope.results[n].type != 'case') {
+	   					var caseNamesAndBrowsers = {};
+		   				var currentParent = '';
+		   				for (var m in subResults) {
+		   					if (subResults[m].type != 'case') {
+				   				continue;
+				   			}
+		   					var key = subResults[m].testName+subResults[m].env.platform+subResults[m].env.browser+subResults[m].env.version;
+		   					if (caseNamesAndBrowsers[key] == null) {
+		   						caseNamesAndBrowsers[key] = 1;
+		   					} else {
+		   						caseNamesAndBrowsers[key] = caseNamesAndBrowsers[key] + 1;
+		   					}
+				   		}
+	   					for (var m in subResults) {
+				   			// process same name
+				   			if (subResults[m].type != 'case') {
+				   				currentParent = subResults[m].testName;
+				   				continue;
+				   			}
+				   			var key = subResults[m].testName+subResults[m].env.platform+subResults[m].env.browser+subResults[m].env.version;
+				   			if (currentParent != '' && caseNamesAndBrowsers[key] > 1) {
+		   						subResults[m].testName = currentParent + '->\r\n' + subResults[m].testName;
+		   					}
+				   			subResults[m].no = $scope.results[n].no;
+				   			subResults[m].level = 1;
+				   			$scope.reports.push(subResults[m]);
+				   		}
+	   				} else {
+	   					for (var m in subResults) {
+	   					    subResults[m].no = $scope.results[n].no;
+			   			    subResults[m].level = 1;
+			   			    $scope.reports.push(subResults[m]);
+	   					}
+	   				}
+	   			 }
+	   		 } else {
+	   			$scope.results[n].level = 0;
+	   			$scope.reports.push($scope.results[n]);
+	   		 }
+	   	 }
+	   	$scope.gridResults.data = $scope.reports;
+	   	for (var i = 0; i < $scope.gridResults.data.length; i++) {
+			$scope.gridResults.data[i].$$treeLevel = $scope.gridResults.data[i].level;
+		}
+	   	$scope.queried=true;
+    };
+   
+   $scope.exportPDF = function() {
+	   ReportService.getPDFData($scope.currentCase.id,$scope.currentCase.app_url,$scope.currentCase.env).then(function (result) {
+		   if(result.value != null){
+//			   window.open("../"+result.value);
+			   window.open("/images/"+result.value);
+		   }
+	   }, function (reason) {
+		   $log.debug('Generate PDF failed');
+		       swal('','Generate PDF failed, please try later!', 'error');
+	   });
+   };
+   
+   $scope.exportXLS = function() {
+	   ReportService.getXLSData($scope.currentSuite.id, $scope.currentSuite.type,
+			   $scope.currentSuite.appName, $scope.currentSuite.app_url, $scope.currentSuite.run,
+			   $scope.currentSuite.passed, $scope.currentSuite.failed, $scope.currentSuite.children,
+			   $scope.currentSuite.envs).then(function (result) {
+		   if(result.value != null){
+//			   window.open("../"+result.value);
+			   window.open("/images/"+result.value);
+		   }
+	   }, function (reason) {
+		   $log.debug('Generate Summary failed');
+		       swal('','Generate Summary failed, please try later!', 'error');
+	   });
+   };
+   
+   var handleError = function(error) {
+	   if (error.indexOf('bad_driver')==0) {
+		   return 'bad_driver:Failed to initialize web driver';
+	   }
+	   var s = error.indexOf('	at ');
+	   if (error.indexOf('	at ')>0 && error.indexOf('	at ')<error.length){
+		   return error.substring(0,error.indexOf('	at '));
+	   }
+	   return error;
+   };
+   
+   var checkType = function(name) {
+	   if (name.indexOf("-C-") >= 0) {
+		   var shortName = name.substring(0,name.indexOf('-C-'));
+		   return [shortName, "case"];
+	   } else if (name.indexOf("-S-") >= 0) {
+		   var shortName = name.substring(0,name.indexOf('-S-'));
+		   return [shortName, "suite"];
+	   } else if (name.indexOf("-B-") >= 0) {
+		   var shortName = name.substring(0,name.indexOf('-B-'));
+		   return [shortName, "sub"];
+	   }
+	   return [name, "unknown"];
+   }
+});

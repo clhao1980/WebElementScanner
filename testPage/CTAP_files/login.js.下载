@@ -1,0 +1,82 @@
+'use strict';
+
+angular
+		.module('myApp.login', [ 'ngRoute', 'data-table' ])
+
+		.config([ '$routeProvider', function($routeProvider) {
+			$routeProvider.when('/login', {
+				templateUrl : './modules/login/login.html',
+				controller : 'loginController'
+			});
+
+		} ])
+
+		.controller(
+				'loginController',
+				function($location, $scope, $rootScope, $log, $timeout,
+						SweetAlert, Utils) {
+					$rootScope.isLogin = true;
+
+					$scope.user = {
+						username : "",
+						password : "",
+						operator : ""
+					}
+					$rootScope.curUser = "";
+					$scope.submit = function() {
+						var prompt = "";
+						if ($scope.user.username == "") {
+							prompt = "Please input the Tenant ID."
+						}
+						if ($scope.user.password == "") {
+							prompt = prompt + "<br>Please input the password."
+						}
+						if ($scope.user.operator == "") {
+							prompt = prompt + "<br>Please input the operator."
+						}
+
+						if (prompt != "") {
+							swal('', prompt, 'info');
+							return;
+						}
+
+						$log.debug("$scope.user.username:",
+								$scope.user.username);
+						getUserInfo($scope.user)
+								.then(
+										function(data) {
+											if (data.status == 0) {
+												// swal('','Welcome ' +
+												// $scope.user.username,'success');
+												$log.debug(data)
+												$rootScope.curUser = data.value;
+												$rootScope.isLogin = false;
+												$location.path("./widget")
+											} else {
+												swal(
+														'',
+														'Can not login, please check the account and password',
+														'info');
+											}
+										},
+										function(error) {
+											$log.debug("can not login", error);
+											$location.path("/login")
+											swal(
+													'',
+													'Can not login, please check the account',
+													'info')
+										})
+					}
+					$scope.reset = function() {
+						$scope.user.username = "";
+						$scope.user.password = "";
+						$scope.user.operator = "";
+					}
+					var getUserInfo = function(user) {
+						var result = Utils.ctapGetByParam('login/', user);
+						$log.debug("result: ", result)
+						return result;
+					};
+
+				})

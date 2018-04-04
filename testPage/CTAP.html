@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<!-- saved from url=(0041)http://9.111.221.116:8080/CTAP/app/#/case -->
+<html lang="en" ng-app="myApp" class="js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms no-csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths ng-scope" style="min-height:600px;"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style type="text/css">[uib-typeahead-popup].dropdown-menu{display:block;}</style><style type="text/css">.uib-time input{width:50px;}</style><style type="text/css">[uib-tooltip-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-bottom > .tooltip-arrow,[uib-popover-popup].popover.top-left > .arrow,[uib-popover-popup].popover.top-right > .arrow,[uib-popover-popup].popover.bottom-left > .arrow,[uib-popover-popup].popover.bottom-right > .arrow,[uib-popover-popup].popover.left-top > .arrow,[uib-popover-popup].popover.left-bottom > .arrow,[uib-popover-popup].popover.right-top > .arrow,[uib-popover-popup].popover.right-bottom > .arrow,[uib-popover-html-popup].popover.top-left > .arrow,[uib-popover-html-popup].popover.top-right > .arrow,[uib-popover-html-popup].popover.bottom-left > .arrow,[uib-popover-html-popup].popover.bottom-right > .arrow,[uib-popover-html-popup].popover.left-top > .arrow,[uib-popover-html-popup].popover.left-bottom > .arrow,[uib-popover-html-popup].popover.right-top > .arrow,[uib-popover-html-popup].popover.right-bottom > .arrow,[uib-popover-template-popup].popover.top-left > .arrow,[uib-popover-template-popup].popover.top-right > .arrow,[uib-popover-template-popup].popover.bottom-left > .arrow,[uib-popover-template-popup].popover.bottom-right > .arrow,[uib-popover-template-popup].popover.left-top > .arrow,[uib-popover-template-popup].popover.left-bottom > .arrow,[uib-popover-template-popup].popover.right-top > .arrow,[uib-popover-template-popup].popover.right-bottom > .arrow{top:auto;bottom:auto;left:auto;right:auto;margin:0;}[uib-popover-popup].popover,[uib-popover-html-popup].popover,[uib-popover-template-popup].popover{display:block !important;}</style><style type="text/css">.uib-datepicker-popup.dropdown-menu{display:block;float:none;margin:0;}.uib-button-bar{padding:10px 9px 2px;}</style><style type="text/css">.uib-position-measure{display:block !important;visibility:hidden !important;position:absolute !important;top:-9999px !important;left:-9999px !important;}.uib-position-scrollbar-measure{position:absolute !important;top:-9999px !important;width:50px !important;height:50px !important;overflow:scroll !important;}.uib-position-body-scrollbar-measure{overflow:scroll !important;}</style><style type="text/css">.uib-datepicker .uib-title{width:100%;}.uib-day button,.uib-month button,.uib-year button{min-width:100%;}.uib-left,.uib-right{width:100%}</style><style type="text/css">.ng-animate.item:not(.left):not(.right){-webkit-transition:0s ease-in-out left;transition:0s ease-in-out left}</style><style type="text/css">@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>CTAP</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/main.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/style.min.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/sweetalert.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/dataTable.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/material.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/angucomplete-alt.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/ui-grid.min.css">
+	<link rel="stylesheet" type="text/css" href="./CTAP_files/ui-bootstrap-csp.css">
+	<link rel="stylesheet" type="text/css" href="./CTAP_files/sweetalert2.min.css">
+	<link rel="stylesheet" type="text/css" href="./CTAP_files/app.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/case.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/widget.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/suite.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/task.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/debugCase.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/login.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/report.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/execution.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_files/diagram.css">
+<style type="text/css" abt="234"></style><script>//console.log('a')
+</script><script>doAdblock();
+function doAdblock(){
+    (function() {
+        function A() {}
+        A.prototype = {
+            rules: {
+                'pps_pps': {
+                    'find': /^http:\/\/www\.iqiyi\.com\/player\/cupid\/common\/pps_flvplay_s\.swf/,
+                    'replace': 'http://swf.adtchrome.com/pps_20140420.swf'
+                },
+                '17173_in':{
+                    'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/PreloaderFile(Customer)?\.swf/,
+                    'replace':"http://swf.adtchrome.com/17173_in_20150522.swf"
+                },
+                '17173_out':{
+                    'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/PreloaderFileFirstpage\.swf/,
+                    'replace':"http://swf.adtchrome.com/17173_out_20150522.swf"
+                },
+                '17173_live':{
+                    'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/Player_stream(_firstpage)?\.swf/,
+                    'replace':"http://swf.adtchrome.com/17173_stream_20150522.swf"
+                },
+                '17173_live_out':{
+                    'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/Player_stream_(custom)?Out\.swf/,
+                    'replace':"http://swf.adtchrome.com/17173.out.Live.swf"
+                }
+            },
+            _done: null,
+            get done() {
+                if(!this._done) {
+                    this._done = new Array();
+                }
+                return this._done;
+            },
+            addAnimations: function() {
+                var style = document.createElement('style');
+                style.type = 'text/css';
+                style.innerHTML = 'object,embed{\
+                -webkit-animation-duration:.001s;-webkit-animation-name:playerInserted;\
+                -ms-animation-duration:.001s;-ms-animation-name:playerInserted;\
+                -o-animation-duration:.001s;-o-animation-name:playerInserted;\
+                animation-duration:.001s;animation-name:playerInserted;}\
+                @-webkit-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
+                @-ms-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
+                @-o-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
+                @keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}';
+                document.getElementsByTagName('head')[0].appendChild(style);
+            },
+            animationsHandler: function(e) {
+                if(e.animationName === 'playerInserted') {
+                    this.replace(e.target);
+                }
+            },
+            replace: function(elem) {
+                if (/http:\/\/v.youku.com\/v_show\/.*/.test(window.location.href)){
+                    var tag = document.getElementById("playerBox").getAttribute("player")
+                    if (tag == "adt"){
+                        console.log("adt adv")
+                        return;
+                    }
+                }
+                if(this.done.indexOf(elem) != -1) return;
+                this.done.push(elem);
+                var player = elem.data || elem.src;
+                if(!player) return;
+                var i, find, replace = false;
+                for(i in this.rules) {
+                    find = this.rules[i]['find'];
+                    if(find.test(player)) {
+                        replace = this.rules[i]['replace'];
+                        if('function' === typeof this.rules[i]['preHandle']) {
+                            this.rules[i]['preHandle'].bind(this, elem, find, replace, player)();
+                        }else{
+                            this.reallyReplace.bind(this, elem, find, replace)();
+                        }
+                        break;
+                    }
+                }
+            },
+            reallyReplace: function(elem, find, replace) {
+                elem.data && (elem.data = elem.data.replace(find, replace)) || elem.src && ((elem.src = elem.src.replace(find, replace)) && (elem.style.display = 'block'));
+                var b = elem.querySelector("param[name='movie']");
+                this.reloadPlugin(elem);
+            },
+            reloadPlugin: function(elem) {
+                var nextSibling = elem.nextSibling;
+                var parentNode = elem.parentNode;
+                parentNode.removeChild(elem);
+                var newElem = elem.cloneNode(true);
+                this.done.push(newElem);
+                if(nextSibling) {
+                    parentNode.insertBefore(newElem, nextSibling);
+                } else {
+                    parentNode.appendChild(newElem);
+                }
+            },
+            init: function() {
+                var handler = this.animationsHandler.bind(this);
+                document.body.addEventListener('webkitAnimationStart', handler, false);
+                document.body.addEventListener('msAnimationStart', handler, false);
+                document.body.addEventListener('oAnimationStart', handler, false);
+                document.body.addEventListener('animationstart', handler, false);
+                this.addAnimations();
+            }
+        };
+        new A().init();
+    })();
+}
+// 20140730
+(function cnbeta() {
+    if (document.URL.indexOf('cnbeta.com') >= 0) {
+        var elms = document.body.querySelectorAll("p>embed");
+        Array.prototype.forEach.call(elms, function(elm) {
+            elm.style.marginLeft = "0px";
+        });
+    }
+})();
+//baidu
+if(document.URL.indexOf('www.baidu.com') >= 0){
+    if(document && document.getElementsByTagName && document.getElementById && document.body){
+        var aa = function(){
+            var all = document.body.querySelectorAll("#content_left div,#content_left table");
+            for(var i = 0; i < all.length; i++){
+                if(/display:\s?(table|block)\s!important/.test(all[i].getAttribute("style"))){all[i].style.display= "none";all[i].style.visibility='hidden';}
+            }
+            all = document.body.querySelectorAll('.result.c-container[id="1"]');
+            //if(all.length == 1) return;
+            for(var i = 0; i < all.length; i++){
+                if(all[i].innerHTML && all[i].innerHTML.indexOf('广告')>-1){
+                    all[i].style.display= "none";all[i].style.visibility='hidden';
+                }
+            }
+        }
+        aa();
+        document.getElementById('wrapper_wrapper').addEventListener('DOMSubtreeModified',aa)
+    };
+}
+if (document.URL.indexOf("tv.sohu.com") >= 0){
+    if (document.cookie.indexOf("fee_status=true")==-1){document.cookie='fee_status=true'};
+}
+if (document.URL.indexOf("56.com") >= 0){
+    if (document.cookie.indexOf("fee_status=true")==-1){document.cookie='fee_status=true'};
+}
+if (document.URL.indexOf("iqiyi.com") >= 0){
+    if (document.cookie.indexOf("player_forcedType=h5_VOD")==-1){
+        document.cookie='player_forcedType=h5_VOD'
+        if(localStorage.reloadTime && Date.now() - parseInt(localStorage.reloadTime)<60000){
+            console.log('no reload')
+        }else{
+            location.reload()
+            localStorage.reloadTime = Date.now();
+        }
+    }
+}
+</script><style type="text/css">object,embed{                -webkit-animation-duration:.001s;-webkit-animation-name:playerInserted;                -ms-animation-duration:.001s;-ms-animation-name:playerInserted;                -o-animation-duration:.001s;-o-animation-name:playerInserted;                animation-duration:.001s;animation-name:playerInserted;}                @-webkit-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @-ms-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @-o-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}</style></head>
+<body class="" style="">
+<div class="top-menu" ng-hide="isLogin" ng-init="init()">
+    <div style="float:left; margin-left: 1%; margin-top: 10px;">
+		<h4 class="top-title">CTAP</h4>
+    </div>
+    <ul class="nav nav-pills ul-nav">
+        <li role="presentation" ng-class="widgetClass" class="nav-item locate-widget-nav" uib-tooltip="Widget Location" tooltip-placement="bottom"><a class="icon-widget" ng-click="checkBeforeLeave(&#39;/widget&#39;)"></a><div></div></li>
+        <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="taskClass" class="nav-item compose-task-nav" uib-tooltip="Task Composition" tooltip-placement="bottom"><a class="icon-task" ng-click="checkBeforeLeave(&#39;/task&#39;)"></a><div></div></li>       
+        <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="caseClass" class="nav-item compose-case-nav active" uib-tooltip="Case Composition" tooltip-placement="bottom"><a class="icon-case" ng-click="checkBeforeLeave(&#39;/case&#39;)"></a><div></div></li>
+         <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="debugClass" class="nav-item run-case-nav" uib-tooltip="Debug Case" tooltip-placement="bottom"><a class="icon-debug" ng-click="checkBeforeLeave(&#39;/debug&#39;)"></a><div></div></li>
+        <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="suiteClass" class="nav-item compose-suite-nav" uib-tooltip="Suite Composition" tooltip-placement="bottom"><a class="icon-suite" ng-click="checkBeforeLeave(&#39;/suite&#39;)"></a><div></div></li>
+        <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="executionClass" class="nav-item excute-suite-nav" uib-tooltip="Execution" tooltip-placement="bottom"><a class="icon-execute" ng-click="checkBeforeLeave(&#39;/execution&#39;)"></a><div></div></li>
+        <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="queueClass" class="nav-item work-queue-nav" uib-tooltip="Work Queue" tooltip-placement="bottom"><a class="icon-workqueue" ng-click="checkBeforeLeave(&#39;/workQueue&#39;)"></a><div></div></li>
+        <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="reportClass" class="nav-item excute-result-nav" uib-tooltip="Report" tooltip-placement="bottom"><a class="icon-report" ng-click="checkBeforeLeave(&#39;/report&#39;)"></a><div></div></li>
+        <!-- <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="diagramClass" class="nav-item show-diagram-nav" uib-tooltip="Diagram" tooltip-placement="bottom"><a class="icon-diagram" ng-click= checkBeforeLeave('/diagram')></a><div></div></li> -->
+    </ul>
+    <div style="float:right; margin-right: 1%; margin-top: 10px;">
+		<button class="btn btn-default" ng-click="logout()">Logout</button>
+    </div>
+</div>
+
+<!--[if lt IE 7]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+    your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<!-- ngView: --><div ng-view="" style="height:calc(100% - 70px);" class="ng-scope"><div class="root-content ng-scope">
+
+    <!--Left Container-->
+    <div class="left-container" ng-init="loadCaseTreeFromBuildTree()">
+        <div class="tree-title-container">
+            Cases
+        </div>
+        <input id="search-case" value="" class="input searchbox" type="text" placeholder="Search Case">
+		<div id="case-tree" class="js-tree-div ng-pristine ng-valid ng-isolate-scope ng-not-empty jstree jstree-3 jstree-proton jstree-proton-responsive ng-touched" js-tree="caseTreeConfigFromBuildTree" ng-model="caseTreeData" tree="caseTreeInstance" tree-events="ready:onCaseTreeLoaded;select_node:onCaseSelected" role="tree" tabindex="0" aria-activedescendant="016140ec85b9bd45d4dfb37c516fecde" aria-busy="false"><ul class="jstree-container-ul jstree-children jstree-wholerow-ul jstree-no-dots" role="group"><li role="treeitem" aria-selected="false" aria-level="1" aria-labelledby="root_anchor" aria-expanded="true" id="root" class="jstree-node jstree-last jstree-open"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="root_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>ipwc</a><ul role="group" class="jstree-children" style=""><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="016130f493c46737b1db06b049928500_anchor" aria-expanded="true" id="016130f493c46737b1db06b049928500" class="jstree-node jstree-open"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="016130f493c46737b1db06b049928500_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>ran test</a><ul role="group" class="jstree-children" style=""><li role="treeitem" aria-selected="false" aria-level="3" aria-labelledby="016130f54a5ce5ef1c82a6149f6ab896_anchor" id="016130f54a5ce5ef1c82a6149f6ab896" class="jstree-node  jstree-leaf"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="016130f54a5ce5ef1c82a6149f6ab896_anchor"><i class="jstree-icon jstree-themeicon jstree-themeicon-custom" role="presentation" style="background-image: url(&quot;/CTAP/app/resources/file-icon.png&quot;); background-position: center center; background-size: auto;"></i>window confirm on IE</a></li><li role="treeitem" aria-selected="true" aria-level="3" aria-labelledby="016140ec85b9bd45d4dfb37c516fecde_anchor" id="016140ec85b9bd45d4dfb37c516fecde" class="jstree-node  jstree-leaf"><div unselectable="on" role="presentation" class="jstree-wholerow jstree-wholerow-clicked">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor jstree-clicked" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="016140ec85b9bd45d4dfb37c516fecde_anchor"><i class="jstree-icon jstree-themeicon jstree-themeicon-custom" role="presentation" style="background-image: url(&quot;/CTAP/app/resources/file-icon.png&quot;); background-position: center center; background-size: auto;"></i>delete report test</a></li><li role="treeitem" aria-selected="false" aria-level="3" aria-labelledby="016147c6786c8b1cef288b4db6d95e2f_anchor" id="016147c6786c8b1cef288b4db6d95e2f" class="jstree-node  jstree-leaf"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="016147c6786c8b1cef288b4db6d95e2f_anchor"><i class="jstree-icon jstree-themeicon jstree-themeicon-custom" role="presentation" style="background-image: url(&quot;/CTAP/app/resources/file-icon.png&quot;); background-position: center center; background-size: auto;"></i>switch to select program</a></li><li role="treeitem" aria-selected="false" aria-level="3" aria-labelledby="01614f1f3ee1e874c9502e8a9a13b301_anchor" id="01614f1f3ee1e874c9502e8a9a13b301" class="jstree-node  jstree-leaf"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01614f1f3ee1e874c9502e8a9a13b301_anchor"><i class="jstree-icon jstree-themeicon jstree-themeicon-custom" role="presentation" style="background-image: url(&quot;/CTAP/app/resources/file-icon.png&quot;); background-position: center center; background-size: auto;"></i>select template - js not work on IE</a></li><li role="treeitem" aria-selected="false" aria-level="3" aria-labelledby="01615202b5b89cc9581476557ad78073_anchor" id="01615202b5b89cc9581476557ad78073" class="jstree-node  jstree-leaf"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01615202b5b89cc9581476557ad78073_anchor"><i class="jstree-icon jstree-themeicon jstree-themeicon-custom" role="presentation" style="background-image: url(&quot;/CTAP/app/resources/file-icon.png&quot;); background-position: center center; background-size: auto;"></i>test function on ie - driverConfirmElementExistByXPath</a></li><li role="treeitem" aria-selected="false" aria-level="3" aria-labelledby="0161c2e1089e556c87638e8bd52feca8_anchor" id="0161c2e1089e556c87638e8bd52feca8" class="jstree-node  jstree-leaf jstree-last"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="0161c2e1089e556c87638e8bd52feca8_anchor"><i class="jstree-icon jstree-themeicon jstree-themeicon-custom" role="presentation" style="background-image: url(&quot;/CTAP/app/resources/file-icon.png&quot;); background-position: center center; background-size: auto;"></i>case for ie jekin</a></li></ul></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01622e306eccd2ba5abca53846ac2eb8_anchor" aria-expanded="true" id="01622e306eccd2ba5abca53846ac2eb8" class="jstree-node jstree-open"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01622e306eccd2ba5abca53846ac2eb8_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>hntest</a><ul role="group" class="jstree-children" style=""><li role="treeitem" aria-selected="false" aria-level="3" aria-labelledby="01622e330df9e6e3ef04de33458db7e0_anchor" id="01622e330df9e6e3ef04de33458db7e0" class="jstree-node  jstree-leaf"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01622e330df9e6e3ef04de33458db7e0_anchor"><i class="jstree-icon jstree-themeicon jstree-themeicon-custom" role="presentation" style="background-image: url(&quot;/CTAP/app/resources/file-icon.png&quot;); background-position: center center; background-size: auto;"></i>switchToSelectProg</a></li><li role="treeitem" aria-selected="false" aria-level="3" aria-labelledby="0162466df56d6628ffefff88c5c23604_anchor" id="0162466df56d6628ffefff88c5c23604" class="jstree-node  jstree-leaf"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="0162466df56d6628ffefff88c5c23604_anchor"><i class="jstree-icon jstree-themeicon jstree-themeicon-custom" role="presentation" style="background-image: url(&quot;/CTAP/app/resources/file-icon.png&quot;); background-position: center center; background-size: auto;"></i>ctl test</a></li><li role="treeitem" aria-selected="false" aria-level="3" aria-labelledby="016247bb0a4990ad488f7d1f3cc02875_anchor" id="016247bb0a4990ad488f7d1f3cc02875" class="jstree-node  jstree-leaf"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="016247bb0a4990ad488f7d1f3cc02875_anchor"><i class="jstree-icon jstree-themeicon jstree-themeicon-custom" role="presentation" style="background-image: url(&quot;/CTAP/app/resources/file-icon.png&quot;); background-position: center center; background-size: auto;"></i>timeoutTest</a></li><li role="treeitem" aria-selected="false" aria-level="3" aria-labelledby="016247da388e06fb986a9100bc4b6294_anchor" id="016247da388e06fb986a9100bc4b6294" class="jstree-node  jstree-leaf"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="016247da388e06fb986a9100bc4b6294_anchor"><i class="jstree-icon jstree-themeicon jstree-themeicon-custom" role="presentation" style="background-image: url(&quot;/CTAP/app/resources/file-icon.png&quot;); background-position: center center; background-size: auto;"></i>hn AV_T_Tasksgeneralcases_1</a></li><li role="treeitem" aria-selected="false" aria-level="3" aria-labelledby="01624c9a74affccc7ebd3e9b023a9d55_anchor" id="01624c9a74affccc7ebd3e9b023a9d55" class="jstree-node  jstree-leaf"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01624c9a74affccc7ebd3e9b023a9d55_anchor"><i class="jstree-icon jstree-themeicon jstree-themeicon-custom" role="presentation" style="background-image: url(&quot;/CTAP/app/resources/file-icon.png&quot;); background-position: center center; background-size: auto;"></i>hn copied from AV_T_Tasksgeneralcases_1</a></li><li role="treeitem" aria-selected="false" aria-level="3" aria-labelledby="01626b003824b6016688d05ed098e8d0_anchor" id="01626b003824b6016688d05ed098e8d0" class="jstree-node  jstree-leaf jstree-last"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01626b003824b6016688d05ed098e8d0_anchor"><i class="jstree-icon jstree-themeicon jstree-themeicon-custom" role="presentation" style="background-image: url(&quot;/CTAP/app/resources/file-icon.png&quot;); background-position: center center; background-size: auto;"></i>copied from Check My Task WC is operational</a></li></ul></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="015d16d116cb20f00f20f97fc3a7f681_anchor" aria-expanded="false" id="015d16d116cb20f00f20f97fc3a7f681" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="015d16d116cb20f00f20f97fc3a7f681_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Anita</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="015d16d9edf9d50841619d9d05ae163d_anchor" aria-expanded="false" id="015d16d9edf9d50841619d9d05ae163d" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="015d16d9edf9d50841619d9d05ae163d_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>bhavani</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="015d16df32667a44ef2635c72ed3d082_anchor" aria-expanded="false" id="015d16df32667a44ef2635c72ed3d082" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="015d16df32667a44ef2635c72ed3d082_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Rajat</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="015d65008987949336825e1f3eee69ed_anchor" aria-expanded="false" id="015d65008987949336825e1f3eee69ed" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="015d65008987949336825e1f3eee69ed_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Pre_Requisite_Data</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="015b243093788b6be09486b48bf314ba_anchor" aria-expanded="false" id="015b243093788b6be09486b48bf314ba" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="015b243093788b6be09486b48bf314ba_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Sanity</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f76300c3a05a306a91e1662b87d_anchor" aria-expanded="false" id="01591f76300c3a05a306a91e1662b87d" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f76300c3a05a306a91e1662b87d_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Login_logout</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f765c0ba49690313f7daae2ec84_anchor" aria-expanded="false" id="01591f765c0ba49690313f7daae2ec84" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f765c0ba49690313f7daae2ec84_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Version/Build</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9c4d27cb6c37684d239f913edc_anchor" aria-expanded="false" id="01591f9c4d27cb6c37684d239f913edc" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9c4d27cb6c37684d239f913edc_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Time out</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9c6fe37fa005af73dd9263fc0e_anchor" aria-expanded="false" id="01591f9c6fe37fa005af73dd9263fc0e" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9c6fe37fa005af73dd9263fc0e_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Home</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9c8d90aa070c91843ad68fb703_anchor" aria-expanded="false" id="01591f9c8d90aa070c91843ad68fb703" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9c8d90aa070c91843ad68fb703_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>My Tasks</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9cad40849a190be3ae055af340_anchor" aria-expanded="false" id="01591f9cad40849a190be3ae055af340" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9cad40849a190be3ae055af340_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>My Risks</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9cc7e17ee284e8535340806a77_anchor" aria-expanded="false" id="01591f9cc7e17ee284e8535340806a77" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9cc7e17ee284e8535340806a77_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>My Issues</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9ce466baf7dc1a77ba9eee7488_anchor" aria-expanded="false" id="01591f9ce466baf7dc1a77ba9eee7488" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9ce466baf7dc1a77ba9eee7488_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>My Profile</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9d04e189492af2116d46ea0162_anchor" aria-expanded="false" id="01591f9d04e189492af2116d46ea0162" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9d04e189492af2116d46ea0162_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Program Overview</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9d2bf04b2cb303d473baa8f712_anchor" aria-expanded="false" id="01591f9d2bf04b2cb303d473baa8f712" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9d2bf04b2cb303d473baa8f712_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Projects</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9d468279250909fa3309a0d443_anchor" aria-expanded="false" id="01591f9d468279250909fa3309a0d443" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9d468279250909fa3309a0d443_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Tasks</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9d64fa3d2abd65eee485f47498_anchor" aria-expanded="false" id="01591f9d64fa3d2abd65eee485f47498" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9d64fa3d2abd65eee485f47498_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Timesheets</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9d81ae30f278108018a7e31d6e_anchor" aria-expanded="false" id="01591f9d81ae30f278108018a7e31d6e" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9d81ae30f278108018a7e31d6e_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Changes</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9d9d0a0697442ed71fadc11677_anchor" aria-expanded="false" id="01591f9d9d0a0697442ed71fadc11677" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9d9d0a0697442ed71fadc11677_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Risks</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9dbd85f4a59474e848193076be_anchor" aria-expanded="false" id="01591f9dbd85f4a59474e848193076be" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9dbd85f4a59474e848193076be_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Issues</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9de7fe25cbca2c54d8d00fa72f_anchor" aria-expanded="false" id="01591f9de7fe25cbca2c54d8d00fa72f" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9de7fe25cbca2c54d8d00fa72f_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Value Drivers</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9e0741ace9b6ffafe922b76725_anchor" aria-expanded="false" id="01591f9e0741ace9b6ffafe922b76725" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9e0741ace9b6ffafe922b76725_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Documents</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9e203d0377454209936636630f_anchor" aria-expanded="false" id="01591f9e203d0377454209936636630f" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9e203d0377454209936636630f_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Reports</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9e38cc49355028a127c066478a_anchor" aria-expanded="false" id="01591f9e38cc49355028a127c066478a" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9e38cc49355028a127c066478a_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Users</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9e5c727c6a56032a469a999dd8_anchor" aria-expanded="false" id="01591f9e5c727c6a56032a469a999dd8" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9e5c727c6a56032a469a999dd8_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Programs</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9f313da2a6c46d81de3a7cedb8_anchor" aria-expanded="false" id="01591f9f313da2a6c46d81de3a7cedb8" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9f313da2a6c46d81de3a7cedb8_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Agreements</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9f5a4fa70852503c2a46a7c460_anchor" aria-expanded="false" id="01591f9f5a4fa70852503c2a46a7c460" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9f5a4fa70852503c2a46a7c460_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Preferences</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9f79c1c9541d4c75f822d39ad1_anchor" aria-expanded="false" id="01591f9f79c1c9541d4c75f822d39ad1" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9f79c1c9541d4c75f822d39ad1_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Permissions</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9f97fbf05122fe50cd349d2a15_anchor" aria-expanded="false" id="01591f9f97fbf05122fe50cd349d2a15" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9f97fbf05122fe50cd349d2a15_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Program Templates</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9fab9a9b2b4bdb2c57735b6102_anchor" aria-expanded="false" id="01591f9fab9a9b2b4bdb2c57735b6102" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9fab9a9b2b4bdb2c57735b6102_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Templates</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9fcabed5db84379d07b2161127_anchor" aria-expanded="false" id="01591f9fcabed5db84379d07b2161127" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9fcabed5db84379d07b2161127_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Settings</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="01591f9ff6cc4a7497cca1c252d006a1_anchor" aria-expanded="false" id="01591f9ff6cc4a7497cca1c252d006a1" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="01591f9ff6cc4a7497cca1c252d006a1_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Communities</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="0159203f420d6586d34de4855a124d3b_anchor" aria-expanded="false" id="0159203f420d6586d34de4855a124d3b" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="0159203f420d6586d34de4855a124d3b_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>System Links</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="015ee5ecc995dba65d7b7e7d3c90aa12_anchor" id="015ee5ecc995dba65d7b7e7d3c90aa12" class="jstree-node  jstree-leaf"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="015ee5ecc995dba65d7b7e7d3c90aa12_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>GopiKrishna</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="015e0dccc94cc6836e74f1705167f576_anchor" aria-expanded="false" id="015e0dccc94cc6836e74f1705167f576" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="015e0dccc94cc6836e74f1705167f576_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Usermanagement</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="015ee6c39a245a815e99876575ebcb8f_anchor" aria-expanded="false" id="015ee6c39a245a815e99876575ebcb8f" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="015ee6c39a245a815e99876575ebcb8f_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Create Component using Shortcut</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="015eebe982c07aa08edc3ed9a901e798_anchor" aria-expanded="false" id="015eebe982c07aa08edc3ed9a901e798" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="015eebe982c07aa08edc3ed9a901e798_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>AssingGrpto_OwnerField</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="015f16b1c4c74987f63a73c62a83f202_anchor" aria-expanded="false" id="015f16b1c4c74987f63a73c62a83f202" class="jstree-node  jstree-closed"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="015f16b1c4c74987f63a73c62a83f202_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>Ramesh</a></li><li role="treeitem" aria-selected="false" aria-level="2" aria-labelledby="016107cb26c99e948f4048dee9bdf916_anchor" aria-expanded="false" id="016107cb26c99e948f4048dee9bdf916" class="jstree-node  jstree-closed jstree-last"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="016107cb26c99e948f4048dee9bdf916_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>AMyTestCases</a></li></ul></li></ul></div>
+    </div>
+
+    <!--Middle Container-->
+    <div class="middle-container case-css">
+
+        <!--Middle Top Container-->
+        <div class="middle-top-container">
+            <div class="title">
+                Compose a Test Case
+            </div>       
+            <div class="name-desc-container">
+                <div class="name-container"><label class="middle-container-title-label name-label">Name</label>
+                    <input class="middle-container-name-inp ng-pristine ng-untouched ng-valid ng-empty" type="text" ng-model="currentCaseModel.name"></div>
+               <div class="folder-div">
+                <label class="middle-container-title-label folder-title" ng-init="loadAllCaseFolder()">Folder</label>
+                <!-- ngIf: showFolderInput --><div class="folder-selection-container ng-scope" ng-if="showFolderInput">
+                    
+                    <angucomplete-alt id="ex1" placeholder="Select Case Folder" pause="100" selected-object="selectedFolder" local-data="folderModel" search-fields="name" title-field="name" minlength="0" initial-value="folderName" input-class="form-control form-control-small folder-selection-inp" class="ng-isolate-scope"><div class="angucomplete-holder" ng-class="{&#39;angucomplete-dropdown-visible&#39;: showDropdown}">  <input id="ex1_value" name="" tabindex="" ng-class="{&#39;angucomplete-input-not-empty&#39;: notEmpty}" ng-model="searchStr" ng-disabled="disableInput" type="text" placeholder="Select Case Folder" maxlength="524288" ng-focus="onFocusHandler()" class="form-control form-control-small folder-selection-inp ng-not-empty ng-valid-maxlength angucomplete-input-not-empty" ng-blur="hideResults($event)" autocapitalize="off" autocorrect="off" autocomplete="off" ng-change="inputChangeHandler(searchStr)">  <div id="ex1_dropdown" class="angucomplete-dropdown ng-hide" ng-show="showDropdown">    <div class="angucomplete-searching ng-binding ng-hide" ng-show="searching" ng-bind="textSearching">Searching...</div>    <div class="angucomplete-searching ng-binding" ng-show="!searching &amp;&amp; (!results || results.length == 0)" ng-bind="textNoResults">No results found</div>    <!-- ngRepeat: result in results -->  </div></div></angucomplete-alt>
+                </div><!-- end ngIf: showFolderInput --></div>
+            </div>
+             <div class="name-desc-container">
+                <div class="desc-container"><label class="middle-container-title-label">Description</label>
+                    <input class="middle-container-desp-inp ng-pristine ng-untouched ng-valid ng-empty" type="text" ng-model="currentCaseModel.desc"></div>
+            </div>
+             
+            <div class="row" style="margin-top:10px;margin-left: 10px;margin-right: 15px; height: calc(100% - 194px)">
+                        <div ui-i18n="en" class="grid ui-grid ng-isolate-scope grid1522724920090" external-scopes="clickHandler" ui-grid="gridOptions" ui-grid-edit="" ui-grid-selection="" ui-grid-draggable-rows="" style="height: 100%"><!-- TODO (c0bra): add "scoped" attr here, eventually? --><style ui-grid-style="" class="ng-binding">.grid1522724920090 {
+      /* Styles for the grid */
+    }
+
+    .grid1522724920090 .ui-grid-row, .grid1522724920090 .ui-grid-cell, .grid1522724920090 .ui-grid-cell .ui-grid-vertical-bar {
+      height: 30px;
+    }
+
+    .grid1522724920090 .ui-grid-row:last-child .ui-grid-cell {
+      border-bottom-width: 0px;
+    }
+
+    
+    
+
+    /*
+    .ui-grid[dir=rtl] .ui-grid-viewport {
+      padding-left: px;
+    }
+    */
+
+    
+ .grid1522724920090 .ui-grid-coluiGrid-0006 { min-width: 454px; max-width: 454px; } .grid1522724920090 .ui-grid-coluiGrid-0007 { min-width: 454px; max-width: 454px; } .grid1522724920090 .ui-grid-coluiGrid-0004 { min-width: 35px; max-width: 35px; }
+ .grid1522724920090 .ui-grid-coluiGrid-0006 { min-width: 454px; max-width: 454px; } .grid1522724920090 .ui-grid-coluiGrid-0007 { min-width: 454px; max-width: 454px; } .grid1522724920090 .ui-grid-coluiGrid-0004 { min-width: 35px; max-width: 35px; }
+
+ .grid1522724920090 .ui-grid-render-container-body .ui-grid-canvas { width: 908px; height: 0px; }
+ .grid1522724920090 .ui-grid-render-container-body .ui-grid-header-canvas { width: 929px; }
+ .grid1522724920090 .ui-grid-render-container-body .ui-grid-header-canvas { height: inherit; }
+ .grid1522724920090 .ui-grid-render-container-body .ui-grid-viewport { width: 929.746px; height: 293.996px; }
+ .grid1522724920090 .ui-grid-render-container-body .ui-grid-header-viewport { width: 929.746px; }
+ .grid1522724920090 .ui-grid-render-container-body .ui-grid-footer-canvas { width: 929px; }
+ .grid1522724920090 .ui-grid-render-container-body .ui-grid-footer-viewport { width: 929.746px; }
+
+ .grid1522724920090 .ui-grid-render-container-left .ui-grid-canvas { width: 35px; height: 0px; }
+ .grid1522724920090 .ui-grid-render-container-left .ui-grid-header-canvas { width: 56px; }
+ .grid1522724920090 .ui-grid-render-container-left .ui-grid-header-canvas { height: 31px; }
+ .grid1522724920090 .ui-grid-render-container-left .ui-grid-viewport { width: 35px; height: 272.996px; }
+ .grid1522724920090 .ui-grid-render-container-left .ui-grid-header-viewport { width: 35px; }
+ .grid1522724920090 .ui-grid-render-container-left .ui-grid-footer-canvas { width: 56px; }
+ .grid1522724920090 .ui-grid-render-container-left .ui-grid-footer-viewport { width: 35px; }
+.grid1522724920090 .ui-grid-footer-aggregates-row { height: 30px; } .grid1522724920090 .ui-grid-footer-info { height: 30px; }
+ .grid1522724920090 .ui-grid-coluiGrid-0006 { min-width: 454px; max-width: 454px; } .grid1522724920090 .ui-grid-coluiGrid-0007 { min-width: 454px; max-width: 454px; }
+.grid1522724920090 .ui-grid-pinned-container-left, .grid1522724920090 .ui-grid-pinned-container-left .ui-grid-render-container-left .ui-grid-viewport { width: 35px; } 
+ .grid1522724920090 .ui-grid-coluiGrid-0004 { min-width: 35px; max-width: 35px; }</style><div class="ui-grid-contents-wrapper"><!-- ngIf: grid.options.enableGridMenu --><!-- ngIf: grid.hasLeftContainer() --><div class="ui-grid-pinned-container ng-scope ng-isolate-scope ui-grid-pinned-container-left" ng-if="grid.hasLeftContainer()" ui-grid-pinned-container="&#39;left&#39;"><div role="grid" ui-grid-one-bind-id-grid="&#39;grid-container&#39;" class="left ui-grid-render-container-left ui-grid-render-container" ng-style="{ &#39;margin-left&#39;: colContainer.getMargin(&#39;left&#39;) + &#39;px&#39;, &#39;margin-right&#39;: colContainer.getMargin(&#39;right&#39;) + &#39;px&#39; }" ui-grid-render-container="" container-id="side" row-container-name="&#39;body&#39;" col-container-name="side" bind-scroll-vertical="true" id="1522724920090-grid-container" style="margin-left: 0px; margin-right: 0px;"><!-- All of these dom elements are replaced in place --><div role="rowgroup" class="ui-grid-header ng-scope"><!-- theader --><div class="ui-grid-top-panel"><div class="ui-grid-header-viewport"><div class="ui-grid-header-canvas"><div class="ui-grid-header-cell-wrapper" ng-style="colContainer.headerCellWrapperStyle()"><div role="row" class="ui-grid-header-cell-row"><!-- ngRepeat: col in colContainer.renderedColumns track by col.uid --><div class="ui-grid-header-cell ui-grid-clearfix ng-scope ng-isolate-scope ui-grid-coluiGrid-0004" ng-repeat="col in colContainer.renderedColumns track by col.uid" ui-grid-header-cell="" col="col" render-index="$index"><div class="ng-scope"><!-- <div class="ui-grid-vertical-bar">&nbsp;</div> --><div class="ui-grid-cell-contents" col-index="renderIndex"><!-- ngIf: grid.options.enableSelectAll --></div></div></div><!-- end ngRepeat: col in colContainer.renderedColumns track by col.uid --></div></div></div></div></div></div><div role="rowgroup" class="ui-grid-viewport ng-isolate-scope" ng-style="colContainer.getViewportStyle()" ui-grid-viewport="" style="overflow: hidden;"><!-- tbody --><div class="ui-grid-canvas"><!-- ngRepeat: (rowRenderIndex, row) in rowContainer.renderedRows track by $index --></div></div><!-- ngIf: colContainer.needsHScrollbarPlaceholder() --><div ng-if="colContainer.needsHScrollbarPlaceholder()" class="ui-grid-scrollbar-placeholder ng-scope" ng-style="{height:colContainer.grid.scrollbarHeight + &#39;px&#39;}" style="height: 21px;"></div><!-- end ngIf: colContainer.needsHScrollbarPlaceholder() --><!-- ngIf: grid.options.showColumnFooter --></div></div><!-- end ngIf: grid.hasLeftContainer() --><div role="grid" ui-grid-one-bind-id-grid="&#39;grid-container&#39;" class="ui-grid-render-container ng-isolate-scope ui-grid-render-container-body" ng-style="{ &#39;margin-left&#39;: colContainer.getMargin(&#39;left&#39;) + &#39;px&#39;, &#39;margin-right&#39;: colContainer.getMargin(&#39;right&#39;) + &#39;px&#39; }" ui-grid-render-container="" container-id="&#39;body&#39;" col-container-name="&#39;body&#39;" row-container-name="&#39;body&#39;" bind-scroll-horizontal="true" bind-scroll-vertical="true" enable-horizontal-scrollbar="grid.options.enableHorizontalScrollbar" enable-vertical-scrollbar="grid.options.enableVerticalScrollbar" id="1522724920090-grid-container" style="margin-left: 35px; margin-right: 0px;"><!-- All of these dom elements are replaced in place --><div role="rowgroup" class="ui-grid-header ng-scope"><!-- theader --><div class="ui-grid-top-panel"><div class="ui-grid-header-viewport"><div class="ui-grid-header-canvas"><div class="ui-grid-header-cell-wrapper" ng-style="colContainer.headerCellWrapperStyle()"><div role="row" class="ui-grid-header-cell-row"><!-- ngRepeat: col in colContainer.renderedColumns track by col.uid --><div class="ui-grid-header-cell ui-grid-clearfix ng-scope ng-isolate-scope ui-grid-coluiGrid-0006" ng-repeat="col in colContainer.renderedColumns track by col.uid" ui-grid-header-cell="" col="col" render-index="$index"><div role="columnheader" ng-class="{ &#39;sortable&#39;: sortable }" ui-grid-one-bind-aria-labelledby-grid="col.uid + &#39;-header-text &#39; + col.uid + &#39;-sortdir-text&#39;" aria-sort="none" class="ng-scope" aria-labelledby="1522724920090-uiGrid-0006-header-text 1522724920090-uiGrid-0006-sortdir-text"><div role="button" tabindex="0" class="ui-grid-cell-contents ui-grid-header-cell-primary-focus" col-index="renderIndex"><span class="ui-grid-header-cell-label ng-binding" ui-grid-one-bind-id-grid="col.uid + &#39;-header-text&#39;" id="1522724920090-uiGrid-0006-header-text">Task Name</span> <span ui-grid-one-bind-id-grid="col.uid + &#39;-sortdir-text&#39;" ui-grid-visible="col.sort.direction" aria-label="Sort None" class="ui-grid-invisible" id="1522724920090-uiGrid-0006-sortdir-text"><i ng-class="{ &#39;ui-grid-icon-up-dir&#39;: col.sort.direction == asc, &#39;ui-grid-icon-down-dir&#39;: col.sort.direction == desc, &#39;ui-grid-icon-blank&#39;: !col.sort.direction }" title="" aria-hidden="true" class="ui-grid-icon-blank"></i> <sub ui-grid-visible="isSortPriorityVisible()" class="ui-grid-sort-priority-number ng-binding ui-grid-invisible">1</sub></span></div><!-- ngIf: grid.options.enableColumnMenus && !col.isRowHeader  && col.colDef.enableColumnMenu !== false --><div ui-grid-filter=""></div></div></div><!-- end ngRepeat: col in colContainer.renderedColumns track by col.uid --><div class="ui-grid-header-cell ui-grid-clearfix ng-scope ng-isolate-scope ui-grid-coluiGrid-0007" ng-repeat="col in colContainer.renderedColumns track by col.uid" ui-grid-header-cell="" col="col" render-index="$index"><div role="columnheader" ng-class="{ &#39;sortable&#39;: sortable }" ui-grid-one-bind-aria-labelledby-grid="col.uid + &#39;-header-text &#39; + col.uid + &#39;-sortdir-text&#39;" aria-sort="none" class="ng-scope" aria-labelledby="1522724920090-uiGrid-0007-header-text 1522724920090-uiGrid-0007-sortdir-text"><div role="button" tabindex="0" class="ui-grid-cell-contents ui-grid-header-cell-primary-focus" col-index="renderIndex"><span class="ui-grid-header-cell-label ng-binding" ui-grid-one-bind-id-grid="col.uid + &#39;-header-text&#39;" id="1522724920090-uiGrid-0007-header-text">Description</span> <span ui-grid-one-bind-id-grid="col.uid + &#39;-sortdir-text&#39;" ui-grid-visible="col.sort.direction" aria-label="Sort None" class="ui-grid-invisible" id="1522724920090-uiGrid-0007-sortdir-text"><i ng-class="{ &#39;ui-grid-icon-up-dir&#39;: col.sort.direction == asc, &#39;ui-grid-icon-down-dir&#39;: col.sort.direction == desc, &#39;ui-grid-icon-blank&#39;: !col.sort.direction }" title="" aria-hidden="true" class="ui-grid-icon-blank"></i> <sub ui-grid-visible="isSortPriorityVisible()" class="ui-grid-sort-priority-number ng-binding ui-grid-invisible">1</sub></span></div><!-- ngIf: grid.options.enableColumnMenus && !col.isRowHeader  && col.colDef.enableColumnMenu !== false --><div ui-grid-filter=""></div></div></div><!-- end ngRepeat: col in colContainer.renderedColumns track by col.uid --></div></div></div></div></div></div><div role="rowgroup" class="ui-grid-viewport ng-isolate-scope" ng-style="colContainer.getViewportStyle()" ui-grid-viewport="" style="overflow: scroll;"><!-- tbody --><div class="ui-grid-canvas"><!-- ngRepeat: (rowRenderIndex, row) in rowContainer.renderedRows track by $index --></div></div><!-- ngIf: colContainer.needsHScrollbarPlaceholder() --><!-- ngIf: grid.options.showColumnFooter --></div><!-- ngIf: grid.hasRightContainer() --><!-- ngIf: grid.options.showGridFooter --><!-- ngIf: grid.options.enableColumnMenus --><div ng-transclude=""></div></div></div>
+            </div>           
+            <div class="middle-top-button-group">
+                <!-- <button class="glyphicon glyphicon-floppy-disk" ng-click="saveCase()"></button> -->
+                <button type="button" class="btn btn-primary" ng-click="cutRow()"> CUT </button>
+                <button type="button" class="btn btn-primary" ng-click="copyRow()"> COPY </button>
+                <button type="button" class="btn btn-primary" ng-click="pasteRow()" style="width:120px"> PASTE ABOVE </button>
+                <button type="button" class="btn cancel-button" ng-click="cleanInput()">CANCEL</button>
+                <button type="button" class="btn btn-primary" ng-click="saveCase()"> SAVE </button>
+            </div>
+        </div>
+
+        <!--Middle Bottom Container Method-->
+        <div class="middle-bottom-container">
+
+        </div>
+    </div>
+
+    <!--Right container-->
+    <div class="right-container" ng-init="loadTaskTreeFromBuildTree()">
+        <div class="tree-title-container">
+            Tasks
+        </div>
+        <input id="search-task" value="" class="input searchbox" type="text" placeholder="Search Task">
+		<div id="task-tree" class="js-tree-div ng-pristine ng-untouched ng-valid ng-isolate-scope ng-not-empty jstree jstree-4 jstree-proton jstree-proton-responsive" js-tree="taskTreeConfigFromBuildTree" ng-model="taskTreeData" tree="taskTreeInstance" tree-events="ready:onTaskTreeLoaded;select_node:onTaskSelected;dblclick:addTasksFromTree" role="tree" tabindex="0" aria-activedescendant="rootLeft" aria-busy="false"><ul class="jstree-container-ul jstree-children jstree-wholerow-ul jstree-no-dots" role="group"><li role="treeitem" aria-selected="false" aria-level="1" aria-labelledby="rootLeft_anchor" aria-expanded="false" id="rootLeft" class="jstree-node  jstree-closed jstree-last"><div unselectable="on" role="presentation" class="jstree-wholerow">&nbsp;</div><i class="jstree-icon jstree-ocl" role="presentation"></i><a class="jstree-anchor" href="http://9.111.221.116:8080/CTAP/app/#" tabindex="-1" id="rootLeft_anchor"><i class="jstree-icon jstree-themeicon" role="presentation"></i>ipwc</a></li></ul></div>
+        </div>
+    </div>
+
+
+
+
+
+<!--//Create folder Modal-->
+<div class="modal fade ng-scope" id="create-folder-modal" tabindex="-1" role="dialog">
+    <div class="folder-modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span></button>
+                <h4 class="modal-title">NEW CASE FOLDER</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row folder-inp-container">
+                    <label>Name</label>
+                    <input type="text" class="inp-folder ng-pristine ng-untouched ng-valid ng-not-empty" ng-model="currentFolderModel.text">
+                </div>
+                <div class="row folder-inp-container">
+                    <label>Description</label>
+                    <input type="text" class="inp-folder ng-pristine ng-untouched ng-valid ng-empty" ng-model="currentFolderModel.desc">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn cancel-button" data-dismiss="modal">CANCEL</button>
+                <button type="button" class="btn btn-primary" ng-click="doCreateCaseFolder()">SAVE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Rename folder Modal-->
+<div class="modal fade ng-scope" id="rename-folder-modal" tabindex="-1" role="dialog">
+    <div class="folder-modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span></button>
+                <h4 class="modal-title">RENAME CASE FOLDER</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row folder-inp-container">
+                    <label>Name</label>
+                    <input type="text" class="inp-folder ng-pristine ng-untouched ng-valid ng-not-empty" ng-model="currentFolderModel.text">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn cancel-button" data-dismiss="modal">CANCEL</button>
+                <button type="button" class="btn btn-primary" ng-click="doRenameCaseFolder()">SAVE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--//Create Task folder Modal-->
+<div class="modal fade ng-scope" id="create-Task-folder-modal" tabindex="-1" role="dialog">
+    <div class="folder-modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span></button>
+                <h4 class="modal-title">NEW TASK FOLDER</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row folder-inp-container">
+                    <label>Name</label>
+                    <input type="text" class="inp-folder ng-pristine ng-untouched ng-valid ng-empty" ng-model="currentTaskFolderModel.text">
+                </div>
+                <div class="row folder-inp-container">
+                    <label>Description</label>
+                    <input type="text" class="inp-folder ng-pristine ng-untouched ng-valid ng-empty" ng-model="currentTaskFolderModel.desc">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn cancel-button" data-dismiss="modal">CANCEL</button>
+                <button type="button" class="btn btn-primary" ng-click="doTaskTreeNewFolder()">SAVE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Rename Task folder Modal-->
+<div class="modal fade ng-scope" id="rename-Task-folder-modal" tabindex="-1" role="dialog">
+    <div class="folder-modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span></button>
+                <h4 class="modal-title">RENAME TASK FOLDER</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row folder-inp-container">
+                    <label>Name</label>
+                    <input type="text" class="inp-folder ng-pristine ng-untouched ng-valid ng-empty" ng-model="currentTaskFolderModel.text">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn cancel-button" data-dismiss="modal">CANCEL</button>
+                <button type="button" class="btn btn-primary" ng-click="doRenameTaskFolder()">SAVE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<!-- In production use:
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
+-->
+<script src="./CTAP_files/modernizr-2.8.3.min.js.下载"></script>
+<script src="./CTAP_files/jquery.js.下载"></script>
+<script src="./CTAP_files/angular.js.下载"></script>
+<script src="./CTAP_files/d3.min.js.下载"></script>
+<script src="./CTAP_files/angular-animate.js.下载"></script>
+<script src="./CTAP_files/angular-route.js.下载"></script>
+<script src="./CTAP_files/bootstrap.js.下载"></script>
+<script src="./CTAP_files/ui-bootstrap.js.下载"></script>
+<script src="./CTAP_files/jstree.js.下载"></script>
+<script src="./CTAP_files/ngJsTree.min.js.下载"></script>
+<script src="./CTAP_files/sweetalert.min.js.下载"></script>
+<script src="./CTAP_files/ng-sweet-alert.js.下载"></script>
+<script src="./CTAP_files/dataTable.js.下载"></script>
+<script src="./CTAP_files/angular-sanitize.js.下载"></script>
+<script src="./CTAP_files/angucomplete-alt.js.下载"></script>
+<script src="./CTAP_files/ui-grid.min.js.下载"></script>
+<script src="./CTAP_files/draggable-rows.js.下载"></script>
+<script src="./CTAP_files/ui-bootstrap-tpls.min.js.下载"></script>
+<script src="./CTAP_files/sweetalert2.min.js.下载"></script>
+<script src="./CTAP_files/app.js.下载"></script>
+
+
+<script src="./CTAP_files/config.service.js.下载"></script>
+<script src="./CTAP_files/utils.js.下载"></script>
+<script src="./CTAP_files/buildTree.js.下载"></script>
+<script src="./CTAP_files/buildDiagram.js.下载"></script>
+<script src="./CTAP_files/swalMessage.js.下载"></script>
+
+<script src="./CTAP_files/case.js.下载"></script>
+<script src="./CTAP_files/widget.js.下载"></script>
+<script src="./CTAP_files/task.js.下载"></script>
+<script src="./CTAP_files/login.js.下载"></script>
+<script src="./CTAP_files/report.js.下载"></script>
+
+<script src="./CTAP_files/caseService.js.下载"></script>
+<script src="./CTAP_files/widgetService.js.下载"></script>
+<script src="./CTAP_files/taskService.js.下载"></script>
+<script src="./CTAP_files/suite.js.下载"></script>
+<script src="./CTAP_files/task.js.下载"></script>
+<script src="./CTAP_files/suiteService.js.下载"></script>
+<script src="./CTAP_files/debugCase.js.下载"></script>
+<script src="./CTAP_files/debugCaseService.js.下载"></script>
+<script src="./CTAP_files/reportService.js.下载"></script>
+<script src="./CTAP_files/execution.js.下载"></script>
+<script src="./CTAP_files/executionService.js.下载"></script>
+<script src="./CTAP_files/workQueue.js.下载"></script>
+<script src="./CTAP_files/workQueueService.js.下载"></script>
+<script src="./CTAP_files/diagram.js.下载"></script>
+<script src="./CTAP_files/diagramService.js.下载"></script>
+
+<!-- 导航栏的active切换-->
+<script>
+    $(document).ready(function () {
+        /* $('ul.nav li').on('click', function () {
+            $('ul.nav li.nav-item').removeClass('active');
+            $(this).addClass('active');
+        }); */
+        
+        $('ul.nav li.not-available-nav').on('click', function () {
+        	swal('','This function will be available in next release!', 'info');
+        });
+      
+    })
+</script>
+
+
+</body></html>

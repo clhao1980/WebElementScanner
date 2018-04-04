@@ -1,0 +1,142 @@
+.execution-middle-header-container {
+	width: 100%;
+	border: none;
+	height:100%;
+}
+
+.data-container {
+	margin-left: 10px;
+	margin-top: 5px;
+	height: 19%;
+	margin-right: 10px;
+}
+
+.data-choose {
+	margin-left: 10px;
+	margin-top: 10px;
+}
+
+.customizedata-container {
+	margin-left: 10px;
+	margin-top: 5px;
+	height: 29%;
+	margin-right: 10px;
+}
+
+input.editable {
+	background-color: rgb(238, 238, 238)
+}
+
+.execution-middle-top-button-group {
+	float: right;
+	margin: 10px;
+	margin-right : 0px;
+	border: none;
+}
+
+.execution-middle-bottom-button-group {
+	margin-top: 10px;
+}
+.execution-middle-button-group button {
+	width: 110px;
+	color: white;
+	border: none;
+	padding: 10px;
+	/*background: cornflowerblue;*/
+	margin-right: 10px;
+}
+
+.execution-middle-button-group label {
+	width: 110px;
+	color: white;
+	border: none;
+	padding: 10px;
+	/*background: cornflowerblue;*/
+	margin-right: 10px;
+}
+
+.execution-grid {
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: 100%;
+}
+
+.execution-env-grid {
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: 100%;
+}
+
+.execution-url-grid {
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: 29%;
+	width: 100%;
+}
+
+.execution-schedule-grid {
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: 22%;
+	width: 100%;
+}
+
+.execution-schedule-env-grid {
+	margin: 0px;
+	padding: 0px;
+	width: 100%;
+	height: 10%;
+	width: 100%;
+}
+
+.execution-modal-dialog {
+	width: 900px;
+	margin-left: auto;
+	margin-right: auto;
+	float: none;
+	margin-top: 5%;
+}
+.ui-grid-tree-header-row {
+font-weight: normal!important;
+}
+.execution-modal-name-inp{
+    margin-left: 5px;
+    width: calc(100% - 130px);
+    float: right;
+}
+.execution-modal-small-inp{
+    margin-left: 0px;
+    margin-right: 0px;
+    width: 38px;
+    height: 38px;
+    text-align: center;
+}
+.execution-float-right{
+	float:right;
+}
+.execution-float-left{
+	float:left;
+}
+.execution-title-label-small{
+    font-size: 15px;
+    font-weight: normal;
+    line-height: 38px;
+    margin-left:0px;
+    
+}
+.execution-title-label{
+    font-size: 15px;
+    font-weight: normal;
+}
+.execution-margin-right{
+	margin-right : 10px;
+}
+.execution-date-input{
+    margin-left: 0px;
+    width: 100px;
+    text-align: center;
+}

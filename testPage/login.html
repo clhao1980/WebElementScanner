@@ -1,0 +1,37 @@
+<div class="login login-css" style="height:calc(100% + 70px);">
+	<div id="placeholder-top" style="padding-bottom: 12%"></div>
+	<div class="row">
+		<div class="col-md-4"></div>
+		<div class="col-md-4 main">
+			<div class="row" style="height: 15px"></div>
+			<div class="row">
+				<div class="col-md-12 input-group input-group-md">
+					<label style="height: 28px">Tenant ID:</label><input type="text"
+						class="input" placeholder="Tenant ID" ng-model="user.username" />
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 input-group input-group-md">
+					<label>Password:</label><input type="password"
+						placeholder="Password" class="input" ng-model="user.password" />
+				</div>
+			</div>
+			<div class="row" ng-show="true">
+				<div class="col-md-12 input-group input-group-md">
+					<label>Operator:</label><input type="text"
+						placeholder="Operator" class="input" ng-model="user.operator" />
+				</div>
+			</div>
+			<div class="row" style="height: 15px"></div>
+			<div class="row">
+				<div class="col-md-12 text-center">
+					<button class="btn btn-primary" ng-click="submit()">Submit</button>
+					<button class="btn btn-default" ng-click="reset()">Reset</button>
+				</div>
+			</div>
+			<div class="row" style="height: 15px"></div>
+			<div class="col-md-4"></div>
+		</div>
+	</div>
+	<div id="placeholder-bottom" style="padding-bottom: 23%"></div>
+</div>

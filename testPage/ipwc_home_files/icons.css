@@ -1,0 +1,248 @@
+.cke_resizer{
+}
+.cke_resizer_rtl{
+}
+.cke_button_arrow{background:url("sprite.svg") 33.333333333333336% 33.333333333333336% no-repeat !important;
+position:relative;top:9%;right:2%;width:5%;padding-right:9px;
+}
+.cke_rtl .cke_button_arrow{background:url("sprite.svg") 44.44444444444444% 0 no-repeat !important;
+position:relative;top:9%;right:-15%;width:5%;padding-right:9px;
+}
+a.cke_toolbox_collapser, a:hover.cke_toolbox_collapser{
+}
+a.cke_toolbox_collapser_min, a:hover.cke_toolbox_collapser_min{
+}
+.cke_rtl a.cke_toolbox_collapser_min, .cke_rtl a:hover.cke_toolbox_collapser_min{
+}
+.cke_rtl .cke_button_info_icon{
+}
+.cke_button_info_icon{background:url("sprite.svg") 44.44444444444444% 11.11111111111111% no-repeat !important;
+}
+.cke_combo_arrow{background:url("sprite.svg") 44.44444444444444% 22.22222222222222% no-repeat !important;
+}
+.cke_rtl .cke_combo_arrow{background:url("sprite.svg") 44.44444444444444% 33.333333333333336% no-repeat !important;
+}
+.cke_button__about_icon{}
+.cke_button__creatediv_icon{}
+.cke_rtl .cke_button__docprops_icon, .cke_mixed_dir_content .cke_rtl .cke_button__docprops_icon{}
+.cke_ltr .cke_button__docprops_icon{}
+.cke_button__embedsemantic_icon{}
+.cke_button__button_icon{background:url("sprite.svg") 33.333333333333336% 33.333333333333336% no-repeat !important;}
+.cke_button__checkbox_icon{}
+.cke_button__form_icon{background:url("sprite.svg") 22.22222222222222% 44.44444444444444% no-repeat !important;}
+.cke_button__hiddenfield_icon{}
+.cke_button__imagebutton_icon{}
+.cke_button__radio_icon{}
+.cke_rtl .cke_button__select_icon, .cke_mixed_dir_content .cke_rtl .cke_button__select_icon{}
+.cke_ltr .cke_button__select_icon{background:url("sprite.svg") 11.11111111111111% 88.88888888888889% no-repeat !important;}
+.cke_rtl .cke_button__textarea_icon, .cke_mixed_dir_content .cke_rtl .cke_button__textarea_icon{}
+.cke_ltr .cke_button__textarea_icon{}
+.cke_rtl .cke_button__textfield_icon, .cke_mixed_dir_content .cke_rtl .cke_button__textfield_icon{}
+.cke_ltr .cke_button__textfield_icon{}
+.cke_button__image_layout_center_icon{background:url("sprite.svg") 66.66666666666667% 11.11111111111111% no-repeat !important;}
+.cke_button__image_layout_left_icon{background:url("sprite.svg") 66.66666666666667% 11.11111111111111% no-repeat !important;}
+.cke_button__image_layout_left2_icon{background:url("sprite.svg") 66.66666666666667% 11.11111111111111% no-repeat !important;}
+.cke_button__image_layout_right_icon{background:url("sprite.svg") 66.66666666666667% 11.11111111111111% no-repeat !important;}
+.cke_button__mathjax_icon{}
+.cke_button__placeholder_icon{}
+.cke_rtl .cke_button__sourcedialog_icon, .cke_mixed_dir_content .cke_rtl .cke_button__sourcedialog_icon{}
+.cke_ltr .cke_button__sourcedialog_icon{}
+.cke_button__simplebox_icon{}
+.cke_rtl .cke_button__anchor_icon, .cke_mixed_dir_content .cke_rtl .cke_button__anchor_icon{background:url("sprite.svg") 55.55555555555556% 66.66666666666667% no-repeat !important;}
+.cke_ltr .cke_button__anchor_icon{background:url("sprite.svg") 11.11111111111111% 0 no-repeat !important;}
+.cke_button__bgcolor_icon{background:url("sprite.svg") 0 11.11111111111111% no-repeat !important;}
+.cke_rtl .cke_button__bidiltr_icon, .cke_mixed_dir_content .cke_rtl .cke_button__bidiltr_icon{background:url("sprite.svg") 22.22222222222222% 0 no-repeat !important;}
+.cke_ltr .cke_button__bidiltr_icon{background:url("sprite.svg") 11.11111111111111% 11.11111111111111% no-repeat !important;}
+.cke_rtl .cke_button__bidirtl_icon, .cke_mixed_dir_content .cke_rtl .cke_button__bidirtl_icon{background:url("sprite.svg") 0 22.22222222222222% no-repeat !important;}
+.cke_ltr .cke_button__bidirtl_icon{background:url("sprite.svg") 0 22.22222222222222% no-repeat !important;}
+.cke_button__blockquote_icon{background:url("sprite.svg") 11.11111111111111% 22.22222222222222% no-repeat !important;}
+.cke_button__bold_icon{background:url("sprite.svg") 22.22222222222222% 22.22222222222222% no-repeat !important;}
+.cke_button__bookmark_icon{background:url("sprite.svg") 33.333333333333336% 0 no-repeat !important;}
+.cke_rtl .cke_button__bulletedlist_icon, .cke_mixed_dir_content .cke_rtl .cke_button__bulletedlist_icon{background:url("sprite.svg") 22.22222222222222% 33.333333333333336% no-repeat !important;}
+.cke_ltr .cke_button__bulletedlist_icon{background:url("sprite.svg") 11.11111111111111% 33.333333333333336% no-repeat !important;}
+.cke_rtl .cke_button__copy_icon, .cke_mixed_dir_content .cke_rtl .cke_button__copy_icon{background:url("sprite.svg") 11.11111111111111% 44.44444444444444% no-repeat !important;}
+.cke_ltr .cke_button__copy_icon{background:url("sprite.svg") 0 44.44444444444444% no-repeat !important;}
+.cke_button__copyformatting_icon{background:url("sprite.svg") 22.22222222222222% 44.44444444444444% no-repeat !important;}
+.cke_rtl .cke_button__cut_icon, .cke_mixed_dir_content .cke_rtl .cke_button__cut_icon{background:url("sprite.svg") 44.44444444444444% 44.44444444444444% no-repeat !important;}
+.cke_ltr .cke_button__cut_icon{background:url("sprite.svg") 33.333333333333336% 44.44444444444444% no-repeat !important;}
+.cke_button__embed_icon{background:url("sprite.svg") 55.55555555555556% 11.11111111111111% no-repeat !important;}
+.cke_rtl .cke_button__find_icon, .cke_mixed_dir_content .cke_rtl .cke_button__find_icon{background:url("sprite.svg") 55.55555555555556% 33.333333333333336% no-repeat !important;}
+.cke_ltr .cke_button__find_icon{background:url("sprite.svg") 55.55555555555556% 22.22222222222222% no-repeat !important;}
+.cke_button__flash_icon{background:url("sprite.svg") 55.55555555555556% 44.44444444444444% no-repeat !important;}
+.cke_button__horizontalrule_icon{background:url("sprite.svg") 0 55.55555555555556% no-repeat !important;}
+.cke_button__ibmpermanentpen_icon{background:url("sprite.svg") 11.11111111111111% 55.55555555555556% no-repeat !important;}
+.cke_button__ibmspellchecker_icon{background:url("sprite.svg") 22.22222222222222% 55.55555555555556% no-repeat !important;}
+.cke_button__ibmwidgets_icon{background:url("sprite.svg") 44.44444444444444% 55.55555555555556% no-repeat !important;}
+.cke_button__ibmwidgetsproperties_icon{background:url("sprite.svg") 55.55555555555556% 55.55555555555556% no-repeat !important;}
+.cke_button__iframe_icon{background:url("sprite.svg") 66.66666666666667% 0 no-repeat !important;}
+.cke_button__image_icon{background:url("sprite.svg") 66.66666666666667% 11.11111111111111% no-repeat !important;}
+.cke_rtl .cke_button__indent_icon, .cke_mixed_dir_content .cke_rtl .cke_button__indent_icon{background:url("sprite.svg") 66.66666666666667% 33.333333333333336% no-repeat !important;}
+.cke_ltr .cke_button__indent_icon{background:url("sprite.svg") 66.66666666666667% 22.22222222222222% no-repeat !important;}
+.cke_button__info_icon{background:url("sprite.svg") 44.44444444444444% 11.11111111111111% no-repeat !important;}
+.cke_button__italic_icon{background:url("sprite.svg") 66.66666666666667% 55.55555555555556% no-repeat !important;}
+.cke_button__justifyblock_icon{background:url("sprite.svg") 0 66.66666666666667% no-repeat !important;}
+.cke_button__justifycenter_icon{background:url("sprite.svg") 11.11111111111111% 66.66666666666667% no-repeat !important;}
+.cke_button__justifyleft_icon{background:url("sprite.svg") 22.22222222222222% 66.66666666666667% no-repeat !important;}
+.cke_button__justifyright_icon{background:url("sprite.svg") 33.333333333333336% 66.66666666666667% no-repeat !important;}
+.cke_button__language_icon{background:url("sprite.svg") 44.44444444444444% 66.66666666666667% no-repeat !important;}
+.cke_button__link_icon{background:url("sprite.svg") 0 0 no-repeat !important;}
+.cke_button__maximize_icon{background:url("sprite.svg") 66.66666666666667% 66.66666666666667% no-repeat !important;}
+.cke_rtl .cke_button__newpage_icon, .cke_mixed_dir_content .cke_rtl .cke_button__newpage_icon{background:url("sprite.svg") 77.77777777777777% 11.11111111111111% no-repeat !important;}
+.cke_ltr .cke_button__newpage_icon{background:url("sprite.svg") 77.77777777777777% 0 no-repeat !important;}
+.cke_rtl .cke_button__numberedlist-ar_icon, .cke_mixed_dir_content .cke_rtl .cke_button__numberedlist-ar_icon{background:url("sprite.svg") 77.77777777777777% 33.333333333333336% no-repeat !important;}
+.cke_rtl .cke_button__numberedlist_icon, .cke_mixed_dir_content .cke_rtl .cke_button__numberedlist_icon{background:url("sprite.svg") 77.77777777777777% 44.44444444444444% no-repeat !important;}
+.cke_ltr .cke_button__numberedlist_icon{background:url("sprite.svg") 77.77777777777777% 22.22222222222222% no-repeat !important;}
+.cke_rtl .cke_button__outdent_icon, .cke_mixed_dir_content .cke_rtl .cke_button__outdent_icon{background:url("sprite.svg") 77.77777777777777% 66.66666666666667% no-repeat !important;}
+.cke_ltr .cke_button__outdent_icon{background:url("sprite.svg") 77.77777777777777% 55.55555555555556% no-repeat !important;}
+.cke_rtl .cke_button__pagebreak_icon, .cke_mixed_dir_content .cke_rtl .cke_button__pagebreak_icon{background:url("sprite.svg") 11.11111111111111% 77.77777777777777% no-repeat !important;}
+.cke_ltr .cke_button__pagebreak_icon{background:url("sprite.svg") 0 77.77777777777777% no-repeat !important;}
+.cke_rtl .cke_button__paste_icon, .cke_mixed_dir_content .cke_rtl .cke_button__paste_icon{background:url("sprite.svg") 33.333333333333336% 77.77777777777777% no-repeat !important;}
+.cke_ltr .cke_button__paste_icon{background:url("sprite.svg") 22.22222222222222% 77.77777777777777% no-repeat !important;}
+.cke_rtl .cke_button__pastefromword_icon, .cke_mixed_dir_content .cke_rtl .cke_button__pastefromword_icon{background:url("sprite.svg") 55.55555555555556% 77.77777777777777% no-repeat !important;}
+.cke_ltr .cke_button__pastefromword_icon{background:url("sprite.svg") 44.44444444444444% 77.77777777777777% no-repeat !important;}
+.cke_rtl .cke_button__pastetext_icon, .cke_mixed_dir_content .cke_rtl .cke_button__pastetext_icon{background:url("sprite.svg") 77.77777777777777% 77.77777777777777% no-repeat !important;}
+.cke_ltr .cke_button__pastetext_icon{background:url("sprite.svg") 66.66666666666667% 77.77777777777777% no-repeat !important;}
+.cke_rtl .cke_button__preview_icon, .cke_mixed_dir_content .cke_rtl .cke_button__preview_icon{background:url("sprite.svg") 88.88888888888889% 11.11111111111111% no-repeat !important;}
+.cke_ltr .cke_button__preview_icon{background:url("sprite.svg") 88.88888888888889% 0 no-repeat !important;}
+.cke_button__print_icon{background:url("sprite.svg") 88.88888888888889% 22.22222222222222% no-repeat !important;}
+.cke_rtl .cke_button__redo_icon, .cke_mixed_dir_content .cke_rtl .cke_button__redo_icon{background:url("sprite.svg") 88.88888888888889% 44.44444444444444% no-repeat !important;}
+.cke_ltr .cke_button__redo_icon{background:url("sprite.svg") 88.88888888888889% 33.333333333333336% no-repeat !important;}
+.cke_button__removeformat_icon{background:url("sprite.svg") 88.88888888888889% 55.55555555555556% no-repeat !important;}
+.cke_button__replace_icon{background:url("sprite.svg") 88.88888888888889% 66.66666666666667% no-repeat !important;}
+.cke_button__save_icon{background:url("sprite.svg") 88.88888888888889% 77.77777777777777% no-repeat !important;}
+.cke_button__selectall_icon{background:url("sprite.svg") 11.11111111111111% 88.88888888888889% no-repeat !important;}
+.cke_rtl .cke_button__showblocks_icon, .cke_mixed_dir_content .cke_rtl .cke_button__showblocks_icon{background:url("sprite.svg") 33.333333333333336% 88.88888888888889% no-repeat !important;}
+.cke_ltr .cke_button__showblocks_icon{background:url("sprite.svg") 22.22222222222222% 88.88888888888889% no-repeat !important;}
+.cke_button__smiley_icon{background:url("sprite.svg") 44.44444444444444% 88.88888888888889% no-repeat !important;}
+.cke_rtl .cke_button__source_icon, .cke_mixed_dir_content .cke_rtl .cke_button__source_icon{background:url("sprite.svg") 66.66666666666667% 88.88888888888889% no-repeat !important;}
+.cke_ltr .cke_button__source_icon{background:url("sprite.svg") 55.55555555555556% 88.88888888888889% no-repeat !important;}
+.cke_button__specialchar_icon{background:url("sprite.svg") 77.77777777777777% 88.88888888888889% no-repeat !important;}
+.cke_button__strike_icon{background:url("sprite.svg") 100% 0 no-repeat !important;}
+.cke_rtl .cke_button__subscript_icon, .cke_mixed_dir_content .cke_rtl .cke_button__subscript_icon{background:url("sprite.svg") 100% 22.22222222222222% no-repeat !important;}
+.cke_ltr .cke_button__subscript_icon{background:url("sprite.svg") 100% 11.11111111111111% no-repeat !important;}
+.cke_rtl .cke_button__superscript_icon, .cke_mixed_dir_content .cke_rtl .cke_button__superscript_icon{background:url("sprite.svg") 100% 44.44444444444444% no-repeat !important;}
+.cke_ltr .cke_button__superscript_icon{background:url("sprite.svg") 100% 33.333333333333336% no-repeat !important;}
+.cke_button__table_icon{background:url("sprite.svg") 100% 55.55555555555556% no-repeat !important;}
+.cke_rtl .cke_button__templates_icon, .cke_mixed_dir_content .cke_rtl .cke_button__templates_icon{background:url("sprite.svg") 100% 77.77777777777777% no-repeat !important;}
+.cke_ltr .cke_button__templates_icon{background:url("sprite.svg") 100% 66.66666666666667% no-repeat !important;}
+.cke_button__textcolor_icon{background:url("sprite.svg") 100% 88.88888888888889% no-repeat !important;}
+.cke_button__underline_icon{background:url("sprite.svg") 0 100% no-repeat !important;}
+.cke_rtl .cke_button__undo_icon, .cke_mixed_dir_content .cke_rtl .cke_button__undo_icon{background:url("sprite.svg") 22.22222222222222% 100% no-repeat !important;}
+.cke_ltr .cke_button__undo_icon{background:url("sprite.svg") 11.11111111111111% 100% no-repeat !important;}
+.cke_button__unlink_icon{background:url("sprite.svg") 33.333333333333336% 100% no-repeat !important;}
+.cke_hidpi .cke_button__about_icon{}
+.cke_hidpi .cke_button__creatediv_icon{}
+.cke_rtl.cke_hidpi .cke_button__docprops_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__docprops_icon{}
+.cke_hidpi .cke_ltr .cke_button__docprops_icon, .cke_ltr.cke_hidpi .cke_button__docprops_icon{}
+.cke_hidpi .cke_button__embedsemantic_icon{}
+.cke_hidpi .cke_button__button_icon{background:url("sprite.svg") 33.333333333333336% 33.333333333333336% no-repeat !important;}
+.cke_hidpi .cke_button__checkbox_icon{}
+.cke_hidpi .cke_button__form_icon{background:url("sprite.svg") 22.22222222222222% 44.44444444444444% no-repeat !important;}
+.cke_hidpi .cke_button__hiddenfield_icon{}
+.cke_hidpi .cke_button__imagebutton_icon{}
+.cke_hidpi .cke_button__radio_icon{}
+.cke_rtl.cke_hidpi .cke_button__select_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__select_icon{}
+.cke_hidpi .cke_ltr .cke_button__select_icon, .cke_ltr.cke_hidpi .cke_button__select_icon{background:url("sprite.svg") 11.11111111111111% 88.88888888888889% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__textarea_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__textarea_icon{}
+.cke_hidpi .cke_ltr .cke_button__textarea_icon, .cke_ltr.cke_hidpi .cke_button__textarea_icon{}
+.cke_rtl.cke_hidpi .cke_button__textfield_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__textfield_icon{}
+.cke_hidpi .cke_ltr .cke_button__textfield_icon, .cke_ltr.cke_hidpi .cke_button__textfield_icon{}
+.cke_hidpi .cke_button__image_layout_center_icon{background:url("sprite.svg") 66.66666666666667% 11.11111111111111% no-repeat !important;}
+.cke_hidpi .cke_button__image_layout_left_icon{background:url("sprite.svg") 66.66666666666667% 11.11111111111111% no-repeat !important;}
+.cke_hidpi .cke_button__image_layout_left2_icon{background:url("sprite.svg") 66.66666666666667% 11.11111111111111% no-repeat !important;}
+.cke_hidpi .cke_button__image_layout_right_icon{background:url("sprite.svg") 66.66666666666667% 11.11111111111111% no-repeat !important;}
+.cke_hidpi .cke_button__mathjax_icon{}
+.cke_hidpi .cke_button__placeholder_icon{}
+.cke_rtl.cke_hidpi .cke_button__sourcedialog_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__sourcedialog_icon{}
+.cke_hidpi .cke_ltr .cke_button__sourcedialog_icon, .cke_ltr.cke_hidpi .cke_button__sourcedialog_icon{}
+.cke_hidpi .cke_button__simplebox_icon{}
+.cke_rtl.cke_hidpi .cke_button__anchor_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__anchor_icon{background:url("sprite.svg") 55.55555555555556% 66.66666666666667% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__anchor_icon, .cke_ltr.cke_hidpi .cke_button__anchor_icon{background:url("sprite.svg") 11.11111111111111% 0 no-repeat !important;}
+.cke_hidpi .cke_button__bgcolor_icon{background:url("sprite.svg") 0 11.11111111111111% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__bidiltr_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__bidiltr_icon{background:url("sprite.svg") 22.22222222222222% 0 no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__bidiltr_icon, .cke_ltr.cke_hidpi .cke_button__bidiltr_icon{background:url("sprite.svg") 11.11111111111111% 11.11111111111111% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__bidirtl_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__bidirtl_icon{background:url("sprite.svg") 0 22.22222222222222% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__bidirtl_icon, .cke_ltr.cke_hidpi .cke_button__bidirtl_icon{background:url("sprite.svg") 0 22.22222222222222% no-repeat !important;}
+.cke_hidpi .cke_button__blockquote_icon{background:url("sprite.svg") 11.11111111111111% 22.22222222222222% no-repeat !important;}
+.cke_hidpi .cke_button__bold_icon{background:url("sprite.svg") 22.22222222222222% 22.22222222222222% no-repeat !important;}
+.cke_hidpi .cke_button__bookmark_icon{background:url("sprite.svg") 33.333333333333336% 0 no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__bulletedlist_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__bulletedlist_icon{background:url("sprite.svg") 22.22222222222222% 33.333333333333336% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__bulletedlist_icon, .cke_ltr.cke_hidpi .cke_button__bulletedlist_icon{background:url("sprite.svg") 11.11111111111111% 33.333333333333336% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__copy_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__copy_icon{background:url("sprite.svg") 11.11111111111111% 44.44444444444444% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__copy_icon, .cke_ltr.cke_hidpi .cke_button__copy_icon{background:url("sprite.svg") 0 44.44444444444444% no-repeat !important;}
+.cke_hidpi .cke_button__copyformatting_icon{background:url("sprite.svg") 22.22222222222222% 44.44444444444444% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__cut_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__cut_icon{background:url("sprite.svg") 44.44444444444444% 44.44444444444444% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__cut_icon, .cke_ltr.cke_hidpi .cke_button__cut_icon{background:url("sprite.svg") 33.333333333333336% 44.44444444444444% no-repeat !important;}
+.cke_hidpi .cke_button__embed_icon{background:url("sprite.svg") 55.55555555555556% 11.11111111111111% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__find_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__find_icon{background:url("sprite.svg") 55.55555555555556% 33.333333333333336% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__find_icon, .cke_ltr.cke_hidpi .cke_button__find_icon{background:url("sprite.svg") 55.55555555555556% 22.22222222222222% no-repeat !important;}
+.cke_hidpi .cke_button__flash_icon{background:url("sprite.svg") 55.55555555555556% 44.44444444444444% no-repeat !important;}
+.cke_hidpi .cke_button__horizontalrule_icon{background:url("sprite.svg") 0 55.55555555555556% no-repeat !important;}
+.cke_hidpi .cke_button__ibmpermanentpen_icon{background:url("sprite.svg") 11.11111111111111% 55.55555555555556% no-repeat !important;}
+.cke_hidpi .cke_button__ibmspellchecker_icon{background:url("sprite.svg") 22.22222222222222% 55.55555555555556% no-repeat !important;}
+.cke_hidpi .cke_button__ibmwidgets_icon{background:url("sprite.svg") 44.44444444444444% 55.55555555555556% no-repeat !important;}
+.cke_hidpi .cke_button__ibmwidgetsproperties_icon{background:url("sprite.svg") 55.55555555555556% 55.55555555555556% no-repeat !important;}
+.cke_hidpi .cke_button__iframe_icon{background:url("sprite.svg") 66.66666666666667% 0 no-repeat !important;}
+.cke_hidpi .cke_button__image_icon{background:url("sprite.svg") 66.66666666666667% 11.11111111111111% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__indent_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__indent_icon{background:url("sprite.svg") 66.66666666666667% 33.333333333333336% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__indent_icon, .cke_ltr.cke_hidpi .cke_button__indent_icon{background:url("sprite.svg") 66.66666666666667% 22.22222222222222% no-repeat !important;}
+.cke_hidpi .cke_button__info_icon{background:url("sprite.svg") 44.44444444444444% 11.11111111111111% no-repeat !important;}
+.cke_hidpi .cke_button__italic_icon{background:url("sprite.svg") 66.66666666666667% 55.55555555555556% no-repeat !important;}
+.cke_hidpi .cke_button__justifyblock_icon{background:url("sprite.svg") 0 66.66666666666667% no-repeat !important;}
+.cke_hidpi .cke_button__justifycenter_icon{background:url("sprite.svg") 11.11111111111111% 66.66666666666667% no-repeat !important;}
+.cke_hidpi .cke_button__justifyleft_icon{background:url("sprite.svg") 22.22222222222222% 66.66666666666667% no-repeat !important;}
+.cke_hidpi .cke_button__justifyright_icon{background:url("sprite.svg") 33.333333333333336% 66.66666666666667% no-repeat !important;}
+.cke_hidpi .cke_button__language_icon{background:url("sprite.svg") 44.44444444444444% 66.66666666666667% no-repeat !important;}
+.cke_hidpi .cke_button__link_icon{background:url("sprite.svg") 0 0 no-repeat !important;}
+.cke_hidpi .cke_button__maximize_icon{background:url("sprite.svg") 66.66666666666667% 66.66666666666667% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__newpage_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__newpage_icon{background:url("sprite.svg") 77.77777777777777% 11.11111111111111% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__newpage_icon, .cke_ltr.cke_hidpi .cke_button__newpage_icon{background:url("sprite.svg") 77.77777777777777% 0 no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__numberedlist-ar_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__numberedlist-ar_icon{background:url("sprite.svg") 77.77777777777777% 33.333333333333336% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__numberedlist_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__numberedlist_icon{background:url("sprite.svg") 77.77777777777777% 44.44444444444444% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__numberedlist_icon, .cke_ltr.cke_hidpi .cke_button__numberedlist_icon{background:url("sprite.svg") 77.77777777777777% 22.22222222222222% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__outdent_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__outdent_icon{background:url("sprite.svg") 77.77777777777777% 66.66666666666667% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__outdent_icon, .cke_ltr.cke_hidpi .cke_button__outdent_icon{background:url("sprite.svg") 77.77777777777777% 55.55555555555556% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__pagebreak_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__pagebreak_icon{background:url("sprite.svg") 11.11111111111111% 77.77777777777777% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__pagebreak_icon, .cke_ltr.cke_hidpi .cke_button__pagebreak_icon{background:url("sprite.svg") 0 77.77777777777777% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__paste_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__paste_icon{background:url("sprite.svg") 33.333333333333336% 77.77777777777777% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__paste_icon, .cke_ltr.cke_hidpi .cke_button__paste_icon{background:url("sprite.svg") 22.22222222222222% 77.77777777777777% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__pastefromword_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__pastefromword_icon{background:url("sprite.svg") 55.55555555555556% 77.77777777777777% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__pastefromword_icon, .cke_ltr.cke_hidpi .cke_button__pastefromword_icon{background:url("sprite.svg") 44.44444444444444% 77.77777777777777% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__pastetext_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__pastetext_icon{background:url("sprite.svg") 77.77777777777777% 77.77777777777777% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__pastetext_icon, .cke_ltr.cke_hidpi .cke_button__pastetext_icon{background:url("sprite.svg") 66.66666666666667% 77.77777777777777% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__preview_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__preview_icon{background:url("sprite.svg") 88.88888888888889% 11.11111111111111% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__preview_icon, .cke_ltr.cke_hidpi .cke_button__preview_icon{background:url("sprite.svg") 88.88888888888889% 0 no-repeat !important;}
+.cke_hidpi .cke_button__print_icon{background:url("sprite.svg") 88.88888888888889% 22.22222222222222% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__redo_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__redo_icon{background:url("sprite.svg") 88.88888888888889% 44.44444444444444% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__redo_icon, .cke_ltr.cke_hidpi .cke_button__redo_icon{background:url("sprite.svg") 88.88888888888889% 33.333333333333336% no-repeat !important;}
+.cke_hidpi .cke_button__removeformat_icon{background:url("sprite.svg") 88.88888888888889% 55.55555555555556% no-repeat !important;}
+.cke_hidpi .cke_button__replace_icon{background:url("sprite.svg") 88.88888888888889% 66.66666666666667% no-repeat !important;}
+.cke_hidpi .cke_button__save_icon{background:url("sprite.svg") 88.88888888888889% 77.77777777777777% no-repeat !important;}
+.cke_hidpi .cke_button__selectall_icon{background:url("sprite.svg") 11.11111111111111% 88.88888888888889% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__showblocks_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__showblocks_icon{background:url("sprite.svg") 33.333333333333336% 88.88888888888889% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__showblocks_icon, .cke_ltr.cke_hidpi .cke_button__showblocks_icon{background:url("sprite.svg") 22.22222222222222% 88.88888888888889% no-repeat !important;}
+.cke_hidpi .cke_button__smiley_icon{background:url("sprite.svg") 44.44444444444444% 88.88888888888889% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__source_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__source_icon{background:url("sprite.svg") 66.66666666666667% 88.88888888888889% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__source_icon, .cke_ltr.cke_hidpi .cke_button__source_icon{background:url("sprite.svg") 55.55555555555556% 88.88888888888889% no-repeat !important;}
+.cke_hidpi .cke_button__specialchar_icon{background:url("sprite.svg") 77.77777777777777% 88.88888888888889% no-repeat !important;}
+.cke_hidpi .cke_button__strike_icon{background:url("sprite.svg") 100% 0 no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__subscript_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__subscript_icon{background:url("sprite.svg") 100% 22.22222222222222% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__subscript_icon, .cke_ltr.cke_hidpi .cke_button__subscript_icon{background:url("sprite.svg") 100% 11.11111111111111% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__superscript_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__superscript_icon{background:url("sprite.svg") 100% 44.44444444444444% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__superscript_icon, .cke_ltr.cke_hidpi .cke_button__superscript_icon{background:url("sprite.svg") 100% 33.333333333333336% no-repeat !important;}
+.cke_hidpi .cke_button__table_icon{background:url("sprite.svg") 100% 55.55555555555556% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__templates_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__templates_icon{background:url("sprite.svg") 100% 77.77777777777777% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__templates_icon, .cke_ltr.cke_hidpi .cke_button__templates_icon{background:url("sprite.svg") 100% 66.66666666666667% no-repeat !important;}
+.cke_hidpi .cke_button__textcolor_icon{background:url("sprite.svg") 100% 88.88888888888889% no-repeat !important;}
+.cke_hidpi .cke_button__underline_icon{background:url("sprite.svg") 0 100% no-repeat !important;}
+.cke_rtl.cke_hidpi .cke_button__undo_icon, .cke_hidpi .cke_mixed_dir_content .cke_rtl .cke_button__undo_icon{background:url("sprite.svg") 22.22222222222222% 100% no-repeat !important;}
+.cke_hidpi .cke_ltr .cke_button__undo_icon, .cke_ltr.cke_hidpi .cke_button__undo_icon{background:url("sprite.svg") 11.11111111111111% 100% no-repeat !important;}
+.cke_hidpi .cke_button__unlink_icon{background:url("sprite.svg") 33.333333333333336% 100% no-repeat !important;}
+.cke_dialog .cke_dialog_body .cke_dialog_close_button{background:url("sprite.svg") 55.55555555555556% 0 no-repeat !important;
+}
+.cke_dialog .cke_btn_reset{background:url("sprite.svg") 33.333333333333336% 22.22222222222222% no-repeat !important;
+}
+.cke_dialog .cke_btn_locked, .cke_dialog .cke_btn_unlocked{background:url("sprite.svg") 33.333333333333336% 11.11111111111111% no-repeat !important;
+}
+.cke_dialog a.cke_btn_unlocked{background:url("sprite.svg") 0 33.333333333333336% no-repeat !important;
+}

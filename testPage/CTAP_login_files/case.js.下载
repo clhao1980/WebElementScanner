@@ -1,0 +1,818 @@
+'use strict';
+
+angular.module('myApp.case', ['ngRoute'])
+
+.config(['$routeProvider', function($routeProvider) {
+  $routeProvider.when('/case', {
+    templateUrl: './modules/case/case.html',
+    controller: 'CaseCtrl'
+  });
+}])
+
+.controller('CaseCtrl',function($location, $scope,$rootScope,$log,$timeout,CaseService,BuildTree,SwalMessage) {
+	if($rootScope.curUser == ""){
+		$location.path("/login")
+	}	
+	
+	//set the style to "active" for the users input URL directly.
+	$rootScope.activeNavButton("case");
+	
+	$scope.showFolderInput=true;
+        //init configs and vars
+        $scope.currentTasks = [];
+
+        $scope.initCurrentCaseModel = function () {
+            $scope.currentCaseModel = {"id":"","name":"","desc":"","user_name":"",tasks:[]};
+            //case/{id}/get_case_with_task
+            //$scope.caseTreeData = [];
+        };
+
+        $scope.initCurrentTaskModel = function () {
+//            $scope.currentTaskModel = [{"No":"","id":"","name":"","desc":"","user_name":"",steps:[]}];
+        	 $scope.currentTaskModel =[];
+            //task/{id}/get_task_with_step
+            //$scope.taskTreeData = [];
+        };
+
+        $scope.initCurrentCaseModel();
+        $scope.initCurrentTaskModel();
+        
+        $scope.initCurrentCaseFolder = function () {
+        	 $scope.currentCaseFolder ={"id":"","name":""};
+        };
+        $scope.initCurrentCaseFolder();
+        
+        $rootScope.cleanFlag = 0;
+        
+        $scope.$watch('cleanFlag',  function(newValue, oldValue) {
+			if(newValue != oldValue){
+        	   		$scope.currentTaskFolderModel = {"id":"","text":"","user_name":"","desc":"","parent":""};
+        	   		$scope.currentFolderModel = {"id":"","text":"","type":"folder","desc":"","parent":""};
+           }
+		});
+        
+        $scope.updateCaseLocalStorage = function(){
+			localStorage.setItem("selectedData.name",$scope.currentCaseModel.name);
+			localStorage.setItem("selectedData.desc",$scope.currentCaseModel.desc);
+			localStorage.setItem("selectedData.folder",ex1_value.value);
+			localStorage.setItem("selectedData.table",JSON.stringify(angular.copy($scope.gridOptions.data)));
+		}
+        
+        $rootScope.checkBeforeLeaveInCase = function(targetUrl){
+			if($scope.currentCaseModel.name!=""||ex1_value.value!=""||$scope.currentCaseModel.desc!=""||$scope.gridOptions.data!=""){
+				if ($scope.currentCaseModel.id != ""){
+					var preName = localStorage.getItem("selectedData.name");
+					var folder = localStorage.getItem("selectedData.folder");
+					var preDesc = localStorage.getItem("selectedData.desc");
+					var preTable = localStorage.getItem("selectedData.table");
+					var newTable = angular.copy($scope.gridOptions.data);//clean the $$hashKey
+					if($scope.currentCaseModel.name!=preName||ex1_value.value!=folder||$scope.currentCaseModel.desc!=preDesc||JSON.stringify(newTable)!=preTable){
+			            swal({
+		                    title: '',
+		                    text: "Are you sure to leave without save?",
+		                    type: 'warning',
+		                    showCancelButton: true,
+		                    confirmButtonText: "YES",
+		                    cancelButtonText: "NO",
+		                    }).then(function () {		                        
+		                    		$location.path(targetUrl);
+		                    		$scope.$apply();
+		                    		},function() {
+		                    			$log.info("User give up leave");
+		                    			}
+		                    		);
+							} else {
+								$location.path(targetUrl);
+							}																					
+				} else {
+					swal({
+	                    title: '',
+	                    text: "Are you sure to leave without save?",
+	                    type: 'warning',
+	                    showCancelButton: true,
+	                    confirmButtonText: "YES",
+	                    cancelButtonText: "NO",
+	                    }).then(function () {		                        
+	                    		$location.path(targetUrl);
+	                    		$scope.$apply();
+	                    		},function() {
+	                    			$log.info("User give up leave");
+	                    			}
+	                    		);
+						}				
+			} else {
+				$location.path(targetUrl);
+			}
+		};
+        
+        BuildTree.searchTree("#search-case", "#case-tree");
+        BuildTree.searchTree("#search-task", "#task-tree");
+
+        // meiguanxi
+        $scope.taskTableOptions = {
+            selectable:true,
+            checkboxSelection: true,
+            multiSelect: true,
+            emptyMessage:"",
+            columns: [{
+                name: "No",
+                prop: "$$index",
+                isCheckboxColumn: true,
+                width:100,
+                minWidth:100,
+                canAutoResize: false
+            }, {
+                name: "Task Name",
+                prop: "name",
+                width:600,
+                minWidth:600,
+                canAutoResize: false
+            }]
+        };
+
+        $scope.caseTreeConfigFromBuildTree = BuildTree.caseTreeConfig;
+        $scope.caseTreeConfigFromBuildTree.contextmenu.items = BuildTree.contextmenuCase;
+
+        $scope.taskTreeConfigFromBuildTree = BuildTree.taskTreeConfig;
+        $scope.taskTreeConfigFromBuildTree.contextmenu.items = BuildTree.contextmenuTask;
+
+        // loadCaseTree
+        $scope.loadCaseTreeFromBuildTree = function(){
+			BuildTree.loadCaseTree();
+		}
+
+        // loadTaskTree
+        $scope.loadTaskTreeFromBuildTree = function(){
+			BuildTree.loadTaskTree();
+		}
+        
+        $scope.selectedFolder = function(data){
+        	if(data != undefined || data != null){
+        		$scope.currentCaseFolder.id= data.originalObject.id;
+        		$scope.currentCaseFolder.name = data.originalObject.name;
+        	}	
+        }
+        
+        $scope.getAllTasks = function () {
+            CaseService.getAllTasks().then(function (data) {
+                $log.debug('After get all tasks success', data);
+                $scope.allTasksModel = data.value;
+            }, function (reason) {
+                $log.debug('Get all task failed');
+            });
+        };
+
+        $scope.loadCaseById = function (id) {
+            CaseService.getCaseById(id).then(function (data) {
+                $log.info("Get case by id",data);
+                $scope.currentCaseModel = data.value;
+                $scope.currentTaskModel = data.value.tasks;
+                localStorage.setItem("selectedData.name",data.value.name);
+			    localStorage.setItem("selectedData.desc",data.value.desc);
+                for(var i=0;i<$scope.currentTaskModel.length;i++){
+                    $scope.currentTaskModel[i].No = i;
+                };
+                $scope.gridOptions.data = $scope.currentTaskModel;
+                localStorage.setItem("selectedData.table",JSON.stringify($scope.gridOptions.data));
+                $scope.gridApi.selection.clearSelectedRows();
+			    $scope.initGridFunctionData();
+            }, function (reason) {
+                $log.info("Get case by id failed");
+                swal('','Load case failed, please try later!', 'error');
+            });
+        };
+        
+        $scope.loadCaseByIdForCopy = function (id) {
+            CaseService.getCaseById(id).then(function (data) {
+                $log.info("Get case by id",data);
+                $scope.currentCaseModel = data.value;
+                $scope.currentCaseModel.name = "copied from "+ $scope.currentCaseModel.name;
+                $scope.currentCaseModel.id = "";
+                $scope.currentTaskModel = data.value.tasks;
+                for(var i=0;i<$scope.currentTaskModel.length;i++){
+                    $scope.currentTaskModel[i].No = i;
+                };
+                $scope.gridOptions.data = $scope.currentTaskModel;
+            }, function (reason) {
+                $log.info("Get case by id for copy failed");
+                swal('','Load case for copy failed, please try later!', 'error');
+            });
+        };
+
+        // $Scope.loadTaskById = function(id){
+        //     TaskService.getTaskByid(id).then(function(data){
+
+        //     });
+        // };
+
+        $rootScope.loadAllCaseFolder = function () {
+            CaseService.getAllCaseFolder().then(function (data) {
+                $log.info("Get case folder success",data);
+                $scope.folderModel = data.value;
+            }, function (reason) {
+                $log.info("Get case folder failed");
+
+            });
+        };
+
+        $scope.onCaseSelected = function(){
+            var node = $scope.caseTreeInstance.jstree("get_selected",true)[0]
+            if(node.original.type.toLowerCase() == 'leaf'){
+                $scope.initCurrentCaseModel();
+                $scope.loadCaseById(node.original.id);
+                $scope.showFolderInput=false;
+                if($scope.curUser == node.original.parent.name){
+                	$scope.folderName = ""; 
+                    $scope.currentCaseFolder.id ="";
+                    $scope.currentCaseFolder.name ="";
+                }
+                else{
+                	 $scope.folderName = node.original.parent.name; 
+                     $scope.currentCaseFolder.id =node.original.parent.id;
+                     $scope.currentCaseFolder.name =node.original.parent.name;
+                }
+//                $scope.selectedFolder={originalObject:{id:node.original.parent.id}}
+                localStorage.setItem("selectedData.folder",node.original.parent.name);
+                $timeout(function(){
+               	 $scope.showFolderInput=true;
+                })
+            }
+            else if(node.original.type.toLowerCase() == 'folder'){
+                $scope.currentFolderModel = node.original;
+            }
+        };
+        
+        $scope.onTaskSelected = function(){
+            var node = $scope.taskTreeInstance.jstree("get_selected",true)[0]
+            if(node.original.type.toLowerCase() == 'leaf'){
+//                $scope.initCurrentTaskModel();
+                // $scope.loadCaseById(node.original.id);
+                // $scope.folderName = node.original.parent.name;
+            }
+            else if(node.original.type.toLowerCase() == 'folder'){
+                $scope.currentTaskFolderModel = node.original;
+            }
+        };
+
+        $scope.doDeleteCase = function (id,name) {
+            CaseService.deleteCase(id,name).then(function (data) {
+                if(data.value){
+                    $log.info("Delete case success");
+                    $scope.initPanel();
+                    $scope.loadCaseTreeFromBuildTree();
+                    SwalMessage.swalRemoveCaseSuccess();
+                }
+                else{
+                    $log.info("Delete case failed");
+                    SwalMessage.swalCaseUsed();
+                }
+            }, function (reason) {
+                $log.info("Delete case failed");
+                SwalMessage.swalRemoveCaseFailed();
+                $scope.loadCaseTreeFromBuildTree();
+            });
+        };
+        
+        $rootScope.deleteCase = function (node) {
+            swal({
+        		  title: '',
+        		  text: "Are you sure to remove this case?",
+        		  type: 'warning',
+        		  showCancelButton: true,
+        		  confirmButtonText: "YES",
+            	  cancelButtonText: "NO",
+        		 }).then(function () {
+        			$log.info("User confirm delete");
+        			$scope.doDeleteCase(node.original.id,node.original.text);
+        		 },function (dismiss) {
+        			  // dismiss can be 'cancel', 'overlay',
+        			  // 'close', and 'timer'
+        			  if (dismiss === 'cancel') {
+        				  $log.info("User give up delete");
+        	}});
+        };
+     
+        $scope.doUpdateCase = function (model) {
+            CaseService.updateCase(model,$scope.currentCaseFolder.id).then(function (data) {
+                if(data.value){
+                    $log.info("Update case success");
+                    swal('','Update case successfully!', 'success');
+                    $scope.loadCaseTreeFromBuildTree();
+                    $scope.loadCaseById($scope.currentCaseModel.id);
+                    $scope.updateCaseLocalStorage();
+                    $scope.initGridFunctionData();
+                }
+                else{
+                    $log.info("Update case failed");
+                    swal('','Update case failed, please try later!', 'error');
+                    $scope.loadCaseTreeFromBuildTree();
+
+                }
+            }, function (reason) {
+                $log.info("Update case failed!");
+                swal('','Update case failed, please try later!', 'error');
+                $scope.loadCaseTreeFromBuildTree();
+
+            });
+        };
+
+        $scope.doCreateCase = function (model) {
+            CaseService.createCase(model,$scope.currentCaseFolder.id).then(function (data) {
+                if(data.value){
+                    $log.info("Create case success");
+                    $scope.currentCaseModel.id = data.value.id;
+                    $scope.currentCaseModel.name = data.value.name;
+                    $scope.currentCaseModel.desc = data.value.desc;
+                    $scope.currentCaseModel.user_name = data.value.user_name;
+                    CaseService.mappingFolder($scope.currentCaseModel.id,$scope.currentCaseFolder.id).then(function (data) {
+                        CaseService.mappingTask($scope.currentCaseModel.id,$scope.currentTasks).then(function (data) {
+                        	swal('','Create case successfully!', 'success');
+                            $scope.loadCaseTreeFromBuildTree();
+                            $scope.loadCaseById($scope.currentCaseModel.id);
+                            $scope.updateCaseLocalStorage();
+                            $scope.initGridFunctionData();
+                        }, function (reason) {
+                            $scope.loadCaseTreeFromBuildTree();
+                            swal('','Create case failed, please try later!', 'error');
+                        });
+                    }, function (reason) {
+                        $scope.loadCaseTreeFromBuildTree();
+                        swal('','Create case failed, please try later!', 'error');
+
+                    });
+                }
+                else{
+                    $log.info("Create case failed!");
+                    swal('','Create case failed, please try later!', 'error');
+  				return;
+
+                }
+            }, function (reason) {
+                $log.info("Update case failed");
+                swal('','Create case failed, please try later!', 'error');
+            });
+        };
+        
+        $rootScope.copyCase = function(node){
+            swal({
+                    title: '',
+                    text: "Are you sure to copy this Case?",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: "YES",
+                    cancelButtonText: "NO",
+                    }).then(function (p) {
+                        $log.info("User confirm copy Case");
+                        $scope.doCopyCase(node);
+                    },function(p) {
+                        $log.info("User give up copy Case");
+                }
+            );
+        };
+        
+        $scope.doCopyCase = function(){
+        		$scope.loadCaseByIdForCopy($scope.currentCaseModel.id);
+            $scope.showFolderInput=false;
+            $timeout(function(){
+                $scope.showFolderInput=true;
+            });
+        };
+
+        $scope.saveCase = function () {
+        	$scope.rebuildGridNoValue();
+        	if($scope.currentCaseModel.name == "") {
+        		swal('','Please input case name!', 'info');
+				return;
+        	}
+        	
+        	if($scope.currentCaseFolder.id == "") {
+        		swal('','Please select a folder for case!', 'info');
+        		return;
+        	}
+        	
+//        	if ($scope.currentCaseFolder.name == $scope.curUser) {
+//				swal('','Can not save case to the root folder!', 'info');
+//				return;
+//			}
+        	var list =  BuildTree.getNamesFromData($scope.dataForCaseTree,new Array());
+        	if (BuildTree.existSameName($scope.currentCaseModel, list)) {
+        		swal('',"Case name already exists",'info');  
+        		return;
+        	}	
+        	
+        	// For update case
+        	$scope.currentCaseModel.tasks = $scope.currentTaskModel;
+        	//For new case, when new case $scope.currentTaskModel is null
+        	$scope.currentTasks = $scope.gridOptions.data;
+        	if($scope.currentCaseModel.id != ""){
+              $scope.doUpdateCase($scope.currentCaseModel);
+            }
+        	
+            else{
+              $scope.doCreateCase($scope.currentCaseModel);
+            }
+        	
+//        	No need promote infor when do save action
+//            swal({
+//      		  title: '',
+//      		  text: "Are you sure to save this case?",
+//      		  type: 'warning',
+//      		  showCancelButton: true,
+//      		  confirmButtonText: "YES",
+//          	  cancelButtonText: "NO",
+//      		}).then(function () {
+//      			$log.info("User confirm save");
+//                if($scope.currentCaseModel.id != ""){
+//                    $scope.doUpdateCase($scope.currentCaseModel);
+//                }
+//                else{
+//                    $scope.doCreateCase($scope.currentCaseModel);
+//                }
+//      		},function (dismiss) {
+//      			  // dismiss can be 'cancel', 'overlay',
+//      			  // 'close', and 'timer'
+//      			  if (dismiss === 'cancel') {
+//      				 $log.info("User give up edit");
+//      			  }
+//      	});
+ };
+
+ $rootScope.createCase = function (node) {
+        	
+        	 $scope.initPanel();
+//        	when clear panel in swal, there will be a problem, comment
+//            if($scope.currentCaseModel.id != ""){
+//                swal({
+//            		  title: '',
+//            		  text: "Do you want to continue without saving?",
+//            		  type: 'warning',
+//            		  showCancelButton: true,
+//            		  confirmButtonText: "YES",
+//                	  cancelButtonText: "NO",
+//            		}).then(function () {
+//                        $log.info("User confirm without saving");
+//                        $scope.initPanel();
+////                        $scope.selectedFolder = {"name":"","id":""};
+////                        $scope.selectedTask = {"name":"","id":""};
+//            		},function (dismiss) {
+//            			  // dismiss can be 'cancel', 'overlay',
+//            			  // 'close', and 'timer'
+//            			  if (dismiss === 'cancel') {
+//            				 $log.info("User give up create a case");
+//            			  }
+//            	});    
+//            }
+//            else{
+//                $scope.initCurrentCaseModel();
+//                $scope.$broadcast('angucomplete-alt:clearInput',
+//				'ex1');
+//                $scope.gridOptions.data = [];
+//                $scope.currentCaseFolder.id ="";
+////                $scope.selectedFolder = {"name":"","id":""};
+////                $scope.selectedTask = {"name":"","id":""};
+//            }
+        };
+        
+        $scope.initPanel = function(){
+            $scope.initCurrentCaseModel();
+	        $scope.$broadcast('angucomplete-alt:clearInput','ex1');	
+	        $scope.gridOptions.data = [];
+	        $scope.initCurrentCaseFolder();
+	        $scope.folderName = "";
+        }
+
+        
+        $scope.doCreateCaseFolder = function (){
+        		BuildTree.doCreateCaseFolderInBuildTree($scope.currentFolderModel);
+        }
+        
+        $scope.doRenameCaseFolder = function (){
+    			BuildTree.doRenameCaseFolderInBuildTree($scope.currentFolderModel);
+        }
+        
+        $rootScope.doRemoveCaseFolder = function (){
+			BuildTree.doRemoveCaseFolderInBuildTree($scope.currentFolderModel);
+        }
+        
+        $scope.doTaskTreeNewFolder = function(){
+    			BuildTree.doCreateTaskFolderInBuildTree($scope.currentTaskFolderModel);
+        }
+        
+        $scope.doRenameTaskFolder = function () {
+    			BuildTree.doRenameTaskFolderInBuildTree($scope.currentTaskFolderModel);
+        }
+    
+        $rootScope.doRemoveTaskFolder = function (){
+    			BuildTree.doRemoveTaskFolderInBuildTree($scope.currentTaskFolderModel);
+        }
+
+        $rootScope.removeTask = function(node){
+            swal({
+      		  title: '',
+      		  text: "Are you sure to remove this task?",
+      		  type: 'warning',
+      		  showCancelButton: true,
+      		  confirmButtonText: "YES",
+          	  cancelButtonText: "NO",
+      		}).then(function () {
+      			$log.info("User confirm remove");
+                $scope.doRemoveTask();
+      		},function (dismiss) {
+      			  // dismiss can be 'cancel', 'overlay',
+      			  // 'close', and 'timer'
+      			  if (dismiss === 'cancel') {
+      				$log.info("User give up remove");
+      			  }
+      		});   
+        };
+
+        $scope.addTask = function(){
+            if($scope.selectedTask){
+                $scope.currentCaseModel.tasks.push($scope.selectedTask.originalObject);
+            }
+            $scope.currentTasks = $scope.currentCaseModel.tasks;
+        };
+        
+        $scope.RemoveTask = function () {
+            if($scope.selectedTasks){
+                var id = $scope.selectedTasks[0].id;
+                var index = -1;
+                for (var i = 0; i < $scope.currentCaseModel.tasks.length; i++) {
+                    if ($scope.currentCaseModel.tasks[i].id == id){
+                        index = i;
+                        break;
+                    }
+                }
+                if(index != -1){
+                    $scope.currentCaseModel.tasks.splice(index, 1);
+                }
+            }
+            $scope.currentTasks = $scope.currentCaseModel.tasks;
+        };
+
+        $scope.doRemoveTask = function () {
+            var node = $scope.taskTreeInstance.jstree("get_selected",true)[0];
+            $scope.selectedTaskData={
+                        id:node.id,
+                        name:node.text
+                };
+            CaseService.removeTask($scope.selectedTaskData).then(function (data) {
+                if(data.value == false){
+                		SwalMessage.swalTaskUsed();
+                } 
+                else{
+                	SwalMessage.swalRemoveTaskSuccess();
+                	$scope.loadTaskTreeFromBuildTree();
+                }
+            }, function (reason) {
+                $log.info("remove Task failed");
+                SwalMessage.swalRemoveTaskFailed();
+            });
+        };
+        
+        $scope.gridOptions = {
+            enableSorting: false,
+            enableRowSelection: true,
+            multiSelect:false,
+            enableColumnMenus: false,
+            enableFullRowSelection:true,
+        		enableSelectAll: false,
+            selectionRowHeaderWidth: 35,
+            rowTemplate: '<div grid="grid" class="ui-grid-draggable-row" draggable="true"><div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{ \'ui-grid-row-header-cell\': col.isRowHeader, \'custom\': true }" ui-grid-cell></div></div>',
+            columnDefs: [
+                {
+                    name: 'Task Name', 
+                    field: 'name',
+                    enableCellEdit: false
+                },
+                {
+                    name: 'Description',
+                    field: 'desc',
+                    cellTemplate: '<div class="ui-grid-cell-contents"><p title="{{row.entity.desc}}" class="oneline-hide">{{row.entity.desc}}</p><p class="edit-cell glyphicon glyphicon-trash" style="float:right;"ng-click="grid.appScope.deleteRow(row)"></p></div>'
+                }
+            ]
+        };
+        
+        $scope.gridOptions.multiSelect = true;
+        $scope.initGridFunctionData = function(){
+        		$scope.gridRowIndex = [];
+            $scope.gridRowIndexForCutOrCopy = [];
+            $scope.gridStoreForCutOrCopy = [];
+            $scope.gridStoreForMovePosition = [];
+            $scope.cutRowFlag = false;
+        }
+        $scope.initGridFunctionData();
+        
+        $scope.gridOptions.onRegisterApi = function(gridApi) {
+    			$scope.gridApi = gridApi;
+    			gridApi.selection.on.rowSelectionChanged($scope,function(row){
+    				if(row.isSelected ==true){//store selected index
+    					$scope.gridRowIndex.push(row.entity.No);
+    				}else{
+    					for(var i=0; i<$scope.gridRowIndex.length; i++) {//clean the copy index array after cancel select
+    					    if($scope.gridRowIndex[i] == row.entity.No) {
+    					    		$scope.gridRowIndex.splice(i, 1);
+    					    		break;
+    					    }
+    					}
+    				}
+    				$scope.gridRowIndex.sort();
+            });
+    			
+    			gridApi.draggableRows.on.rowDropped($scope, function(info, dropTarget) {
+   			     console.log("Dropped", info);
+   			     $scope.gridApi.selection.clearSelectedRows();
+   			     $scope.rebuildGridNoValue();
+   			     $scope.initGridFunctionData();
+   			});
+        };
+        
+        $scope.cutRow = function(){
+        		for(var i=0; i<$scope.gridRowIndex.length; i++){
+        			$scope.gridStoreForCutOrCopy.push($scope.gridOptions.data[$scope.gridRowIndex[i]])//store selected row data for cut
+        		}
+        		$scope.gridRowIndexForCutOrCopy = $scope.gridRowIndex;//store row index for cut
+        		$scope.gridApi.selection.clearSelectedRows();
+        		$scope.gridRowIndex = [];
+        		$scope.cutRowFlag = true;
+        }
+        
+        $scope.copyRow = function(){
+    			for(var i=0; i<$scope.gridRowIndex.length; i++){
+    				$scope.gridStoreForCutOrCopy.push($scope.gridOptions.data[$scope.gridRowIndex[i]])//store selected row data for copy
+    			}
+    			$scope.gridRowIndexForCutOrCopy = $scope.gridRowIndex;//store row index for copy
+    			$scope.gridApi.selection.clearSelectedRows();
+    			$scope.gridRowIndex = [];
+    			$scope.cutRowFlag = false;
+        }
+        
+        $scope.pasteRow = function(){
+        	 	if($scope.gridRowIndex.length != 1){
+        	 		swal('','Please choose one position to paste', 'warning');
+        	 		return;
+        	 	}
+        	 	var indexTemp = [];       	 
+        	 	for(var i=$scope.gridRowIndex[0]; i<$scope.gridOptions.data.length; i++){
+        	 		indexTemp.push(i);
+        	 	}
+        	 	if($scope.cutRowFlag == true){
+        	 		for(var j=0; j<indexTemp.length; j++){//clean the cut data from move data
+            	 		for(var k=0; k<$scope.gridRowIndexForCutOrCopy.length; k++){
+            	 			if(indexTemp[j]==$scope.gridRowIndexForCutOrCopy[k]){
+            	 				indexTemp.splice(j, 1);
+            	 			}
+            	 		}
+            	 	}	
+        	 	}        	 	
+        	 	for(var i=0; i<indexTemp.length; i++){//store row data for move
+        	 		$scope.gridStoreForMovePosition.push($scope.gridOptions.data[indexTemp[i]]);
+        	 	}
+        	 	$scope.gridOptions.data.splice($scope.gridRowIndex[0],$scope.gridOptions.data.length-$scope.gridRowIndex[0]);//remove data from grid
+        	 	if($scope.cutRowFlag == true){
+        	 		for(var i=$scope.gridRowIndexForCutOrCopy.length-1; i>=0; i--){
+            	 		$scope.gridOptions.data.splice($scope.gridRowIndexForCutOrCopy[i],1);
+            	 	}
+        	 	}
+        	 	for(var i=0; i<$scope.gridStoreForCutOrCopy.length; i++){//push rebuilding data into grid, it should rebuild the row data just like adding row from tree because of the copy bug
+        	 		//$scope.gridOptions.data.push($scope.gridStoreForCutOrCopy[i]);
+        	 		var newTask={"No":"","id":$scope.gridStoreForCutOrCopy[i].id,
+                            "name":$scope.gridStoreForCutOrCopy[i].name,"desc":$scope.gridStoreForCutOrCopy[i].desc,"user_name":$scope.gridStoreForCutOrCopy[i].user_name};
+        	 		$scope.gridOptions.data.push(newTask);
+        	 	}
+        	 	for(var i=0; i<$scope.gridStoreForMovePosition.length; i++){
+        	 		$scope.gridOptions.data.push($scope.gridStoreForMovePosition[i]);
+        	 	}
+        	 	$scope.gridApi.selection.clearSelectedRows();
+        	 	$scope.rebuildGridNoValue();
+        	 	$scope.initGridFunctionData();
+        }
+        
+        $scope.rebuildGridNoValue = function(){
+        		var GridTemp = [];
+        		GridTemp = $scope.gridOptions.data;
+        		$scope.gridOptions.data = [];
+        		$scope.currentTaskModel = [];
+        		for(var i=0; i<GridTemp.length;i++){
+        			GridTemp[i].No = $scope.gridOptions.data.length;
+        			$scope.gridOptions.data.push(GridTemp[i]);
+        			$scope.currentTaskModel.push(GridTemp[i]);
+        		}
+        }
+        
+        $scope.deleteRow = function(value){	
+      	  swal({
+   			title : '',
+   			text : "Are you sure to remove this row?",
+   			type : 'warning',
+   			showCancelButton : true,
+   			confirmButtonText : "YES",
+   			cancelButtonText : "NO",
+   		})
+   		.then(function() {
+      	 		var rowIndex=0;
+      	 		for(var i=0;i<$scope.gridOptions.data.length;i++){
+      	 			if($scope.gridOptions.data[i].No==value.entity.No){
+              			rowIndex=i;break;
+      	 			}
+      	 		}
+      	 		$scope.gridOptions.data.splice(rowIndex,1);
+      	 		$scope.$apply();
+      	 		$scope.gridApi.selection.clearSelectedRows();
+      	 		$scope.rebuildGridNoValue();
+      	 		$scope.initGridFunctionData();
+   		},function(dismiss) {
+   			if (dismiss === 'cancel') {
+   					$log.info("User give up remove");
+   				}
+   			}
+   		)
+        };
+
+        $scope.addTasksFromTree = function(){
+              var node = $scope.taskTreeInstance.jstree("get_selected",true)[0];
+                if(node.original.type.toLowerCase() == 'leaf'){
+                // console.log($scope.gridOptions.data);
+//                $scope.currentTaskModel.name = node.original.text;
+//                $scope.currentTaskModel.desc = node.original.desc;
+//                $scope.currentTaskModel.id = node.original.id;
+                console.log($scope.currentTaskModel);
+                var newTask={"No":$scope.gridOptions.data.length,"id":node.original.id,
+                            "name":node.original.text,"desc":node.original.desc,"user_name":node.original.user_name};
+                $scope.gridOptions.data.push(newTask);
+            }
+        };
+
+        $scope.cleanInput = function(){
+        	$scope.initGridFunctionData();
+        	if($scope.currentCaseModel.id != ""){
+        		$scope.loadCaseById($scope.currentCaseModel.id);
+        	}
+        	else {
+        		 $scope.initPanel();
+        	}		
+        }
+        
+//        Don't use on hover menu
+//        // Left Case Tree Loading Action and context menu
+//        $scope.onCaseTreeLoaded = function () {
+//            //make sure the highlight is the same height as the node text
+//            $.vakata.context.settings.hide_onmouseleave = 1;
+//            $scope.caseTreeInstance.bind('hover_node.jstree', function(e, data) {
+//                var bar = $(this).find('.jstree-wholerow-hovered');
+//                bar.css('height',
+//                    bar.parent().children('a.jstree-anchor').height() + 'px');
+//                var node_id = data.node.a_attr.id;
+//                var node = jQuery('#'+node_id);
+//                //setTimeout(function () { data.rslt.obj.children('a').trigger('contextmenuLeft'); }, 0);
+//                //$scope.caseTreeInstance.show_contextmenuLeft(node);
+//                if(data.node.type !== 'leaf'){
+//                    node.trigger('contextmenu');
+//                }
+//                else{
+//                    $.vakata.context.hide();
+//                }
+//            });
+//
+//            $scope.caseTreeInstance.bind("show_contextmenu.jstree", function (e, data) {
+//                var $node = $('#'+data.node.id),
+//                    $menu = $('.vakata-context').first(),
+//                    nodeTop = $node.offset().top,
+//                    menuTop = nodeTop + $node.height() - $menu.height(),
+//                    menuLeft = 150;
+//                    if(menuTop>670){
+//                        menuTop=0;
+//                    }
+//                    $menu.offset({left: menuLeft, top: menuTop+80 });
+//            })
+//        };
+//
+//        // Right Case Tree Loading Action and context menu
+//        $scope.onTaskTreeLoaded = function () {
+//            //make sure the highlight is the same height as the node text
+//            $.vakata.context.settings.hide_onmouseleave = 1;
+//            $scope.taskTreeInstance.bind('hover_node.jstree', function(e, data) {
+//                var bar = $(this).find('.jstree-wholerow-hovered');
+//                bar.css('height',
+//                    bar.parent().children('a.jstree-anchor').height() + 'px');
+//                var node_id = data.node.a_attr.id;
+//                var node = jQuery('#'+node_id);
+//                //setTimeout(function () { data.rslt.obj.children('a').trigger('contextmenuLeft'); }, 0);
+//                //$scope.caseTreeInstance.show_contextmenuLeft(node);               
+//                node.trigger('contextmenu');
+//            });
+//
+//            $scope.taskTreeInstance.bind("show_contextmenu.jstree", function (e, data) {
+//                var $node = $('#'+data.node.id),
+//                    $menu = $('.vakata-context').first(),
+//                    nodeTop = $node.offset().top,
+//                    menuTop = nodeTop + $node.height() - $menu.height(),
+//                    menuLeft = $node.offset().left+100;
+//                    if(menuTop>800){
+//                        menuTop=76;
+//                        // menuLeft=menuLeft+20
+//                    }
+//                    $menu.offset({left: menuLeft, top: menuTop+20});
+//            })
+//        };
+    });

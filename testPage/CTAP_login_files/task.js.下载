@@ -1,0 +1,1255 @@
+'use strict';
+
+angular.module('myApp.task', ['ngRoute'])
+
+.config(['$routeProvider', function($routeProvider) {
+  $routeProvider.when('/task', {
+    templateUrl: './modules/task/task.html',
+    controller: 'TaskCtrl'
+  });
+}])
+
+.filter('removewidget',function(TaskService){
+	return function(arg,widget_id,WidgetDataModel){
+			//sys
+		if(!arg){
+			return;
+		}
+		var data = angular.copy(arg);
+        var data2 = [];
+        var stringdata = "";
+        // console.log(WidgetDataModel);
+		var selectedWidget=TaskService.getValueById(WidgetDataModel,'id',widget_id)
+   		if(selectedWidget.user_name=='sys'){
+            //if 'sys',show the widget argument type
+   			var widgetFlag=true;
+   		}
+		if(!widgetFlag){
+			angular.forEach(data,function(v,k){
+				if(v.type=="WIDGET"){
+					data.splice(k,1)
+				}
+			})
+		}
+        angular.forEach(data,function(v,k){
+            if(v.type=="WIDGET"&&v.value){
+                var selectedWidget2=TaskService.getValueById(WidgetDataModel,'id',v.value)
+                v.value=selectedWidget2.name;
+            }
+        })
+		angular.forEach(data,function(v,k){
+          delete v.type;
+          delete v.tag;
+          data2.push(v.value);
+          stringdata = stringdata + v.value + ",";
+        })
+        stringdata = stringdata.substring(0,stringdata.length-1);
+        if(stringdata!=""){
+            stringdata = stringdata+";";
+        }
+		return stringdata;
+	}
+})
+
+.filter('removeTagwidget',function(TaskService){
+    return function(arg,widget_id,WidgetDataModel){
+            //sys
+        if(!arg){
+            return;
+        }
+        var data = angular.copy(arg);
+        var data2 = [];
+        var stringdata = "";
+        // console.log(WidgetDataModel);
+        var selectedWidget=TaskService.getValueById(WidgetDataModel,'id',widget_id)
+        if(selectedWidget.user_name=='sys'){
+            //if 'sys',show the widget argument type
+            var widgetFlag=true;
+        }
+        if(!widgetFlag){
+            angular.forEach(data,function(v,k){
+                if(v.type=="WIDGET"){
+                    data.splice(k,1)
+                }
+            })
+        }
+        angular.forEach(data,function(v,k){
+            if(v.type=="WIDGET"&&v.value){
+                var selectedWidget2=TaskService.getValueById(WidgetDataModel,'id',v.value)
+                v.value=selectedWidget2.name;
+            }
+        })
+        return data;
+    }
+})
+.filter('argumentWidgetName',function(TaskService){
+	return function(data,alldata,type){
+		if(type=='WIDGET'&&typeof data=="string"){
+			var result=null;
+			for(var i=0;i<alldata.length;i++){
+	    	    if(	alldata[i].id==data){
+	    	    	result=alldata[i];break;
+	    	    }
+	    	}
+			if(result&&result.name){
+				return result.name;
+			}else{
+				return data;
+			}
+			
+		}else{
+			return data
+		}		
+	}
+})
+.controller('TaskCtrl', function($location,$scope,$rootScope,$log,$timeout,SweetAlert,TaskService,BuildTree,SwalMessage) {
+	if($rootScope.curUser == ""){
+		$location.path("/login")
+	}
+	//set the style to "active" for the users input URL directly.
+	$rootScope.activeNavButton("task");
+	//init configs and vars
+        $scope.currentTasks = [];
+        $scope.currentEditMethod = null;//save current edit method in table.
+        $scope.currentArgument = null;//save current edit argument in dialog table.
+        $scope.currentEgg = {"id":"","name":"","text":"","type":"folder",children:[]};//save current egg
+        $scope.showFolderInput=true;
+        $scope.NoData=0;
+        $scope.initCurrentWidgetModel = function () {
+        $scope.currentWidgetModel = {"id":"","name":"","desc":"","user_name":""}
+        };
+
+        $scope.initCurrentCaseModel = function () {
+            $scope.currentCaseModel = {"id":"","name":"","desc":"","user_name":"",tasks:[]};
+            //case/{id}/get_case_with_task
+            $scope.caseTreeData = [];
+        };
+
+        $scope.initCurrentTaskModel = function () {
+            $scope.currentTaskModel = {"id":"","name":"","desc":"","user_name":"",steps:[]};
+            //task/{id}/get_task_with_step
+            //$rootScope.taskTreeData = [];
+        };
+
+        $scope.initCurrentTaskStepModel = function() {
+            $scope.currentTaskStepModel = {"id":"","widget_id":"","widget_name":"","method_id":"","method_name":"","result":"",arguments:[]}
+        };
+
+        $scope.initOriginalTaskStepModel = function() {
+            $scope.originalTaskStepModel = {"id":"","widget_id":"","widget_name":"","method_id":"","method_name":"","result":"",arguments:[]}
+        };
+
+        $scope.initCurrentCaseModel();
+        $scope.initCurrentTaskModel();
+        $scope.initCurrentTaskStepModel();
+        $scope.initCurrentWidgetModel();
+        
+        $rootScope.cleanFlag = 0;
+        
+        $scope.$watch('cleanFlag',  function(newValue, oldValue) {
+			if(newValue != oldValue){
+        	   		$scope.currentTaskFolderModel = {"id":"","text":"","user_name":"","desc":"","parent":""};
+        	   		$scope.currentFolderModel = {
+	        				"id" : "",
+	        				"text" : "",
+	        				"type" : "WIDGET",
+	        				"desc" : "",
+	        				"parent":""
+	        			};
+           }
+		});
+        
+        $scope.updateTaskLocalStorage = function(){
+			localStorage.setItem("selectedData.name",$scope.currentTaskModel.name);
+			localStorage.setItem("selectedData.desc",$scope.currentTaskModel.desc);
+			localStorage.setItem("selectedData.folder",ex1_value.value);
+			localStorage.setItem("selectedData.table",JSON.stringify(angular.copy($scope.gridOptions.data)));
+		}
+        
+        $rootScope.checkBeforeLeaveInTask = function(targetUrl){
+			if($scope.currentTaskModel.name!=""||ex1_value.value!=""||$scope.currentTaskModel.desc!=""||$scope.gridOptions.data!=""){
+				if ($scope.currentTaskModel.id != ""){
+					var preName = localStorage.getItem("selectedData.name");
+					var folder = localStorage.getItem("selectedData.folder");
+					var preDesc = localStorage.getItem("selectedData.desc");
+					var preTable = localStorage.getItem("selectedData.table");
+					var newTable = angular.copy($scope.gridOptions.data);//clean the $$hashKey
+					if($scope.currentTaskModel.name!=preName||ex1_value.value!=folder||$scope.currentTaskModel.desc!=preDesc||JSON.stringify(newTable)!=preTable){
+						swal({
+		                    title: '',
+		                    text: "Are you sure to leave without save?",
+		                    type: 'warning',
+		                    showCancelButton: true,
+		                    confirmButtonText: "YES",
+		                    cancelButtonText: "NO",
+		                    }).then(function () {		                        
+		                    		$location.path(targetUrl);
+		                    		$scope.$apply();
+		                    		},function() {
+		                    			$log.info("User give up leave");
+		                    			}
+		                    		);
+							} else {
+								$location.path(targetUrl);
+							}																					
+				} else {
+					swal({
+	                    title: '',
+	                    text: "Are you sure to leave without save?",
+	                    type: 'warning',
+	                    showCancelButton: true,
+	                    confirmButtonText: "YES",
+	                    cancelButtonText: "NO",
+	                    }).then(function () {		                        
+	                    		$location.path(targetUrl);
+	                    		$scope.$apply();
+	                    		},function() {
+	                    			$log.info("User give up leave");
+	                    			}
+	                    		);
+						}				
+			} else {
+				$location.path(targetUrl);
+			}
+		};
+        
+        BuildTree.searchTree("#search-task", "#task-tree");
+        BuildTree.searchTree("#search-widget", "#widget-tree");
+
+        //task tree config
+        $scope.taskTreeConfigFromBuildTree = BuildTree.taskTreeConfig;
+        $scope.taskTreeConfigFromBuildTree.contextmenu.items = BuildTree.contextmenuTask;
+
+        // widget tree config
+        $scope.widgetTreeConfigFromBuildTree = BuildTree.widgetTreeConfig;
+
+        // loadTaskTree
+        $scope.loadTaskTreeFromBuildTree = function(){
+			BuildTree.loadTaskTree();
+		}
+
+        // loadWidgetTree
+        $scope.loadWidgetTreeFromBuildTree = function(){
+			BuildTree.loadWidgetTree();
+		}
+
+        // Task Selceted action
+        $scope.onTaskSelected = function(){       	
+            var node = $scope.taskTreeInstance.jstree("get_selected",true)[0]
+            if(node.original.type.toLowerCase() == 'leaf'){
+            	$scope.showFolderInput=false;
+                $scope.initCurrentTaskModel();
+                $scope.loadTaskById(node.original.id);
+
+                $scope.selectedTask = node;
+//	             $scope.currentEgg = angular.copy(TaskService.getValueById($scope.dataForTaskTree[0].children,'id',$scope.selectedTask.parent));
+                $scope.currentEgg = angular.copy(TaskService.getValueById($scope.folderModel,'id',$scope.selectedTask.parent));
+                if( $scope.currentEgg){
+//                	$scope.currentEgg.name=$scope.currentEgg.text;
+                	$scope.currentEgg.text=$scope.currentEgg.name;
+                }else{
+                	$scope.currentEgg={name:"",text:""}
+                }
+                localStorage.setItem("selectedData.folder",$scope.currentEgg.text);
+                $timeout(function(){
+                	$scope.showFolderInput=true;
+                })
+            }
+            else if(node.original.type.toLowerCase() == 'folder'){
+                $scope.currentTaskFolderModel = node.original;
+            }
+        };
+
+        // TaskFloder selected action
+        $scope.selectedTaskFloder = function(data){
+        	if(data.originalObject){
+        		$scope.currentEgg.id=data.originalObject.id;
+            	$scope.currentEgg.name=data.originalObject.name;
+            	$scope.currentEgg.text=data.originalObject.name;
+        	}else{
+        		$scope.currentEgg.id="";
+            	$scope.currentEgg.name="";
+            	$scope.currentEgg.text="";
+        	}
+        	
+        }
+
+        // loadTaskById
+        $scope.loadTaskById = function (id) {
+            TaskService.getTaskById(id).then(function (data) {
+                $log.info("Get Task by id",data);
+                if(data.value.steps){
+                	angular.forEach(data.value.steps,function(step){
+                		angular.forEach(step.arguments,function(arg){
+                			if(arg.type=='JAVATYPE'){
+                				arg.type="Value from Result Map";
+                			}
+                		})
+                	})
+                }
+                $scope.currentTaskModel = data.value;
+                localStorage.setItem("selectedData.name",data.value.name);
+			    localStorage.setItem("selectedData.desc",data.value.desc);
+                $scope.currentTaskStepModel = $scope.currentTaskModel.steps;               
+                for(var i=0;i<$scope.currentTaskStepModel.length;i++){
+                    $scope.currentTaskStepModel[i].No = i;
+                };
+                //init No data
+                $scope.NoData=$scope.currentTaskStepModel.length;           
+                $scope.gridOptions.data = $scope.currentTaskStepModel;
+                $scope.originalTask=angular.copy($scope.currentTaskModel);
+                localStorage.setItem("selectedData.table",JSON.stringify($scope.gridOptions.data));
+                $scope.gridApi.selection.clearSelectedRows();
+			    $scope.initGridFunctionData();
+            }, function (reason) {
+                $log.info("Get Task by id failed");
+                swal('','Load Task failed, please try later!', 'error');
+            });
+        };
+        
+        $scope.loadTaskByIdForCopy = function (id) {
+            TaskService.getTaskById(id).then(function (data) {
+                $log.info("Get Task by id",data);
+                if(data.value.steps){
+                	angular.forEach(data.value.steps,function(step){
+                		angular.forEach(step.arguments,function(arg){
+                			if(arg.type=='JAVATYPE'){
+                				arg.type="Value from Result Map";
+                			}
+                		})
+                	})
+                }
+                $scope.currentTaskModel = data.value;
+                $scope.currentTaskModel.name = "copied from "+ $scope.currentTaskModel.name;
+                $scope.currentTaskModel.id = "";
+                $scope.currentTaskStepModel = $scope.currentTaskModel.steps;               
+                for(var i=0;i<$scope.currentTaskStepModel.length;i++){
+                    $scope.currentTaskStepModel[i].No = i;
+                };
+                //init No data
+                $scope.NoData=$scope.currentTaskStepModel.length;           
+                $scope.gridOptions.data = $scope.currentTaskStepModel;
+                $scope.originalTask=angular.copy($scope.currentTaskModel);
+                $scope.currentEgg = angular.copy(TaskService.getValueById($scope.folderModel,'id',$scope.selectedTask.parent));
+                ex1_value.value = $scope.currentEgg.name;
+            }, function (reason) {
+                $log.info("Get Task by id for copy failed");
+                swal('','Load Task for copy failed, please try later!', 'error');
+            });
+        };
+
+        // new Task
+        $rootScope.composeTask = function(){
+            $scope.currentTaskModel = {"id":"","name":"","desc":"","user_name":"",steps:[]}; 
+            $scope.showFolderInput=false;
+            $scope.currentEgg = {"id":"","name":"","text":"","type":"folder",children:[]};
+            $scope.gridOptions.data=[];
+            $timeout(function(){
+            	$scope.showFolderInput=true;
+            })
+        };
+
+        $scope.cleanPanel = function(){
+            $scope.currentTaskModel = {"id":"","name":"","desc":"","user_name":"",steps:[]}; 
+            $scope.showFolderInput=false;
+            $scope.currentEgg = {"id":"","name":"","text":"","type":"folder",children:[]};
+            $scope.gridOptions.data=[];
+            $timeout(function(){
+                $scope.showFolderInput=true;
+            })
+        };
+
+        // save Task 1.update exist task id; 2.create new task task id not exist
+        $scope.saveTask = function () {
+        	$log.info("User confirm save");
+        		$scope.rebuildGridNoValue();
+            console.log($scope.currentTaskModel);
+            var list =  BuildTree.getNamesFromData($scope.dataForTaskTree,new Array());
+            if (BuildTree.existSameName($scope.currentTaskModel, list)) {
+                swal('',"Task name already exists",'info');  
+                return;
+            }
+
+            // update task
+            if($scope.currentTaskModel.id != ""){
+                // no task step
+                var taskStepMethodFlag = true;
+                if($scope.currentTaskModel.steps){
+                	for(var i=0;i<$scope.currentTaskModel.steps.length;i++){
+                        if($scope.currentTaskModel.steps[i].method_id == undefined){
+                            var taskStepMethodFlag = false;
+                            }   
+                    }
+                }        
+                if($scope.currentTaskModel.name =="" || $scope.currentTaskModel.name == undefined){
+                    swal('','Please input Task name!', 'info');
+                }else if(!taskStepMethodFlag){
+                    swal('','Method column can not be empty!', 'info');
+                }else if($('#ex1_value').val()==""){
+                    swal('','Please select a folder!', 'info');
+                }else{
+                    $scope.doUpdateTask($scope.currentTaskModel);
+                }       
+            }
+            // create task
+            else{
+                    var taskStepMethodFlag = true;
+                    if($scope.currentTaskModel.steps){
+                        for(var i=0;i<$scope.currentTaskModel.steps.length;i++){
+                            if($scope.currentTaskModel.steps[i].method_id == undefined){
+                                var taskStepMethodFlag = false;
+                                }   
+                        }
+                    }
+                    if($scope.currentTaskModel.name =="" || $scope.currentTaskModel.name == undefined){
+                        swal('','Please input Task name!', 'info');
+                    }else if(!taskStepMethodFlag){
+                        swal('','Method column can not be empty!', 'info');
+                    }else if($('#ex1_value').val()==""){
+                        swal('','Please select a folder!', 'info');
+                    }else{
+                        $scope.doCreateTask($scope.currentTaskModel);
+                    }
+                }           
+        };
+
+        $scope.cancel = function(){
+            console.log($scope.currentTaskModel);
+            $scope.initGridFunctionData();
+            if($scope.currentTaskModel.id){
+            	$scope.currentTaskModel=angular.copy($scope.originalTask);              
+//                $scope.currentEgg = angular.copy(TaskService.getValueById($scope.dataForTaskTree[0].children,'id',$scope.selectedTask.parent));
+//                $scope.currentEgg.name=$scope.currentEgg.text;
+            	$scope.currentEgg = angular.copy(TaskService.getValueById($scope.folderModel,'id',$scope.selectedTask.parent));
+            	$scope.currentEgg.text=$scope.currentEgg.name;
+                $scope.gridOptions.data = $scope.currentTaskModel.steps;
+                $scope.showFolderInput=false;
+                $timeout(function(){
+                    $scope.showFolderInput=true;
+                });
+            }else{
+                $scope.currentTaskModel = {"id":"","name":"","desc":"","user_name":"",steps:[]}; 
+                $scope.showFolderInput=false;
+                $scope.currentEgg = {"id":"","name":"","text":"","type":"folder",children:[]};
+                $scope.gridOptions.data=[];
+                $timeout(function(){
+                    $scope.showFolderInput=true;
+                });
+            }
+        };
+
+        $scope.doUpdateTask = function (model) {
+            TaskService.updateTask(model,model.id).then(function (data) {
+                if(data.value){
+                    $log.info("Update Task success");
+                    $scope.currentTaskModel.id = data.value.id;
+                    $scope.currentTaskModel.name = data.value.name;
+                    $scope.currentTaskModel.desc = data.value.desc;
+                    $scope.currentTaskModel.user_name = data.value.user_name;
+                    console.log("Update task:"+JSON.stringify(angular.copy($scope.currentTaskModel)))
+                    TaskService.setTaskSStep($scope.currentTaskModel).then(function(result){
+                    	if(result.status==0){ 
+                    		$scope.currentTaskModel.steps=result.value.steps; 
+                    		if($('#ex1_value').val()==""){
+                    			$scope.currentEgg={id:$scope.dataForTaskTree[0].id}
+                            }
+                    		TaskService.mappingTaskFolder($scope.currentTaskModel.id,$scope.currentEgg.id).then(function (data) {
+                                swal('',"Update Tasks successfully!", 'success');
+                                $scope.loadTaskTreeFromBuildTree();
+                                $scope.loadTaskById($scope.currentTaskModel.id);
+                                $scope.updateTaskLocalStorage();
+                                $scope.initGridFunctionData();
+                                //$scope.cleanPanel();
+                            }, function (reason) {
+                                swal('',"Update Tasks failed!", 'warning');
+                                $scope.loadTaskTreeFromBuildTree();
+                            });
+                    	}                   	
+                    },function (reason) {
+                        swal('',"Task's step is wrong!", 'warning');
+                        $scope.loadTaskTreeFromBuildTree();
+                    })                   
+                }
+                else{
+                    $log.info("Update Task failed");
+                    $scope.loadTaskTreeFromBuildTree();
+
+                }
+            }, function (reason) {
+                $log.info("Update Task failed");
+                $scope.loadTaskTreeFromBuildTree();
+
+            });
+        };
+
+        $scope.doCreateTask = function (model) {
+        		$scope.initGridFunctionData();    
+        		TaskService.createTask(model).then(function (data) {
+                if(data.value){
+                    $log.info("Create Task success");
+                    $scope.currentTaskModel.id = data.value.id;
+                    $scope.currentTaskModel.name = data.value.name;
+                    $scope.currentTaskModel.desc = data.value.desc;
+                    $scope.currentTaskModel.user_name = data.value.user_name;
+                    $scope.currentTaskModel.steps= $scope.gridOptions.data;
+                    console.log("create task:"+JSON.stringify(angular.copy($scope.currentTaskModel)))
+                    TaskService.setTaskSStep($scope.currentTaskModel).then(function(result){
+                        if(result.status==0){ 
+                            $scope.currentTaskModel.steps=result.value.steps;               
+                            TaskService.mappingTaskFolder($scope.currentTaskModel.id,$scope.currentEgg.id).then(function (data) {
+                                swal('',"Create Tasks successfully!", 'success');
+                                $scope.loadTaskTreeFromBuildTree();
+                                $scope.loadTaskById($scope.currentTaskModel.id);
+                                $scope.updateTaskLocalStorage();
+                                $scope.initGridFunctionData();
+                                //$scope.cleanPanel();
+                            }, function (reason) {
+                                swal('',"Create Tasks failed!", 'warning');
+                                $scope.loadTaskTreeFromBuildTree();
+                            });
+                        }                       
+                    },function (reason) {
+                        swal('',"Task's step is wrong!", 'warning');
+                        $scope.loadTaskTreeFromBuildTree();
+                    })
+                }
+                else{
+                    $log.info("Create Task failed");
+                    $scope.loadTaskTreeFromBuildTree();
+                }
+            }, function (reason) {
+                $log.info("Create Task failed");
+                $scope.loadTaskTreeFromBuildTree();
+            });
+        };
+
+        $rootScope.loadAllTaskFolder = function () {
+            TaskService.getAllTaskFolder().then(function (data) {
+                $log.info("Get Task folder success",data);
+//                $scope.folderModel = data.value.eggs;
+                  $scope.folderModel = data.value;
+            }, function (reason) {
+            	$location.path("/login");
+//            	$log.info("Get Task folder failed");
+//                swal('','Load Task folder failed, please try later!', 'error');
+            });
+        };
+
+        $scope.loadAllWidgetData = function () {
+            TaskService.getWidgetAllData().then(function (data) {
+                $log.info("Get Widget success",data);
+                $scope.WidgetDataModel = data.value;
+                for(var i=0;i<$scope.gridOptions.columnDefs.length;i++){
+                	if($scope.gridOptions.columnDefs[i].name=='Widget'){
+                		$scope.gridOptions.columnDefs[i].editDropdownOptionsArray=$scope.WidgetDataModel;
+                		break;
+                	}
+                }
+            }, function (reason) {
+            	$location.path("/login");
+//            	$log.info("Get Widget failed");
+//                swal('','Load Widget data failed, please try later!', 'error');
+            });
+        };
+
+        $scope.loadWidgetPrototypeWithOthers = function (id){
+            TaskService.getWidgetPrototypeWithOthersUrl(id).then(function (data) {
+                $scope.WidgetPrototypeModel = data.value.methods;
+                for(var i=0;i<$scope.gridOptions.columnDefs.length;i++){
+                	if($scope.gridOptions.columnDefs[i].name=='Method'){
+                		$scope.gridOptions.columnDefs[i].editDropdownOptionsArray=$scope.WidgetPrototypeModel;
+                		break;
+                	}
+                }                
+            }, function (reason) {
+                $log.info("Get WidgetPrototype failed");
+                swal('','Load Widget type failed, please try later!', 'error');
+            });
+        };
+
+        $scope.doTaskTreeNewFolder = function(){
+        		BuildTree.doCreateTaskFolderInBuildTree($scope.currentTaskFolderModel);
+        }
+
+        $scope.doRenameTaskFolder = function () {
+        		BuildTree.doRenameTaskFolderInBuildTree($scope.currentTaskFolderModel);
+        }
+        
+        $rootScope.doRemoveTaskFolder = function (){
+        		BuildTree.doRemoveTaskFolderInBuildTree($scope.currentTaskFolderModel);
+        }
+
+        $rootScope.copyTask = function(node){
+            swal({
+                    title: '',
+                    text: "Are you sure to copy this Task?",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: "YES",
+                    cancelButtonText: "NO",
+                    }).then(function (p) {
+                        $log.info("User confirm copy Task");
+                        $scope.doCopyTask();
+                    },function(p) {
+                        $log.info("User give up copy Task");
+                }
+            );
+        };
+
+        $scope.doCopyTask = function(){
+        		$scope.loadTaskByIdForCopy($scope.currentTaskModel.id);
+//            console.log($scope.currentTaskModel);
+//            $scope.copiedTaskModel = angular.copy($scope.currentTaskModel)
+//            $scope.copiedTaskModel.name = "copied from "+ $scope.currentTaskModel.name;
+//            $scope.copiedTaskModel.id = "";
+//            $scope.currentTaskModel = $scope.copiedTaskModel   
+//            Update by ran for mutiple folder leve
+//            $scope.currentEgg = angular.copy(TaskService.getValueById($scope.dataForTaskTree[0].children,'id',$scope.selectedTask.parent));
+//            $scope.currentEgg.name=$scope.currentEgg.text;
+//            $scope.currentEgg = angular.copy(TaskService.getValueById($scope.folderModel,'id',$scope.selectedTask.parent));
+//            $scope.currentEgg.text=$scope.currentEgg.name;
+//            
+//            $scope.gridOptions.data = $scope.currentTaskModel.steps;
+            $scope.showFolderInput=false;
+            $timeout(function(){
+                $scope.showFolderInput=true;
+            });
+        };
+
+
+
+        $rootScope.removeTask = function(node){
+            swal({
+                    title: '',
+                    text: "Are you sure to remove this task?",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: "YES",
+                    cancelButtonText: "NO",
+                    }).then(function (p) {
+                        $log.info("User confirm remove");
+                        $scope.doRemoveTask();
+                    },function(p) {
+                        $log.info("User give up remove");
+                }
+            );
+        };
+
+        $scope.doRemoveTask = function () {
+            var node = $scope.taskTreeInstance.jstree("get_selected",true)[0];
+            $scope.selectedTaskData={
+                        id:node.id,
+                        name:node.text
+                };
+            TaskService.removeTask($scope.selectedTaskData).then(function (data) {
+                if(data.value == false){
+                		SwalMessage.swalTaskUsed();
+                }else{
+                		SwalMessage.swalRemoveTaskSuccess();
+                    $scope.loadTaskTreeFromBuildTree();
+                    $scope.currentTaskModel = {"id":"","name":"","desc":"","user_name":"",steps:[]}; 
+                    $scope.showFolderInput=false;
+                    $scope.currentEgg = {"id":"","name":"","text":"","type":"folder",children:[]};
+                    $scope.gridOptions.data=[];
+                    $timeout(function(){
+                        $scope.showFolderInput=true;
+                    })
+                    };       
+            }, function (reason) {
+                $log.info("remove Task failed");
+                SwalMessage.swalRemoveTaskFailed();
+            });
+        };
+        
+        BuildTree.initCurrentFolderModel();
+        BuildTree.initCurrentTaskFolderModel();
+        
+        $scope.doCreateFolder = function(){
+			BuildTree.doCreateFolderInBuildTree($scope.currentFolderModel);
+		}
+		
+		$scope.doRenameFolder = function(){
+			BuildTree.doRenameFolderInBuildTree($scope.currentFolderModel);
+		}
+		
+		$rootScope.doRemoveFolder = function(){
+			BuildTree.doRemoveFolderInBuildTree($scope.currentFolderModel);
+		}       
+
+        $rootScope.removeWidget = function(node){
+            swal({
+                    title: '',
+                    text: "Are you sure to remove this folder/task?",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: "YES",
+                    cancelButtonText: "NO",
+                    }).then(function (p) {
+                        $log.info("User confirm remove");
+                        $scope.doRemoveWidget();
+                        $scope.loadWidgetTreeFromBuildTree();
+                    },function(p) {
+                        $log.info("User give up remove");
+                }
+            );
+        };
+
+        $scope.doRemoveWidget = function () {
+          var node = $scope.widgetTreeInstance.jstree("get_selected",true)[0];
+            $scope.selectedWidgetData={
+                        id:node.id,
+                        name:node.text
+                };
+            TaskService.removeWidget($scope.selectedWidgetData).then(function (data) {
+				if(data.value){
+                    $log.info("Remove widget successfully!");
+                    SwalMessage.swalRemoveWidgetSuccess();
+                    $scope.loadWidgetTreeFromBuildTree();
+                }
+                else{
+                    $log.info("Remove widget failed");
+                    SwalMessage.swalWidgetUsed();
+                }			    
+            }, function (reason) {
+                $log.info("Delete case failed");
+                SwalMessage.swalRemoveWidgetFailed();
+            });
+        };
+        
+      $scope.onWidgetSelected = function(){
+            var node = $scope.widgetTreeInstance.jstree("get_selected",true)[0]
+            if(node.original.type.toLowerCase() == 'leaf'){
+                $scope.initCurrentWidgetModel();
+                // $scope.loadCaseById(node.original.id);
+                // $scope.folderName = node.original.parent.name;
+            }
+            else if(node.original.type.toLowerCase() == 'folder'){
+                $scope.currentFolderModel = node.original;
+            }
+        };
+
+        $scope.addWidgetFromTree = function(){
+              var node = $scope.widgetTreeInstance.jstree("get_selected",true)[0];
+                if(node.original.type.toLowerCase() == 'leaf'){
+                $scope.currentWidgetModel.id = node.id;
+                $scope.currentWidgetModel.name = node.text;
+                $scope.currentWidgetModel.user_name = node.original.user_name;
+                console.log($scope.currentTaskStepModel);
+                //$scope.NoData= $scope.NoData+1;
+                var newWidget={"No": $scope.gridOptions.data.length,
+                		"widget_name":node.text,"widget_id":node.id,
+                        "user_name":node.original.user_name,"result":null};
+                $scope.gridOptions.data.push(newWidget);
+            }
+        };
+        
+        $scope.gridOptions = {
+            enableSorting: false,
+        	enableRowSelection: true,
+        	multiSelect:false,
+            enableColumnMenus: false,
+        	enableFullRowSelection:true,
+        	enableSelectAll: false,
+        	selectionRowHeaderWidth: 35,
+            rowTemplate: '<div grid="grid" class="ui-grid-draggable-row" draggable="true"><div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{ \'ui-grid-row-header-cell\': col.isRowHeader, \'custom\': true }" ui-grid-cell></div></div>',
+            columnDefs: [
+                {
+                    name: 'Step Widget', 
+                    field: 'widget_name',
+                    width: '25%',
+                    enableCellEdit: false,
+                    cellTemplate: '<div class=" ui-grid-cell-contents"><p title="{{row.entity.widget_name}}" class="oneline-hide">{{row.entity.widget_name}}</p></div>'
+                    // editableCellTemplate: 'ui-grid/dropdownEditor', 
+                    // width: '20%', 
+                    // editDropdownValueLabel: 'name',
+                    // editDropdownIdLabel: 'id',
+                    // editDropdownOptionsArray: [
+                    // ]
+                },
+                {
+                    name: 'Step Method', field: 'method_name', 
+                    width: '25%', 
+                    enableCellEdit: false,
+                    cellTemplate: '<div class=" ui-grid-cell-contents"><p title="{{row.entity.method_name}}" class="oneline-hide">{{row.entity.method_name}}</p><p class="edit-cell glyphicon glyphicon-edit" style="float:right;"ng-click="grid.appScope.editMethod(row)"></p></div>'
+                },
+                {
+                    name: 'Argument Value', field: 'arguments',
+                    enableCellEdit: false,
+                    cellTemplate: '<div class=" ui-grid-cell-contents"><p title="{{row.entity.arguments|removeTagwidget:row.entity.widget_id:grid.appScope.WidgetDataModel}}" class="oneline-hide">{{row.entity.arguments|removewidget:row.entity.widget_id:grid.appScope.WidgetDataModel}}</p><p class="edit-cell glyphicon glyphicon-edit" style="float:right;"ng-click="grid.appScope.editArgument(row)"></p></div>'
+                },
+                {
+                    name: 'Result', field: 'result',
+                    width: '18%',
+                    cellTemplate: '<div class="ui-grid-cell-contents"><p title="{{row.entity.result}}" class="oneline-hide">{{row.entity.result}}</p><p class="edit-cell  glyphicon glyphicon-trash" style="float:right;"ng-click="grid.appScope.deleteRow(row)"></p></div>'
+                },
+            ]
+        };
+        
+        $scope.gridOptions.multiSelect = true;
+        $scope.initGridFunctionData = function(){
+        		$scope.gridRowIndex = [];
+            $scope.gridRowIndexForCutOrCopy = [];
+            $scope.gridStoreForCutOrCopy = [];
+            $scope.gridStoreForMovePosition = [];
+            $scope.cutRowFlag = false;
+        }
+        $scope.initGridFunctionData();
+        
+        $scope.gridOptions.onRegisterApi = function(gridApi){
+            //set gridApi on scope
+            $scope.gridApi = gridApi;
+            gridApi.selection.on.rowSelectionChanged($scope,function(row){
+                var msg = 'row selected ' + row.isSelected;
+                console.log(msg);
+                $scope.updateWidgetMethodToSelect(row.entity);
+                
+				if(row.isSelected ==true){//store selected index
+					$scope.gridRowIndex.push(row.entity.No);
+				}else{
+					for(var i=0; i<$scope.gridRowIndex.length; i++) {//clean the copy index array after cancel select
+					    if($scope.gridRowIndex[i] == row.entity.No) {
+					    		$scope.gridRowIndex.splice(i, 1);
+					    		break;
+					    }
+					}
+				}
+				$scope.gridRowIndex.sort();
+				$scope.gridRowIndex = uniqueAndCleanNull($scope.gridRowIndex);
+				console.log(JSON.stringify(angular.copy($scope.gridRowIndex)));
+               
+            });
+
+            gridApi.selection.on.rowSelectionChangedBatch($scope,function(rows){
+                var msg = 'rows changed ' + rows.length;
+                console.log(msg);
+            });
+            
+            gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
+           	 if(colDef.field=="widget_name"){
+                    rowEntity.update = true;
+           		 rowEntity.widget_id=newValue;
+           		 var selectedValue=TaskService.getValueById($scope.WidgetDataModel,'id',newValue);
+           		 rowEntity.widget_name=selectedValue.name;
+           		 rowEntity.method_id=null,rowEntity.method_name=null;
+           		 rowEntity.prototype_id=selectedValue.prototype_id;            		 
+           	 }            
+            });
+            
+            gridApi.draggableRows.on.rowDropped($scope, function(info, dropTarget) {
+			     $scope.gridApi.selection.clearSelectedRows();
+			     $scope.rebuildGridNoValue();
+			     $scope.initGridFunctionData();
+			});
+        };
+        
+        function uniqueAndCleanNull(arr){
+            var _arr=[arr[0]];
+               for(var i=0;i<arr.length;i++){
+                 if(arr[i]!=_arr[_arr.length-1]){
+                    _arr.push(arr[i]);
+                 }
+             }
+             _arr = cleanNull(_arr);
+             return _arr;            
+        }
+        function cleanNull(arr){
+        		for(var i=0;i<arr.length;i++){
+        			if(arr[i]==null){
+        				arr.splice(i, 1);
+        				break;
+        			}
+        		}
+        		return arr;
+        }
+        
+     $scope.cutRow = function(){
+        	var methodFlag = true;
+    	    for(var i=0; i<$scope.gridRowIndex.length; i++){
+    	    		if($scope.gridOptions.data[$scope.gridRowIndex[i]].method_id == undefined){
+    	    			methodFlag = false;
+    	    			break;
+    	    		}
+    	    }
+    	    if(!methodFlag){
+    	    		swal('','Method column can not be empty!', 'info');
+    	    }else{
+    	    		console.log("selected row index:"+JSON.stringify(angular.copy($scope.gridRowIndex)));
+        		console.log("cut row:"+JSON.stringify(angular.copy($scope.gridApi.selection.getSelectedRows())));
+    	    		for(var i=0; i<$scope.gridRowIndex.length; i++){
+    				$scope.gridStoreForCutOrCopy.push($scope.gridOptions.data[$scope.gridRowIndex[i]])//store selected row data for cut
+    			}
+    	    		$scope.gridRowIndexForCutOrCopy = $scope.gridRowIndex;//store row index for cut
+    			$scope.gridApi.selection.clearSelectedRows();
+    			$scope.gridRowIndex = [];
+    			$scope.cutRowFlag = true;
+    	    }
+    }
+    
+        $scope.copyRow = function(){
+        		var methodFlag = true;
+        	    for(var i=0; i<$scope.gridRowIndex.length; i++){
+        	    		if($scope.gridOptions.data[$scope.gridRowIndex[i]].method_id == undefined){
+        	    			methodFlag = false;
+        	    			break;
+        	    		}
+        	    }
+        	    if(!methodFlag){
+        	    		swal('','Method column can not be empty!', 'info');
+        	    }else{
+        	    		console.log("selected row index:"+JSON.stringify(angular.copy($scope.gridRowIndex)));
+            		console.log("copyed row:"+JSON.stringify(angular.copy($scope.gridApi.selection.getSelectedRows())));
+        	    		for(var i=0; i<$scope.gridRowIndex.length; i++){
+        				$scope.gridStoreForCutOrCopy.push($scope.gridOptions.data[$scope.gridRowIndex[i]])//store selected row data for copy
+        			}
+        	    		$scope.gridRowIndexForCutOrCopy = $scope.gridRowIndex;//store row index for copy
+        			$scope.gridApi.selection.clearSelectedRows();
+        			$scope.gridRowIndex = [];
+        			$scope.cutRowFlag = false;
+        	    }
+        }
+    
+    $scope.pasteRow = function(){
+    	 	if($scope.gridRowIndex.length != 1){
+    	 		swal('','Please choose one position to paste', 'warning');
+    	 		return;
+    	 	}
+    	 	var indexTemp = [];       	 
+    	 	for(var i=$scope.gridRowIndex[0]; i<$scope.gridOptions.data.length; i++){
+    	 		indexTemp.push(i);
+    	 	}
+    	 	if($scope.cutRowFlag == true){
+    	 		for(var j=0; j<indexTemp.length; j++){//clean the cut data from move data
+        	 		for(var k=0; k<$scope.gridRowIndexForCutOrCopy.length; k++){
+        	 			if(indexTemp[j]==$scope.gridRowIndexForCutOrCopy[k]){
+        	 				indexTemp.splice(j, 1);
+        	 			}
+        	 		}
+        	 	}	
+    	 	}        	 	
+    	 	for(var i=0; i<indexTemp.length; i++){//store row data for move
+    	 		$scope.gridStoreForMovePosition.push($scope.gridOptions.data[indexTemp[i]]);
+    	 	}
+    	 	$scope.gridOptions.data.splice($scope.gridRowIndex[0],$scope.gridOptions.data.length-$scope.gridRowIndex[0]);//remove data from grid
+    	 	if($scope.cutRowFlag == true){
+    	 		for(var i=$scope.gridRowIndexForCutOrCopy.length-1; i>=0; i--){
+        	 		$scope.gridOptions.data.splice($scope.gridRowIndexForCutOrCopy[i],1);
+        	 	}
+    	 	}
+    	 	for(var i=0; i<$scope.gridStoreForCutOrCopy.length; i++){//push rebuilding data into grid, it should rebuild the row data just like adding row from tree because of the copy bug
+    	 		//$scope.gridOptions.data.push($scope.gridStoreForCutOrCopy[i]);
+    	 		var newWidget={"No":"","id":"",
+                		"widget_name":$scope.gridStoreForCutOrCopy[i].widget_name,"widget_id":$scope.gridStoreForCutOrCopy[i].widget_id,
+                        "user_name":$scope.gridStoreForCutOrCopy[i].user_name,"result":$scope.gridStoreForCutOrCopy[i].result,
+                        "method_id":$scope.gridStoreForCutOrCopy[i].method_id,"method_name":$scope.gridStoreForCutOrCopy[i].method_name,
+                        "arguments":TaskService.transferEditArgToStep($scope.gridStoreForCutOrCopy[i].arguments)};	
+            $scope.gridOptions.data.push(newWidget);
+    	 	}
+    	 	for(var i=0; i<$scope.gridStoreForMovePosition.length; i++){
+    	 		$scope.gridOptions.data.push($scope.gridStoreForMovePosition[i]);
+    	 	}
+    	 	$scope.gridApi.selection.clearSelectedRows();
+    	 	$scope.rebuildGridNoValue();
+    	 	$scope.initGridFunctionData();
+    }
+    
+    $scope.rebuildGridNoValue = function(){
+    		var GridTemp = [];
+    		GridTemp = $scope.gridOptions.data;
+    		$scope.gridOptions.data = [];
+    		$scope.currentTaskModel.steps = [];
+    		for(var i=0; i<GridTemp.length;i++){
+    			GridTemp[i].No = $scope.gridOptions.data.length;
+    			$scope.gridOptions.data.push(GridTemp[i]);
+    			$scope.currentTaskModel.steps.push(GridTemp[i]);
+    		}
+    }
+         
+      $scope.deleteRow = function(value){	
+    	  swal({
+ 			title : '',
+ 			text : "Are you sure to remove this row?",
+ 			type : 'warning',
+ 			showCancelButton : true,
+ 			confirmButtonText : "YES",
+ 			cancelButtonText : "NO",
+ 		})
+ 		.then(function() {
+    	 		var rowIndex=0;
+    	 		for(var i=0;i<$scope.gridOptions.data.length;i++){
+    	 			if($scope.gridOptions.data[i].No==value.entity.No){
+            			rowIndex=i;break;
+    	 			}
+    	 		}
+    	 		$scope.gridOptions.data.splice(rowIndex,1);
+    	 		$scope.$apply();
+    	 		$scope.gridApi.selection.clearSelectedRows();
+    	 		$scope.rebuildGridNoValue();
+    	 		$scope.initGridFunctionData();
+ 		},function(dismiss) {
+ 			if (dismiss === 'cancel') {
+ 				$log.info("User give up remove");
+ 				}
+ 			}
+ 		)
+      };
+      
+       
+        $scope.editMethod = function(value) {
+        	//current selected method : value.entity
+        	$scope.currentEditMethod = value.entity;
+        	 var id=null;
+        	 if(value.entity.update){
+        		 id=value.entity.prototype_id;
+        	 }else{
+        		 var widget=TaskService.getValueById($scope.WidgetDataModel,'id',value.entity.widget_id);
+        		 id=widget.prototype_id;
+        	 }
+        	TaskService.getWidgetPrototypeWithOthersUrl(id).then(function (data) {
+                $scope.WidgetPrototypeModel = data.value.methods;
+                $('#edit-method').modal({
+                    backdrop: 'static'
+                });             
+            }, function (reason) {
+                $log.info("Get WidgetPrototype failed");
+            });           
+        };
+
+        $scope.finishEditMethod = function(){
+            $scope.currentTaskStepModel = $scope.gridOptions.data
+        	var selectedValue=TaskService.getValueById($scope.currentTaskStepModel,'No',$scope.currentEditMethod.No);
+        	selectedValue.method_name=$scope.selectedWidgetMethod.originalObject.name;
+        	selectedValue.method_id=$scope.selectedWidgetMethod.originalObject.id;
+        	selectedValue.arguments=null;
+        	var selectedWidget=TaskService.getValueById($scope.WidgetDataModel,'id',selectedValue.widget_id);
+       		if(selectedWidget.user_name=='sys'){
+       			var widgetFlag=true;
+       		}
+       		if(!widgetFlag){
+       			TaskService.getMehtodWithType(selectedValue.method_id).then(function(data){
+            		if(data.value.types[0]=="WIDGET"){
+            			selectedValue.arguments=[];
+            			selectedValue.arguments.push({type:'WIDGET',value:selectedValue.widget_id,tag:null,updateFlag:true});
+            		}
+            		$('#edit-method').modal('hide');
+            	});
+       		}else{
+       			$('#edit-method').modal('hide');
+       		}
+        	
+        	
+        }
+      //edit argument
+        $scope.editArgument = function(value){
+        	//console.log(JSON.stringify(angular.copy(value.entity)))
+        	$scope.editArgumentTable=false;
+        	 $scope.currentArgument={data:null,step:null,apiData:null,No:null};
+        	 $scope.currentArgument.data=angular.copy(value.entity.arguments);
+        	 $scope.currentArgument.step=angular.copy(value.entity.id);
+        	 $scope.currentArgument.No=angular.copy(value.entity.No);
+        	 $scope.currentArgument.stepName=value.entity.widget_name;
+        	 $scope.currentArgument.widget_id=value.entity.widget_id;
+	       	 TaskService.getMehtodWithType(value.entity.method_id).then(function (data2) {	
+	       		 $scope.currentArgument.apiData=data2.value.types;
+	       		var selectedWidget=TaskService.getValueById($scope.WidgetDataModel,'id',value.entity.widget_id)
+	       		if(selectedWidget.user_name=='sys'){
+                    //if 'sys',show the widget argument type
+	       			var widgetFlag=true;
+	       		}
+	       		 if(value.entity.arguments&&value.entity.arguments.length>0){
+	       			$scope.argumentGridOptions.data= value.entity.arguments;
+	       			if(value.entity.arguments.length==1&&value.entity.arguments[0].updateFlag){
+	       				angular.forEach(data2.value.types,function(type,key){
+		       				 if(type!='WIDGET'){
+		       					var arr={type:type,value:null,tag:null};		       				
+			       				$scope.argumentGridOptions.data.push(arr);
+		       				 }
+		       			 });   	
+	       			}
+	       			if(value.entity.arguments.length==1&&value.entity.arguments[0].type == "WIDGET"){
+	       				angular.forEach(data2.value.types,function(type,key){
+		       				 if(type!='WIDGET'){
+		       					var arr={type:type,value:null,tag:null};		       				
+			       				$scope.argumentGridOptions.data.push(arr);
+		       				 }
+		       			 });
+	       			}
+	       			if(!widgetFlag&&$scope.argumentGridOptions.data[0].type=='WIDGET'){
+	       				$scope.argumentGridOptions.data.splice(0,1);
+	       			}
+	       			
+	       		 }else{
+	       			$scope.argumentGridOptions.data=[];
+	       			 angular.forEach(data2.value.types,function(type,key){
+	       				 if(!(!widgetFlag&&key==0&&type=='WIDGET')){
+	       					var arr={type:type,value:null,tag:null};		       				
+		       				$scope.argumentGridOptions.data.push(arr);
+	       				 }
+	       			 });   			
+	       		 }    
+//	       		TaskService.processArgumentData($scope.argumentGridOptions.data,$scope.WidgetDataModel)
+	       		
+	       		 $('#step-argument-configure-modal').modal({
+	                    backdrop: 'static'
+	                });  
+	       		 $timeout(function(){
+	       			 $scope.editArgumentTable=true;
+	       		 });
+	            }, function (reason) {
+	                
+	            });         
+        };
+
+        $scope.finishEditArgument = function(){
+        	var selectedWidget=TaskService.getValueById($scope.WidgetDataModel,'id',$scope.currentArgument.widget_id)
+       		if(selectedWidget.user_name=='sys'){
+                //if 'sys',show the widget argument type
+       			var widgetFlag=true;
+       		}
+        	if(!widgetFlag&&$scope.currentArgument.data&&
+        			$scope.currentArgument.data[0]&&$scope.currentArgument.data[0].type=='WIDGET'){
+        		if(!$scope.currentArgument.data[0].value){
+        			$scope.currentArgument.data[0].value=$scope.currentArgument.widget_id;
+        		}
+        		$scope.argumentGridOptions.data.splice(0,0,$scope.currentArgument.data[0]);
+        	}else if(!widgetFlag&&$scope.currentArgument.apiData[0]=='WIDGET'){
+        		$scope.argumentGridOptions.data.splice(0,0,{type:'WIDGET',value:$scope.currentArgument.widget_id,tag:null});
+        	}
+        	//process edit argument data
+        	var result = TaskService.transferEditArgToStep($scope.argumentGridOptions.data);
+        	//update argument data in $scope.currentTaskStepModel
+        	var step=TaskService.getValueById($scope.currentTaskStepModel,'No',$scope.currentArgument.No);
+        	if(step != null){
+        		step.arguments=result;
+        	}
+        	$('#step-argument-configure-modal').modal('hide');
+        }
+        
+        $scope.cancelEditArgument = function(){
+        	var step=TaskService.getValueById($scope.currentTaskStepModel,'No',$scope.currentArgument.No);
+        	step.arguments=$scope.currentArgument.data;
+        	$('#step-argument-configure-modal').modal('hide');
+        }
+        
+        $scope.cancelEditArgumentByClose = function(){
+        	var step=TaskService.getValueById($scope.currentTaskStepModel,'No',$scope.currentArgument.No);
+        	step.arguments=$scope.currentArgument.data;
+        }
+
+         $scope.argumentGridOptions = {
+            enableSorting: false,
+            enableRowSelection: true,
+            enableColumnMenus: false, 
+            multiSelect:false,
+            enableFullRowSelection:true,
+            selectionRowHeaderWidth: 35,
+            rowTemplate: '<div grid="grid" class="ui-grid-draggable-row" draggable="true" >'
+            	+'<div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{ \'ui-grid-row-header-cell\': col.isRowHeader, \'custom\': true }" ui-grid-cell></div>'
+            	+'</div>',
+            columnDefs: [
+                {
+                    name: 'Argument Type', field: 'type',
+                    editableCellTemplate: 'ui-grid/dropdownEditor', 
+                    width: '20%', 
+                    editDropdownValueLabel: 'name',
+                    editDropdownIdLabel: 'name',
+                    editDropdownOptionsArray: [
+                    	
+                    	{name:'Value from Result Map'}
+                    ]
+                },
+                {
+                    name: 'Value', field: 'value',
+                    editableCellTemplate:'<input ng-if="row.entity.type!=\'WIDGET\'" id="exArg_value" placeholder="" ng-model="row.entity.value " />'
+                    	 +'<angucomplete-alt ng-if="row.entity.type==\'WIDGET\'" id="exArg" placeholder="" pause="100"'
+                         +'selected-object="row.entity.value" local-data="grid.appScope.WidgetDataModel" search-fields="name"'
+                        +'title-field="name" minlength="0" input-class="form-control form-control-small" initial-value="row.entity.value | argumentWidgetName : grid.appScope.WidgetDataModel : row.entity.type"/>',
+                   cellTemplate:'<div>{{row.entity.value | argumentWidgetName : grid.appScope.WidgetDataModel : row.entity.type}}</div>'                 	
+                },
+                {
+                    name: 'Tag', field: 'tag'
+                }
+            ]
+        };
+         $scope.argumentGridOptions.onRegisterApi = function(gridApi){
+             //set gridApi on scope
+             $scope.gridApiForArgument = gridApi;
+             gridApi.selection.on.rowSelectionChanged($scope,function(rows,f,index){
+            	 var valueColDef=TaskService.getValueById($scope.argumentGridOptions.columnDefs,'field',"type");
+            	 var indx=0;
+            	 for(var i=0;i<$scope.argumentGridOptions.data.length;i++){
+            		 if($scope.argumentGridOptions.data[i].type==rows.entity.type
+            				 &&$scope.argumentGridOptions.data[i].tag==rows.entity.tag
+            				 &&$scope.argumentGridOptions.data[i].value==rows.entity.value){
+            			 indx=i;break; 
+            		 }
+            	 }
+            	 // console.log(WidgetDataModel);
+         		    var selectedWidget=TaskService.getValueById($scope.WidgetDataModel,'id',$scope.currentArgument.widget_id)
+            		if(selectedWidget.user_name=='sys'){
+                     //if 'sys',show the widget argument type
+            			var widgetFlag=true;
+            		}
+         		    if(!widgetFlag&&($scope.currentArgument.apiData[0]=='WIDGET')){
+         		    	indx=indx+1
+         		    }
+            	 //for step
+//            	 valueColDef.editDropdownOptionsArray=TaskService.processArgumentTypeData($scope.currentArgument.data[indx].type);
+            	 //for api
+            	 valueColDef.editDropdownOptionsArray=TaskService.processArgumentTypeData($scope.currentArgument.apiData[indx]);
+
+             });
+             gridApi.selection.on.rowSelectionChangedBatch($scope,function(rows){
+                 var msg = 'rows changed ' + rows.length;
+                 console.log(msg);
+             });
+             gridApi.edit.on.beginCellEdit($scope,function(rowEntity, colDef, newValue, oldValue){
+            	 if(colDef.field=="type"){
+            		 colDef.editDropdownOptionsArray=[{name:'Value from Result Map'}];
+            		 if(rowEntity.type!='Value from Result Map'){
+            			 colDef.editDropdownOptionsArray.push({name:rowEntity.type})
+            		 }
+//            		 var valueColDef=TaskService.getValueById($scope.argumentGridOptions.columnDefs,'field',"value");
+ 
+            	 }
+             });
+             //edit arguments data
+             gridApi.edit.on.afterCellEdit($scope, function (rowEntity, colDef, newValue, oldValue) {
+            	 if(colDef.field=="type"){
+            		 var valueColDef=TaskService.getValueById($scope.argumentGridOptions.columnDefs,'field',"value");
+            		 if(newValue!='WIDGET'){
+            			 rowEntity.value="" 
+            		 }else{
+
+            		 }
+            	 }     
+            	 if(colDef.field=="value"){
+            		 var data=TaskService.getValueById($scope.WidgetDataModel,'id',newValue);
+            		 rowEntity.value = data.name;
+            		 rowEntity.widget_id=newValue;
+            	 }
+             });
+         };
+         
+         //update widget & method value by selected items in the right table
+         $scope.updateWidgetMethodToSelect = function(data){
+        	 $scope.currentSelectedWidgetMethod={
+        			 widget:null,
+        			 method:null,
+        			 data:data
+        	 }
+        	 $scope.currentSelectedWidgetMethod.widget={
+        		id:data.widget_id,
+        		name:data.widget_name
+        	 }
+        	 $scope.currentSelectedWidgetMethod.method={
+             		id:data.method_id,
+             		name:data.method_name
+             	 }
+        	 $scope.$broadcast('angucomplete-alt:changeInput', 'ex2', $scope.currentSelectedWidgetMethod.widget);
+        	 $scope.$broadcast('angucomplete-alt:changeInput', 'ex3', $scope.currentSelectedWidgetMethod.method);
+         }
+        
+         //get all widget selections
+         $scope.loadAllWidgetData()
+   
+})

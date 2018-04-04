@@ -1,0 +1,144 @@
+"use strict";
+app.service('WidgetService', function(Utils, Config) {
+	var service = {};
+
+	service.createWidgetFolder = function(model) {
+		var data = {
+			"name" : model.text,
+			"desc" : model.desc,
+			"pFolderId" : model.parent,
+			"type" : "WIDGET"
+		};
+		return Utils.ctapPost(Config.RestMapping.createFolderUrl, data);
+	};
+
+	service.renameWidgetFolder = function(model) {
+		var data = {
+			"name" : model.text,
+			"id" : model.id,
+			"pFolderId" : null,
+			"type" : "WIDGET"
+		};
+		return Utils.ctapPost(Config.RestMapping.renameFolderUrl, data);
+	};
+
+	service.removeWidgetFolder = function(model) {
+		var data = {
+			"name" : model.text,
+			"id" : model.id
+		};
+		return Utils.ctapPost(Config.RestMapping.removeWidgetFolderUrl, data);
+	};
+
+	service.removeWidget = function(model) {
+		var data = {
+			"id" : model.id,
+			"name" : model.name
+		};
+		return Utils.ctapPost(Config.RestMapping.widgetRemoveUrl, data);
+	}
+
+	service.getWidgetTreeData = function() {
+		return Utils.ctapGet(Config.RestMapping.getWidgetTreeUrl);
+	};
+
+	service.getWidgetPrototypeTreeData = function() {
+		return Utils.ctapGet(Config.RestMapping.getAllByWidgetPrototypeUrl);
+	};
+
+	service.getWidgetPrototypes = function() {
+		return Utils.ctapGet(Config.RestMapping.getWidgetPrototypes);
+	}
+
+	service.getWidgetById = function(id) {
+		return Utils.ctapGet(Config.RestMapping.widgetByIdUrl(id));
+	};
+	service.getAllWidgetFolder = function() {
+		return Utils.ctapGet(Config.RestMapping.allWidgetFolderUrl);
+	};
+	service.getFolderByWidgetId = function(widgetId) {
+		return Utils.ctapGet(Config.RestMapping.folderByWidgetIdUrl(widgetId));
+	};
+
+//	service.getFolderById = function(id) {
+//		return {
+//			"id" : "f002",
+//			"name" : "Log2",
+//			"description" : "xxxx"
+//		};
+//	};
+
+	service.getMethodById = function(methodId) {
+		return Utils.ctapGet(Config.RestMapping.methodByIdUrl(methodId));
+	};
+
+	service.updateMethod = function(model) {
+		return Utils.ctapPost(Config.RestMapping.methodUpdateUrl, model);
+	};
+	service.addMethod = function(model) {
+		return Utils.ctapPost(Config.RestMapping.methodAddUrl, model);
+	}
+	service.removeMethod = function(id) {
+		return Utils.ctapGet(Config.RestMapping.methodRemoveUrl(id));
+	}
+
+	service.getPrototypeById = function(id) {
+		return Utils.ctapGet(Config.RestMapping.prototypeByIdUrl(id));
+	}
+	service.updatePrototype = function(model) {
+		return Utils.ctapPost(Config.RestMapping.prototypeUpdateUrl, model);
+	}
+	service.addPrototype = function(model) {
+		return Utils.ctapPost(Config.RestMapping.prototypeAddUrl, model);
+	}
+	service.removePrototype = function(id) {
+		return Utils.ctapGet(Config.RestMapping.prototypeRemoveUrl(id));
+	}
+
+	service.getAllMethods = function() {
+		return Utils.ctapGet(Config.RestMapping.getAllMethodsUrl);
+	}
+
+	// service.getPrototypeById = function(id){
+	// return Utils.ctapGet(Config.RestMapping.prototypeByIdUrl(id));
+	// }
+
+	service.getXpatternById = function(id) {
+		return Utils.ctapGet(Config.RestMapping.xpatternByIdUrl(id));
+	}
+
+	service.getXpatterns = function() {
+		return Utils.ctapGet(Config.RestMapping.getXpatterns);
+	}
+
+	service.addXpattern = function(model) {
+		return Utils.ctapPost(Config.RestMapping.xpatternAddUrl, model);
+	}
+
+	service.updateXpattern = function(model) {
+		return Utils.ctapPost(Config.RestMapping.xpatternUpdateUrl, model);
+	}
+	service.removeXpattern = function(xpatternId) {
+		return Utils.ctapGet(Config.RestMapping.xpatternRemoveUrl(xpatternId));
+	}
+
+	service.createWidget = function(model) {
+		// console.log("service.createWidget" + model.name);
+		// $log.info("service.createWidget", model);
+		return Utils.ctapPost(Config.RestMapping.widgetAddUrl, model);
+	};
+	service.updateWidget = function(model) {
+		return Utils.ctapPost(Config.RestMapping.widgetUpdateUrl, model);
+		// return service.mappingFolder(model.id,folderId);
+	};
+	service.mappingFolder = function(widgetId, folderId) {
+		var data = [ {
+			"type" : "link",
+			"p_egg_id" : folderId,
+			"c_egg_id" : widgetId
+		} ];
+		return Utils.ctapPost(Config.RestMapping.mappingWidgetFolderUrl, data);
+	};
+
+	return service;
+});

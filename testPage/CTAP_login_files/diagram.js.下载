@@ -1,0 +1,406 @@
+'use strict';
+
+angular.module('myApp.diagram', ['ngRoute'])
+
+.config(['$routeProvider', function($routeProvider) {
+  $routeProvider.when('/diagram', {
+    templateUrl: './modules/diagram/diagram.html',
+    controller: 'DiagramCtrl'
+  });
+}])
+
+.controller('DiagramCtrl',function($location, $scope,$rootScope,$log,$timeout,CaseService,BuildTree,SwalMessage,DiagramService,BuildDiagram) {
+	if($rootScope.curUser == ""){
+		$location.path("/login")
+	}	
+	
+	//set the style to "active" for the users input URL directly.
+	$rootScope.activeNavButton("diagram");
+	
+	$scope.eles={nodes:[],hulls:[],links:[]};
+	$scope._subHandler = null;
+	$scope.treeNodeStore = null;
+	
+	//BuildTree.searchTree("#search-suite", "#suite-tree");
+	BuildTree.searchTree("#search-case", "#case-tree");
+    BuildTree.searchTree("#search-task", "#task-tree");
+    
+    var contextmenuTaskForDiagram = function(node) {
+        var items = {
+//        		createTaskDiagram: {
+//                label: "createTaskDiagram",
+//                action: function () {
+//                	$rootScope.createTaskDiagram(node);
+//                }
+//            }
+        }
+//        if (node.original.type.toLowerCase() == 'folder') {         
+            return items;
+//        } else {
+//        		var taskItems = angular.copy(items);
+//    			delete taskItems["createTaskDiagram"];
+//    			return taskItems;
+//        }
+	}
+    
+	var contextmenuCaseForDiagram = function(node) {
+        var items = {
+        		createCaseDiagram: {
+                label: "createCaseDiagram",
+                action: function () {
+                	$rootScope.createCaseDiagram(node);
+                }
+            }
+        }
+        if (node.original.type.toLowerCase() == 'folder') {         
+            return items;
+        } else {
+        		var caseItems = angular.copy(items);
+    			delete caseItems["createCaseDiagram"];
+    			return caseItems;
+        }
+	}
+	
+//	var contextmenuSuiteForDiagram = function(node) {
+//        var items = {
+//        		createSuiteDiagram: {
+//                label: "createSuiteDiagram",
+//                action: function () {
+//                	$rootScope.createSuiteDiagram(node);
+//                }
+//            }
+//        }
+//        return items;
+//	}
+	
+	$scope.caseTreeConfigFromBuildTree = BuildTree.caseTreeConfig;
+    //$scope.caseTreeConfigFromBuildTree.contextmenu.items = BuildTree.contextmenuCase;
+	$scope.caseTreeConfigFromBuildTree.contextmenu.items = contextmenuCaseForDiagram;
+
+    $scope.taskTreeConfigFromBuildTree = BuildTree.taskTreeConfig;
+    $scope.taskTreeConfigFromBuildTree.contextmenu.items = contextmenuTaskForDiagram;
+    
+//    $scope.suiteTreeConfigFromBuildTree = BuildTree.suiteTreeConfig;
+//    $scope.suiteTreeConfigFromBuildTree.contextmenu.items = contextmenuSuiteForDiagram;
+
+    // loadCaseTree
+    $scope.loadCaseTreeFromBuildTree = function(){
+		BuildTree.loadCaseTree();
+	}
+
+    // loadTaskTree
+    $scope.loadTaskTreeFromBuildTree = function(){
+		BuildTree.loadTaskTree();
+	}
+    
+    // loadSuiteTree
+//    $scope.loadSuiteTreeFromBuildTree = function(){
+//		BuildTree.loadSuiteTree();
+//	}
+    
+    $scope.resetDiagram = function(){
+    		if($scope.treeNodeStore){
+    			$rootScope.createCaseDiagram($scope.treeNodeStore);
+    		} else {
+    			swal('','There is no data to reset!', 'warning');
+    		}
+    }
+    
+    $rootScope.createCaseDiagram = function(tree_node){
+		  // paper_overall_standby.show();
+    	$scope.treeNodeStore = tree_node;
+    	DiagramService.getCaseWithAllTasks().then(function (data) {
+			   		// get all cases 
+    					var allCases = data.value;
+			   		// get cases in seleted folder
+			   		var selectedCases = findCases(tree_node, allCases);
+			   		DiagramService.getAllEggWithYolk().then(function (results) {
+						// get tasks and moudules when there is no data in cache.					
+								var eggYolkCache = results.value;
+								$scope.eles={nodes:[],hulls:[],links:[]};
+								if(selectedCases.length != 0 || selectedCases != null){
+									//get nodes and hulls based current selected cases
+									var paperData = getRelatedNodesandHulls(selectedCases, eggYolkCache.eggs);
+									// get links 
+									paperData = getLinks(selectedCases);
+									// draw the gragh based above nodes,hulls, links
+									renderArchitecture(paperData);
+								}else{
+									swal('','there is no cases','info');
+								}
+							},function (reason) {
+								
+							});												
+			},function (reason) {
+				swal('','Internal Server Error or Network Connection Error!','error');
+				//paper_overall_standby.hide();
+			}
+    		); 	
+	}
+    
+ // get the cases in selected folder
+    function findCases(tree_node, allCases){
+		var cases = [];
+		var caseObject;
+		if(tree_node.type[0] == 'case'){
+			//the tree node is a case
+			var caseObject = getCasebyId(tree_node.id[0], allCases);
+			cases.push(caseOject);
+		}else{
+			// the tree node is folder and there must be only two layers folder for cases
+			for(var j = 0; j < tree_node.children.length; ++j){
+				var id = tree_node.children[j];
+				caseObject = getCasebyId(id, allCases);
+				cases.push(caseObject);
+			}// for j
+		}//else
+		return cases;
+	}
+    
+    function getCasebyId(id, allCases){
+		for(var i = 0; i < allCases.length; ++i){
+			if(allCases[i].case_id == id)
+				return allCases[i];
+		}
+		return null;
+	}
+    
+ // get the parent id for case
+	function getParentFolder(caseid){
+		console.log($rootScope.dataForCaseTree);
+		if($rootScope.dataForCaseTree != null){
+			for(var i = 0; i < $rootScope.dataForCaseTree.length; ++i){
+				for(var j = 0; j < $rootScope.dataForCaseTree[i].children.length; ++j)
+				if($rootScope.dataForCaseTree[i].children[j].id == caseid){
+					return $rootScope.dataForCaseTree[i].id;
+				}
+			}
+		}
+		return null;
+	}
+    
+	function getRelatedNodesandHulls(cases, folderandTasks){
+		
+		var hulls = {};
+		// a map saved the related tasks
+		// find which hulls covered based on cases' task
+		for( var i = 0; i < cases.length; ++i){
+			var task = cases[i].task_data;
+			for(var j = 0; j < task.length; ++j){
+				var hid = locateHulls(task[j].id, folderandTasks); 
+				hulls[hid] = 1;
+			}// for task	
+		}// for cases	
+		
+		// get nodes and hulls
+		var id;
+		for(var h = 0; h < folderandTasks.length; ++h){
+			id = folderandTasks[h].id;
+			var childTasks = [];
+			var tasks = folderandTasks[h].yolks;
+			
+			if(hulls[id] == 1){
+				// push the tasks in its self
+				for(var i = 0; i < tasks.length; ++i){
+					var t = {
+							t_id: jointString("n",tasks[i].id),
+							t_name:tasks[i].name,
+							t_desc:tasks[i].desc,
+							t_owner:tasks[i].user_name,
+							group:jointString("g",folderandTasks[h].id),
+							type:[0,0,0],
+							parentFolder:folderandTasks[h].id
+						};//t
+					$scope.eles.nodes.push(t);
+					childTasks.push(t);
+				}// for tasks
+				// push the task in children folder.
+				var hullsize = getTasksinChildFolders(folderandTasks[h].eggs, id,childTasks)
+								+ tasks.length;
+				// extract hull and push it in eles.
+				var hull = {
+						h_id:"g" + folderandTasks[h].id,
+						h_name:folderandTasks[h].name,
+						h_desc:folderandTasks[h].desc,
+						h_children:childTasks,
+						h_size:hullsize
+					};
+				$scope.eles.hulls.push(hull);		
+			} // get NodesandHulls in hulls[id] 	
+		}// for foder and Task.
+		
+		return $scope.eles;
+	}
+	
+	// combine strings together
+	function jointString(strings){
+		var str= "";
+		for(var i = 0; i < arguments.length; ++i){
+			str = str + arguments[i];
+		}
+		return str;
+	} // jointString
+	
+	function getTaskNode(taskid){
+		
+		for(var i = 0; i < $scope.eles.nodes.length; ++i){
+			if($scope.eles.nodes[i].t_id == taskid){
+				return $scope.eles.nodes[i];
+			}
+		}
+		return null;
+	}
+	
+	// handle the tasks in child folder
+	function getTasksinChildFolders(data, parentId, childTasks){
+		if(childTasks){
+			var num = 0, c_num = 0;
+			var tasks = null, t= null;				
+			if(data.length == 0) { 
+				return 0;	
+			}else{
+				for(var i = 0; i < data.length; ++i){
+					if(data[i].yolks.length != 0){
+						tasks = data[i].yolks;
+						for(var j = 0; j < tasks.length; ++j){					
+							t = {
+									t_id:jointString("n",tasks[j].id),
+									t_name:tasks[j].name,
+									t_desc:tasks[j].desc,
+									t_owner:tasks[j].user_name,
+									group:jointString("g", parentId),
+									type:[0,0,0],
+									parentFolder:data[i].id
+							};//t 
+							$scope.eles.nodes.push(t);
+							childTasks.push(t);
+							num++;
+						}// for yolks								
+					} //if has yolks
+					c_num = getTasksinChildFolders(data[i].eggs, parentId);							
+				}// for
+				return num + c_num;
+			}//else
+		}else{
+			swal('','Only support showing two level tasks of the task folder', 'warning');
+		}					
+	} //getTasksinChildFolders
+	
+	// find the hulls which cover task
+	function locateHulls(taskid, folderandTasks){
+		if(folderandTasks.length == 0)
+			return -1;  // can not find locate hulls
+		for(var i = 0; i < folderandTasks.length; ++i){
+			var folder = folderandTasks[i].yolks;
+			for(var j = 0; j < folder.length; ++j){
+				if(taskid == folder[j].id){
+					return folderandTasks[i].id;
+				}		
+			}// for folder
+			var id = locateHulls(taskid,folderandTasks[i].eggs);
+			if(id != -1)
+				return folderandTasks[i].id;
+		}// for forderandTask
+		return -1;
+	}
+    
+	// added get links based on cases for D3.js
+	function getLinks(cases){
+		var task, l = null;
+		for(var i = 0; i < cases.length; ++i){
+			var tasks = cases[i].task_data;
+			//if there is one task. task is start point and end point
+			if(tasks.length == 1){
+				var tid = jointString("n",tasks[0].id); 
+				var task = getTaskNode(tid);
+		        // set the start and end label is 1.
+				task.type[0] = 1;
+				task.type[2] = 1;
+				
+			}	
+			if(tasks.length >= 2){ // a case more than two steps has links.
+				for(var j = 0; j < (tasks.length-1); ++j){		
+					if(j == 0){
+						// set label of first task
+						var st = getTaskNode("n"+tasks[j].id);
+						st.type[0] = 1;
+					}
+					
+					if(j == (tasks.length-2)){
+						//set lable of last task
+						var et = getTaskNode("n"+tasks[j+1].id);
+						et.type[2] = 1;
+					}
+					// get parent folder of case 
+					var pid = getParentFolder(cases[i].case_id);	
+					l = {	
+						id: jointString("n",tasks[j].id,"_n" + tasks[j+1].id),  // add lable n 
+						source: jointString("n",tasks[j].id),  
+						target: jointString("n", tasks[j+1].id),
+						caseid:cases[i].case_id,
+						casename:cases[i].name,
+						pFolder:pid
+					};
+					
+					// set lable of middle tasks.
+					var t = getTaskNode("n"+tasks[j].id);
+					t.type[1] = 1;  			
+					// push the link in eles.
+					$scope.eles.links.push(l);							
+				}//j	
+			}// Has tasks for the case
+		}// for i
+		return $scope.eles;
+	}// get Links
+	
+	// render overall gragh bases on cases and tasks.
+	function renderArchitecture(data){
+		console.log(data)
+		
+		if ($scope._subHandler!=null){
+			$scope._subHandler.remove();
+			}
+		
+		document.getElementById("dp").style.display="";
+		//document.getElementById("widgetcy").style.display="none";
+		//document.getElementById("taskcy").style.display="none";
+		
+		var container = {
+				element: '#dp',
+				width: document.getElementById('dp').offsetWidth,
+				height: document.getElementById('dp').offsetHeight
+		};
+		
+		// clear the svg and render the graph
+		var diagramClassData = document.getElementsByClassName('diagram-paper').dp.children[0];
+		if(diagramClassData){
+			diagramClassData.remove();
+		}
+		BuildDiagram.resetVars();
+		// draw the gragh	 
+		var g_data = data;
+		if(g_data.nodes.length == 0){
+			swal('','There is no task in all cases','info');
+		}
+		BuildDiagram.drawGraph(g_data, container);   	
+		
+		// update the gragh when worspace hide or open
+//		$scope._subHandler = topic.subscribe(topicSet.resizeworkspace, function(isResized){		
+//			if(isResized){
+//				container.width = document.getElementById('dp').offsetWidth;
+//				container.height = document.getElementById('dp').offsetHeight;
+//				//document.getElementsByClassName('diagram-paper').children().remove(); 
+//				BuildDiagram.resetVars();
+//				BuildDiagram.drawGraph(g_data, container);			
+//			}// redraw the gragh
+//			
+//			
+//		});
+		
+		
+	} // renderArchitecture
+	
+	
+	
+	
+});

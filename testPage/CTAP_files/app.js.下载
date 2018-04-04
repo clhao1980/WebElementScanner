@@ -1,0 +1,270 @@
+'use strict';
+
+// Declare app level module which depends on views, and components
+var app = angular.module('myApp', [
+    'ngRoute',
+    'ngSanitize',
+    'myApp.case',
+    'myApp.widget',
+    'myApp.suite',
+    'myApp.task',
+    'myApp.debugCase',
+    'ng-sweet-alert',
+    "angucomplete-alt",
+    'ngJsTree',
+    "ui.grid",
+    "ui.grid.edit",
+    "ui.grid.draggable-rows",
+    "ui.grid.selection",
+    "ui.grid.cellNav",
+    'ui.grid.autoResize',
+    'ui.bootstrap',
+    'myApp.login',
+    'myApp.report',
+    'myApp.execution',
+    'myApp.workQueue',
+    'myApp.diagram'
+]).config(function ($locationProvider, $routeProvider,$httpProvider) {
+    $locationProvider.hashPrefix('');
+    $routeProvider
+    .when('/', {
+    	redirectTo: '/login'
+      })
+    .otherwise({redirectTo: '/case'})
+//    $routeProvider.otherwise({redirectTo: '/widget'});
+    $httpProvider.defaults.headers.common['Content-type'] = 'application/json;charset=UTF-8';
+}).run(function ($location, $rootScope, Utils) {
+	$rootScope.isLogin = false;
+    // create Case Tree
+    $rootScope.phaseTree = function(data){
+        var tree;
+        var leafList=[];
+        for(var n in data.mmFolds){
+            var child = $rootScope.phaseTree(data.mmFolds[n]);
+            leafList.push(child);
+        }
+        for(var n in data.leafs){
+            leafList.push({id:data.leafs[n].id, text:data.leafs[n].name, type:"leaf",parent:data.selfFolder});
+        }
+        tree = {id:data.selfFolder.id,text:data.selfFolder.name,type:"folder",children:leafList};
+        return tree;
+    };
+
+    // create Task Tree
+    $rootScope.phaseTaskTree = function(data){
+        var tree;
+        var leafList=[];
+        for(var n in data.eggs){
+            var child = $rootScope.phaseTaskTree(data.eggs[n]);
+            leafList.push(child);
+        }
+        for(var n in data.yolks){
+            leafList.push({id:data.yolks[n].id, text:data.yolks[n].name, 
+                user_name:data.yolks[n].user_name,desc:data.yolks[n].desc,type:"leaf"});
+        }
+        tree = {id:data.id,text:data.name,type:"folder",children:leafList};
+        return tree;
+    }; 
+
+    // create WidgetPrototype Tree
+    // type is "wp" and "method" in old version
+    $rootScope.phaseWidgetPrototypeTree = function(data){
+        var tree=[];
+        angular.forEach(data,function(data){
+            var root={
+                id:data.prototype_id,
+                text:data.prototype_name == null?"Default":data.prototype_name,
+                type:"folder",
+                children:[]
+            };
+            angular.forEach(data.methods,function(data){
+                var children={
+                    id:data.id,
+                    text:data.name,
+                    type:'leaf'
+                };
+                root.children.push(children);
+            })
+            tree.push(root);
+        })
+        return tree;
+    };
+
+
+ // create Suite Tree
+    $rootScope.phaseSuite = function(data){
+			var leafList_levelOne = [];
+			if(data.sub_suites && data.sub_suites.length !=0){
+				//add sub suites
+				//var leafList_levelTwo = [];
+				for(var m in data.sub_suites){
+					var leafList_levelTwo = [];
+//					if(data.sub_suites[m].cases && data.sub_suites[m].cases.length !=0){
+//						for(var t in data.sub_suites[m].cases){
+//							leafList_levelTwo.push({text:(data.sub_suites[m].cases)[t].name, id: data.sub_suites[m].id + (data.sub_suites[m].cases)[t].id, node_id: (data.sub_suites[m].cases)[t].id, type:"leaf"});
+//						}
+//					}
+					leafList_levelOne.push({text:(data.sub_suites)[m].name + "*", id: data.id + (data.sub_suites)[m].id, children:leafList_levelTwo, 
+						node_id: (data.sub_suites)[m].id, type:"folder", suitetype: "sequential suite"});
+				}
+			}
+			if(data.cases && data.cases.length != 0){
+				//add cases
+//				for(var m in data.cases){
+//					leafList_levelOne.push({text:(data.cases)[m].name, id:data.id + (data.cases)[m].id, node_id: (data.cases)[m].id, type:"leaf"});
+//				}
+			}
+			if(data.suites && data.suites.length !=0){
+				for (var m in data.suites){
+					var next = $rootScope.phaseSuite((data.suites)[m]);
+					leafList_levelOne.push({text:(data.suites)[m].name, id:data.id + (data.suites)[m].id, node_id: (data.suites)[m].id, children:next, type:"folder", suitetype: "suite"});
+				}
+			}
+			return leafList_levelOne;
+    }; 
+    
+    // create Suite Tree
+    $rootScope.phaseSuiteTree = function(data, suite_type){
+        var tree=[];
+        
+        for(var n in data){
+        	var name = data[n].name;
+    	if (suite_type != "suite") {
+        		name += "*";
+        	}
+			tree.push({text: name, id:data[n].id, node_id:data[n].id, children:$rootScope.phaseSuite(data[n]), type:"folder", suitetype: suite_type});
+        }
+        
+        return tree;
+    	
+    }; 
+    
+    $rootScope.logout = function(){
+//    	swal({
+//    		  title: '',
+//    		  text: "Are you sure to logout?",
+//    		  type: 'warning',
+//    		  showCancelButton: true,
+//    		  confirmButtonText: "YES",
+//        	  cancelButtonText: "NO",
+//    		}).then(function () {
+    			Utils.ctapGet('logout/').then(function(data) {
+    				if (data) {
+    					$rootScope.isLogin = false;
+						$location.path("login");
+    				} else {
+    					$log.info("Logout failed");
+    					swal('',"Logout Failed!", 'error');
+    				}
+    			}, function (reason) {
+    	            $log.info("Logout failed");
+    	            swal('',"Logout Failed!", 'error');
+    	        });
+//    		},function (dismiss) {
+//    			  // dismiss can be 'cancel', 'overlay',
+//    			  // 'close', and 'timer'
+//    			  if (dismiss === 'cancel') {
+//    				  $log.info("User give up edit");
+//    			  }
+//    	    });
+    };
+    
+    $rootScope.checkBeforeLeave = function(targetUrl){
+    		if ($rootScope.widgetClass == "active"){
+			$rootScope.checkBeforeLeaveInWidget(targetUrl);
+		}	
+    		else if ($rootScope.taskClass == "active"){
+    			$rootScope.checkBeforeLeaveInTask(targetUrl);
+    		}
+    		else if ($rootScope.caseClass == "active"){
+    			$rootScope.checkBeforeLeaveInCase(targetUrl);
+    		}
+    		else if ($rootScope.suiteClass == "active"){
+    			$rootScope.checkBeforeLeaveInSuite(targetUrl);
+    		}
+    		else if ($rootScope.debugClass == "active"){
+    			$rootScope.checkBeforeLeaveInDebug(targetUrl);
+    		}
+    		else if ($rootScope.queueClass == "active"){
+    			$rootScope.checkBeforeLeaveInQueue(targetUrl);
+    		}
+    		else{
+    			$location.path(targetUrl);
+    		}
+    }
+    
+    $rootScope.iniNavStyle = function(){
+    	$rootScope.widgetClass = "";
+    	$rootScope.taskClass = "";
+    	$rootScope.caseClass = "";
+    	$rootScope.debugClass = "";
+    	$rootScope.suiteClass = "";
+    	$rootScope.executionClass = "";
+    	$rootScope.queueClass = "";
+    	$rootScope.reportClass = "";
+    	$rootScope.diagramClass = "";
+    }
+          
+    $rootScope.activeNavButton = function(moduleName){
+    	$rootScope.iniNavStyle();
+    	switch(moduleName) {
+    	case "widget":
+    		$rootScope.widgetClass = "active";
+    		break;
+    	case "task":
+    		$rootScope.taskClass = "active";
+    		break;
+    	case "case":
+    		$rootScope.caseClass = "active";
+    		break;
+    	case "debug":
+    		$rootScope.debugClass = "active";
+    		break;
+    	case "suite":
+    		$rootScope.suiteClass = "active";
+    		break;
+    	case "execution":
+    		$rootScope.executionClass = "active";
+    		break;
+    	case "queue":
+    		$rootScope.queueClass = "active";
+    		break;
+    	case "report":
+    		$rootScope.reportClass = "active";
+    		break;
+    	case "diagram":
+    		$rootScope.diagramClass = "active";
+    		break;	
+    		
+    	}
+    	
+    }
+    
+    $rootScope.init = function() {
+        	$rootScope.sessionId = setInterval(checkSessionOut, 30000);
+        	$rootScope.sessionWindow = 0;
+    }
+    
+    var checkSessionOut = function() {
+    	    var result = Utils.ctapGet('checkSessionOut').then(function(data) {
+    	    	    if (data.value) {
+    	    	    	    $rootScope.sessionWindow = 0;
+    	    	    } else {
+    	    	    	    if ($rootScope.sessionWindow == 0) {
+    	    	    	        swal('','Session out, please login','error');
+    	    	    	        $rootScope.sessionWindow ++;
+    	    		    }
+			    $location.path("/login");
+    	    	    }
+    	    }
+    	    , function(reason) {
+    	    	    if ($rootScope.sessionWindow == 0) {
+    	    	    	    swal('','Session out, please login','error');
+    	    	    	    $rootScope.sessionWindow ++;
+    	    		}
+			$location.path("/login");
+		});
+    }
+
+});
+

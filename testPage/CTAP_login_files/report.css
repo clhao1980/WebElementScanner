@@ -1,0 +1,155 @@
+.left-half-container{
+    margin-left: 5px;
+    width: 49%;
+    float: left;
+    height: calc(100% - 10px);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    overflow:auto;
+    z-index: 0;
+    background-color: #FAFAFA;
+}
+
+.right-half-container{
+    margin-right: 5px;
+    width: 50%;
+    float: right;
+    height: calc(100% - 10px);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    overflow:auto;
+    z-index: 0;
+    background-color: #FAFAFA;
+}
+
+.time-container{
+	display: block;
+    width: 32%;
+    float: left;
+    z-index: 0;
+}
+
+.time-container .btn-info {
+    background-color: #337ab7;
+    border-color: #2e6da4;
+}
+
+.time-container .btn-danger {
+	background-color: #D8D8D8;
+	border-color: #D8D8D8;
+}
+
+.time-title-label{
+    font-size: 14px;
+    font-weight: normal;
+    margin: 0;
+    line-height: 28px;
+}
+
+.result-grid-null {
+	margin-top:20px;
+	margin-left:10px;
+	padding: 0px;
+	width: 97.5%;
+	height: 81%;
+	font-size: 12px;
+}
+
+.result-dt-container .dt {
+	float: left;
+	margin-top:10px;
+	margin-left:10px;
+    width: 97.5%;
+    height: 100%;
+    font-size: 12px;
+    z-index: 0;
+    word-wrap:break-word;
+    display: block;
+    min-width: 600px;
+}
+
+.result-dt-container .dt-cell {
+	vertical-align: top;
+    overflow: hidden;
+    white-space: normal !important;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.time-name-inp{
+    margin-left: 5px;
+    width: 76%;
+}
+
+.result-dt-container .dt-tree-toggle {
+  position: absolute;
+  left: 5px;
+  line-height: 40px;
+}
+
+.result-grid .blank-break {
+    word-wrap:break-word;
+    text-align:center;
+}
+
+.result-grid .blank-break-parent {
+    font-weight:bold;
+    text-align:center;
+}
+
+.result-grid .parent {
+    font-weight:bold;
+}
+
+.result-grid .child {
+    display:block;
+}
+
+.result-grid .grey {
+    display:block;
+    color:#cccccc;
+}
+
+.result-grid .red {
+    color:#ff0000;
+    font-size:30px;
+    text-align:center;
+}
+
+.result-grid .green {
+    color:#00ff00;
+    font-size:30px;
+    text-align:center;
+}
+
+.result-grid .grey-dot {
+    color:#000000;
+    font-size:30px;
+    text-align:center;
+}
+
+.result-grid .center-parent {
+    text-align:center;
+    font-weight:bold;
+}
+
+.result-grid .suite {
+	background: #ffffff url(../resources/compose-a-test-suite.svg) no-repeat
+		50% 15%;
+}
+
+.result-grid .subsuite {
+	background: #ffffff url(../resources/execute-suite.svg) no-repeat
+		50% 15%;
+}
+
+.result-grid .case {
+	background: #ffffff url(../resources/compose-a-test-case.svg) no-repeat
+		50% 15%;
+}
+
+.report-button-group button{
+	float:left;
+    color: white;
+    border: none;
+    margin-left: 10px;
+}

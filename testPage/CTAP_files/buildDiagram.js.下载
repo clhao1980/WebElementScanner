@@ -1,0 +1,678 @@
+app.factory('BuildDiagram', function($log, $rootScope, $location, $timeout, SwalMessage) {
+	
+	   var svgScope = null;  
+	   var gragh_data = null;
+	   var source_data = null;
+	   var svg = null;
+	   var force = null;
+	   var hullg, linkg, nodeg, curve;
+	   var link, nodes, hull;
+	   var dragRect;
+	   var dragNode;
+	   var legendg;
+	   var nSize = 1; // node size
+
+		return {
+			drawGraph: function(g_data, container){
+				if(g_data == null || container == null){
+					swal('','Visualization failed because of no gragh data or container.','info');
+				}else{
+					// save the g_data and container
+					source_data = {g_data:g_data, container: container}; 
+					// change source to gragh data
+					this.initGraghData(g_data);
+					// init the panel with svg
+					this.initSVG(g_data,container);
+					// init the gragh with force layout
+					this.initHullsLayout(container);
+					// init the gragh context in svg
+				    this.initGragh(container);	
+				}	
+			},// drawGragh
+			
+			//init gragh_data
+			initGraghData: function(g_data){
+				gragh_data = {nodes:[], links:[], hulls:[], hlinks:[]};		
+				
+				// initNodes add hulls and nodes in the nodes
+				for(var j = 0; j < g_data.hulls.length; ++j){
+					// add hulls 
+					var node = {
+							id: g_data.hulls[j].h_id,
+							name:g_data.hulls[j].h_name,
+							size:(g_data.hulls[j].h_size <= 0)? 1: g_data.hulls[j].h_size,
+							desc:g_data.hulls[j].h_desc,
+							group: g_data.hulls[j].h_id,
+							linkCount: 0,
+							children:g_data.hulls[j].children
+					};
+					gragh_data.hulls.push(node);				   	
+				} // hulls
+				
+				// init nodes
+				for(var k = 0; k < g_data.nodes.length; ++k){
+					var node = {
+							id: g_data.nodes[k].t_id,
+							name:g_data.nodes[k].t_name,
+							size: 1,
+							desc:g_data.nodes[k].t_desc,
+							group: g_data.nodes[k].group,
+							children:null,	
+							styletype: g_data.nodes[k].type,
+							taskFolder: g_data.nodes[k].parentFolder
+					};
+					gragh_data.nodes.push(node);
+				}// for nodes
+				
+				// init links
+				var linkMap = {}
+				for(var i = 0; i < g_data.links.length; ++i){
+					var id = g_data.links[i].id;
+					var l = linkMap[id] || (linkMap[id] = 0);
+					l++;
+					var link = {
+					    id: g_data.links[i].id,
+						source: this.getNodebyId(g_data.links[i].source),
+						target: this.getNodebyId(g_data.links[i].target),
+						caseid: this.jointString("c",g_data.links[i].caseid), // add label "c" before caseid prevent the error of d3.select.z 
+						casename:g_data.links[i].casename,
+						caseFolder:g_data.links[i].pFolder
+					};
+					link.linkNum = l;
+					linkMap[id] = l;
+					gragh_data.links.push(link); // add node links 
+					
+					// add links between the hulls 
+					var sh = link.source.group;
+					var th = link.target.group;
+					if(sh != th){
+						var hlink = {
+							id: this.jointString(sh,'_',th),    
+							source: this.getGroupNode(sh),
+							target: this.getGroupNode(th),
+						};
+					gragh_data.hlinks.push(hlink);
+					}		
+				}// for links			
+			}, // initGragh Data
+			
+			//init svg data 
+			initSVG: function(g_data, container){
+				// save the scope of gragh
+				svgScope = this;	
+				// new a svg 
+ 			svg = d3.select(container.element)
+ 			.append("svg")
+ 			.attr('width', container.width)
+				.attr('height', container.height)
+				.call(d3.behavior.zoom().on("zoom", svgScope.zoomGragh));  // this is for Zoom the gragh
+ 			
+ 			//inilize curve
+ 			curve = d3.svg.line()
+ 		    .interpolate("cardinal-closed")
+ 		    .tension(.85);
+
+ 			// append elements for hulls,links, nodes
+ 		    hullg = svg.append("g")
+ 		    		.call(d3.behavior.zoom().on("zoom", svgScope.zoomGragh));
+ 		    linkg = svg.append("g")
+ 		    		.call(d3.behavior.zoom().on("zoom", svgScope.zoomGragh));
+ 		    nodeg = svg.append("g")
+ 		    		.call(d3.behavior.zoom().on("zoom", svgScope.zoomGragh));
+ 		    legendg = svg.append("g");
+ 		    
+ 		    // init force layout
+ 		    force = d3.layout.force();
+ 		    
+ 		    //init drag dragRect is for hull and dragNode is for node
+ 		    dragRect = d3.behavior.drag()
+ 		    	.origin(function(d) {return d;})
+ 		    	.on("drag", svgScope.dragHullMove);
+ 		    
+ 		    dragNode = d3.behavior.drag()
+		    		.origin(function(d) {return d;})
+		    		.on("drag", svgScope.dragNodeMove);
+ 		    
+ 		    // define marker for arrows
+ 		    svg.append("svg:defs").selectAll("marker")
+ 		    .data(["arrow"])
+ 		    .enter().append("svg:marker")
+ 		    .attr("id", String)
+ 		    .attr("viewBox", "0 -5 10 10")
+ 		    .attr("refX", 15)
+ 		    .attr("refY", -1.5)
+ 		    .attr("markerWidth", 3)
+ 		    .attr("markerHeight", 3)
+ 		    .attr("orient", "auto")
+ 		    .append("svg:path")
+ 		    .attr("d", "M0,-3L6,0L0,3")
+ 		    .attr("class", "arrow");
+				
+			}, //init SVG
+			
+			// this function init the layout of hulls with force layout
+			initHullsLayout: function(container){
+				if (force){
+					force.stop();  // stop the force layout if it is running
+				} 
+				
+				// hulls the force layout				 
+				 force = force.nodes(gragh_data.hulls)
+				  .charge(function(d, i){
+					  return -(d.size * 20 + 60);
+				  })
+				  .alpha(0.1)
+			      .size([container.width,container.height])	  
+				  .start();		
+			},
+			
+			// init Gragh with force layout
+			initGragh: function(container){		
+				if (force) force.stop();  // stop the force layout if it is running
+				// restart the force layout				 
+				 force = force.nodes(gragh_data.nodes)
+			      .links(gragh_data.links) 
+				  .linkDistance(function(l,i){
+					  // the node in different group with large distance.
+						var n1 = l.source, n2 = l.target;
+						var Dlength = 5;
+						if(l.source.group == l.target.group){
+							return Dlength;
+						}else{
+							return Dlength*2;
+						}
+				  })
+				  .linkStrength(function(l, i) {
+					return 1;
+					})
+				  .charge(-100)
+			//	  .alpha(0.001)
+			      .size([container.width, container.height])	  
+				  .start();
+					 
+				  //calculate the nodes' size
+				 var dis = svgScope.minDistanceNeighbor(gragh_data.hulls, container);
+				 nSize =svgScope.calNodesize(dis, gragh_data.hulls);
+				  
+				 // select nodes
+				  node = nodeg.selectAll("circle.node").data(gragh_data.nodes);
+				  node.exit().remove();
+			     // draw all nodes
+				  node.enter().append("circle")
+				  .data(gragh_data.nodes)
+				  .on("mouseover", svgScope.taskHover)
+			      .on("mouseout", svgScope.taskUnhover)
+			      .on("dblclick", svgScope.taskView)
+			      .call(dragNode)
+			      .attr("id", function(d){return d.id; })
+			      .attr("r", function(d) { return nSize; })
+			      .attr("cx", function(d) { return d.x; })
+			      .attr("cy", function(d) { return d.y; })
+			      .attr("class", function(d) {
+			    	  if(d.styletype[0] == 1 && d.styletype[2] == 1)
+			    		  return svgScope.jointString(d.group, ' ', 'dbNode');
+			    	  if(d.styletype[0] == 1)
+			    		  return svgScope.jointString(d.group, ' ', 'startNode');   //this is start node.
+			    	  if(d.styletype[2] == 1)
+			    		  return svgScope.jointString(d.group, ' ', 'endNode'); // this is end node.
+			    	  return svgScope.jointString(d.group, ' ', 'node');
+			    	  });
+				  	
+				  // draw the links
+		  		   link = linkg.selectAll("line.link").data(gragh_data.links);
+		  		   link.exit().remove();
+		  		   link.enter().append("path")
+					      .attr("class", function(d){return svgScope.jointString(d.caseid, ' ', 'link');})
+					      .attr("marker-end", "url(#arrow)")
+					      .on("mouseover", svgScope.caseHover)
+					      .on("mouseout", svgScope.caseUnhover)
+					      .on("dblclick", svgScope.caseView);
+				      
+		  		   // draw the hulls
+		   			var hulldata = this.convexHulls(gragh_data.nodes, nSize+10);   
+		   		    hullg.selectAll("path.hull").remove();
+		   			hull = hullg.selectAll("path.hull")
+		   			      .data(hulldata)
+		   			      .enter().append("rect")
+		   			      .attr("class", "hull")
+		   			      .attr("x", function(d){return d.x;})
+		   			      .attr("y", function(d){return d.y;})
+		   			      .attr("width", function(d){return d.width; })
+		   			      .attr("height", function(d){return d.height;})
+		   			      .call(dragRect);
+		   			
+		   			// add modules name for hulls
+		   			hullg.selectAll("path.hull").data(hulldata)
+		   			 .enter().append('svg:text')
+		   			 .attr('x', function(d){ return d.x;})
+		   			 .attr('y', function(d){return d.y;})
+         		 .attr('class','module')
+         		 .attr('id', function(d){return d.group;})
+         		 .text(function(d) {
+         			 var h = svgScope.getGroupNode(d.group);
+         			 return h.name;
+         			 });
+		   			
+		   		  this.addLegend(container, 0); // add the legend for the gragh
+		   		  
+				  force.on("tick", svgScope.tickUpdate);
+				 
+			}, // initGragh
+			
+			// clear all data in gragh
+			resetVars: function(){
+			// reset all the vars about gragh
+				   svgScope = null;
+				   gragh_data = null;
+				   source_data = null;
+				   svg = null;
+				   hullg = null;
+				   linkg = null;
+				   nodeg = null;
+				   curve = null;
+				   link = null;
+				   nodes = null;
+				   hull = null;
+				   dragRect = null;
+				   dragNode = null;
+				   nSize = 1;
+			},
+			
+			
+			
+			// this function is for action of zooming
+			zoomGragh: function(){
+				svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+			},
+			
+			// this function is for dragging Node in gragh
+			dragNodeMove: function(d){
+				// update the node 
+				var x = Math.min(Math.max(0, d3.event.x), (source_data.container.width - d.size));
+				var y = Math.min(Math.max(0, d3.event.y), (source_data.container.height - d.size));
+				d3.select(this)
+				.attr("cx", d.x = Math.min(Math.max(0, d3.event.x), (source_data.container.width - d.size)))
+			    .attr("cy", d.y = Math.min(Math.max(0, d3.event.y), (source_data.container.height - d.size)));
+				
+				// update the links				
+				link.attr("d", function(d){
+				    var dx = d.target.x - d.source.x,
+			        dy = d.target.y - d.source.y;
+				    var dr = (Math.sqrt(dx * dx + dy * dy)) -(Math.sqrt(dx * dx + dy * dy))/(4*d.linkNum); 
+			        if(d.target === d.source){
+			        	return "M" + d.source.x + "," + d.source.y + "A" + 10  + "," + 10  + " 0 1,1 " 
+					       +(d.target.x + 3) + "," + d.target.y;		
+					}
+			        return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+				   });
+             
+			    // update the hulls
+			    if (!hull.empty()) {
+			    	 var hulldata = svgScope.convexHulls(gragh_data.nodes,nSize+10);
+				      hull.data(hulldata)
+				          .attr("x", function(d){return d.x;})
+	   			          .attr("y", function(d){return d.y;})
+	   			          .attr("width", function(d){return d.width})
+	   			          .attr("height", function(d){return d.height});
+	   			    
+				      // update the text postion
+				      hullg.selectAll("text.module").data(hulldata)
+			          .attr("x", function(d){return d.x;})
+			          .attr("y", function(d){return d.y-2;});
+				    }		
+			},
+			
+			
+			//drag the hull of the gragh
+			dragHullMove: function(d){		
+				var px = d.x, py = d.y;	
+				// move the  to current position
+				// the hull can not over the boundary
+				d3.select(this)
+					.attr("x", d.x = Math.min(Math.max(15, d3.event.x), (source_data.container.width - d.width)))
+				    .attr("y", d.y = Math.min(Math.max(15, d3.event.y), (source_data.container.height - d.height)));	
+				
+				var offset = {
+						ox: d.x - px,
+						oy: d.y - py,
+				};
+				
+				// change text of the module position
+		   		hullg.selectAll("text#" + d.group) // find the text 
+		   			 .attr('x', d.x)
+                  .attr('y', d.y);
+				
+				// move nodes in group
+				var nGroup = "circle." + d.group;	
+				
+				var circles = d3.selectAll(nGroup);
+			    circles.attr("cx", function(dn){ dn.x = dn.x + offset.ox; return dn.x;});
+			    circles.attr("cy", function(dn){ dn.y = dn.y + offset.oy; return dn.y;});
+				
+			    // update links
+			    link.attr("d", function(d){
+				    var dx = d.target.x - d.source.x,
+			        dy = d.target.y - d.source.y;
+				    var dr = (Math.sqrt(dx * dx + dy * dy)) -(Math.sqrt(dx * dx + dy * dy))/(4*d.linkNum); 
+			        if(d.target === d.source){
+			        	return "M" + d.source.x + "," + d.source.y + "A" +  10  + "," + 10  + " 0 1,1 " 
+					       +(d.target.x + 3) + "," + d.target.y;		
+					}
+			        return "M" + d.source.x + "," + d.source.y + "A" + dr + "," +  dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+				   });
+			    
+				},
+			
+			
+			
+			// This function calculate the min distance about neighbors
+			minDistanceNeighbor: function(hulls, container){
+				var g, minD = {};
+				var minDis = Number.POSITIVE_INFINITY;
+				if(hulls.length == 1){
+					// there is only one hulls
+					g = hulls[0].group
+					minX = Math.min(hulls[0].x, (container.width - hulls[0].x));
+					minY = Math.min(hulls[0].y, (container.height - hulls[0].y));
+					minD[g] = Math.min(minX, minY);
+				}else {
+					// there are more than one hull
+					for(var i = 0; i < hulls.length; ++i){
+						g = hulls[i].group;
+						for(var j = 0; j < hulls.length; ++j){
+							if(i != j ){
+								var d = Math.sqrt((hulls[i].x - hulls[j].x)*(hulls[i].x - hulls[j].x) + 
+													(hulls[i].y - hulls[j].y)*(hulls[i].y - hulls[j].y)
+												);	
+								minDis = (d < minDis)? d : minDis;  
+							}
+						}// for j		
+						minD[g] = minDis;
+					}// for i	
+				}
+				return minD;			
+			},
+			
+			// calculate the nodes' based on the min distances
+			calNodesize: function (minDistanceNeighbor, hulls){		
+				var minSize = Number.POSITIVE_INFINITY;
+				var buffer = 2;
+				
+				for(var i = 0; i < hulls.length; ++i){
+					var g = hulls[i].group;
+					var containerSize = (minDistanceNeighbor[g]/2)*(minDistanceNeighbor[g]/2)* 3.14; // 
+					var r = Math.sqrt(containerSize/(hulls[i].size*3.14*buffer));
+					minSize = (minSize < r)? minSize: r;
+				}
+				
+				var s = 4; // default size
+				
+				if(Math.ceil(minSize) > 4 && Math.ceil(minSize) < 9)
+					s = Math.ceil(minSize);
+				if(Math.ceil(minSize) > 9)
+					s = 9;
+				return s;
+					
+			}, // calNodesize
+				
+			/**
+			 * addLegend(container,legendpos) method is used add legend
+			 * container: it is overall gragh container including size information
+			 * legendPos: it is the Position of the legend. 0: lefttop, 1: leftdown, 2:righttop, 3:rightdown
+			 */
+			addLegend: function(container,legendpos){
+				var pos = {x: 6, y: 9}; // default is lefttop
+				var fourNodes;
+				switch(legendpos){
+				case 1:  
+					pos.x = 6;
+					pos.y = container.height -20;
+					break;
+				
+				case 2: 
+					pos.x = container.width -184;
+					pos.y = 9;
+					break;
+				
+				case 3: 
+					pos.x = container.width -184;
+					pos.y = container.height -20;
+					break;
+				
+				default: break;
+				
+				}
+	            
+				// display the legend of gragh  - start node, end node, middle node, startandend node.
+				fourNodes = [{"type": "start", x:pos.x, y:pos.y},
+				             {"type": "end",  x:pos.x, y:(pos.y+12)},
+				             {"type": "middle", x:(pos.x + 80), y:pos.y},
+				             {"type": "start&end", x:(pos.x + 80), y:(pos.y+12)}];
+				
+			 // add backgroud box for four nodes
+		   		   legendg.selectAll('rect.legend').data([{"type": "box"}])
+		   		   .enter().append('rect')
+		   		   .attr('x', pos.x-5)
+		   		   .attr('y', pos.y-8)
+		   		   .attr('height', '28px' )
+		   		   .attr('width', '185px')
+		   		   .attr('class', 'legendrect');
+	   		
+	   			// add four type node
+	   			legendNote = legendg.selectAll('circle.legend').data(fourNodes)
+	   			.enter().append('circle')
+	   			.attr('class', function(d){ // this is for different style.
+	   				if(d.type == "start")
+	   					return svgScope.jointString('legend ', 'startNode');
+	   				if(d.type == "end")
+	   					return svgScope.jointString('legend ', 'endNode');
+	   				if(d.type == "start&end")
+	   					return svgScope.jointString('legend ', 'dbNode');
+	   				return svgScope.jointString('legend ', 'node');
+	   			})
+	   			.attr('cx', function(d){ return d.x; })
+	   			.attr('cy', function(d){ return d.y; })
+	   			.attr('r', 3);
+	   			
+	   		  //add text for the four nodes
+	   		   legendg.selectAll('text.legend').data(fourNodes)
+	   		   .enter().append('svg:text')
+	   		   .attr('x', function(d){ return d.x + 5;})
+	   		   .attr('y', function(d){return d.y + 4;})
+	   		   .attr('class','legend')
+	   		   .text(function(d){return d.type + ' task';});    		   
+			},
+			
+			// update the layout position for tick in forceLayout
+			tickUpdate: function(e){	
+				var k = e.alpha ;
+				var gl = null;
+				 // confirm the nodes in hulls
+			    gragh_data.nodes.forEach(function(n){
+					 gl = svgScope.getGroupNode(n.group);
+					 n.x += (gl.x - n.x) * k;
+					 n.y += (gl.y - n.y) * k;
+
+				 });
+				 	 
+				// update the links information
+				link.attr("d", function(d){
+					 var dx = d.target.x - d.source.x,
+				         dy = d.target.y - d.source.y;	    
+					var dr = (Math.sqrt(dx * dx + dy * dy)) -(Math.sqrt(dx * dx + dy * dy))/(4*d.linkNum);    
+					if(d.target === d.source){
+						return "M" + d.source.x + "," + d.source.y + "A" + 10  + "," + 10  + " 0 1,1 " 
+						       +(d.target.x + 3) + "," + d.target.y;		
+					}
+					return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " 
+					       + d.target.x + "," + d.target.y;
+				   });
+				
+				// update the nodes position
+			    node.attr("cx", function(d) { return d.x; })
+			        .attr("cy", function(d) { return d.y; });
+				
+			    // update the hull position 
+				if (!hull.empty()) {
+				  // update modules position	
+				  var hulldata = svgScope.convexHulls(gragh_data.nodes,nSize+10);	
+			      hull.data(hulldata)
+			          .attr("x", function(d){return d.x;})
+			          .attr("y", function(d){return d.y;})
+			          .attr("width", function(d){return d.width;})
+			          .attr("height", function(d){return d.height;});
+			      
+			      // add text for modules.
+			      hullg.selectAll("text.module").data(hulldata)
+			          .attr("x", function(d){return d.x;})
+			          .attr("y", function(d){return d.y-2;});
+				}
+			},
+			
+			// display the task name when mouse over the task
+			taskHover: function(d,i){
+				var pos = d3.mouse(this);	
+				// display the name of case;
+				var hoverInfo = $('#hoverTip');
+				hoverInfo.css('display', 'block');
+				hoverInfo.css('top', pos[1]);
+				hoverInfo.css('left', pos[0]+220);
+				hoverInfo.html('Task:'+ d.name);
+				
+			},
+			
+			// hide the information when mouse out the task
+			taskUnhover: function(d){
+				// hide the hover tip 
+				var hoverInfo = $('#hoverTip');
+				hoverInfo.css('display', 'none');
+			},
+			
+			// view the task information when double click the task;
+			taskView: function(d){
+				var taskid = d.id;
+				var s = taskid.slice(1);
+				var selectedTask = {
+						evt: "opentask",
+						taskId: s,
+						parent_id: d.taskFolder
+				};
+				// publish the open case
+				topic.publish(topicSet.opentask, selectedTask);
+			},		
+			
+			// view the case information when double click the case;
+			caseView: function(d, i){
+				var caseid = d.caseid;
+				var s = caseid.slice(1);
+				var selectedCase = {
+					id:[s],
+					name:[d.casename],
+					parent:[{id:[d.caseFolder], desc:["gragh"], name:["gragh"], pFolderId:["gragh"], share:["gragh"], type:["gragh"], userId:["gragh"]}],
+					type:["case"]
+				};	
+				// publish the open case
+				topic.publish(topicSet.opencase,
+						{selectedNode:selectedCase});
+			},
+			// the actions when the mouse over the link
+			caseHover: function(d, i){
+				var pos = d3.mouse(this);	
+				var id = "path." + d.caseid;
+				// find all links about this case and change the style
+				var curCase = d3.selectAll(id)
+					.attr("class", function(d){
+						return svgScope.jointString(d.caseid, ' ', 'selectedlink');
+					});
+				
+				// display the name of case;
+				var hoverInfo = $('#hoverTip');
+				hoverInfo.css('display', 'block');
+				hoverInfo.css('top', pos[1]);
+				hoverInfo.css('left', pos[0]+100);
+				hoverInfo.html('Case:'+ d.casename);
+			},
+			
+			// the actions when the mouse out the link
+			caseUnhover: function(d){
+				var id = "path." + d.caseid;
+				// find all links about this case and change the style
+				var curCase = d3.selectAll(id)
+					.attr("class", function(d){
+						return svgScope.jointString(d.caseid, ' ', 'link');
+					});
+
+				// hide the hover tip 
+				var hoverInfo = $('#hoverTip');
+				hoverInfo.css('display', 'none');
+				
+			},
+	
+			getGroupNode: function(gid){
+				var n = null;
+				for(var i = 0; i < gragh_data.hulls.length; ++i){
+					n = gragh_data.hulls[i];
+					if(n.group == gid)
+						return n;
+				}
+				return null;
+			}, // get the group node
+			
+			
+			drawHull: function(d){
+				return curve(d.path);
+			},
+			
+			convexHulls: function(nodes, offset){
+				  var hulls = {};
+	
+				  // create point sets
+				  for (var k=0; k<nodes.length; ++k) {
+				    var n = nodes[k];
+				    var i = n.group,
+				        l = hulls[i] || (hulls[i] = []);
+				    l.push([n.x-offset, n.y-offset]);
+				    l.push([n.x-offset, n.y+offset]);
+				    l.push([n.x+offset, n.y-offset]);
+				    l.push([n.x+offset, n.y+offset]);
+				  }
+	
+				  // create convex hulls
+				  var hullset = [];
+				  for (j in hulls) {
+					// calculate the External rectangle of the groups
+					var hullPath = hulls[j]; 	
+					var minX = hullPath[0][0];
+					var minY = hullPath[0][1];
+					var maxX = hullPath[0][0];
+					var maxY = hullPath[0][1];
+					for(var i = 1; i < hullPath.length; ++i){
+						if(hullPath[i][0] > maxX ) maxX = hullPath[i][0] ;
+						if(hullPath[i][0] < minX ) minX = hullPath[i][0] ;
+						if(hullPath[i][1] > maxY ) maxY = hullPath[i][1] ;
+						if(hullPath[i][1] < minY ) minY = hullPath[i][1] ; 
+					}
+					// save the rect in hullset
+				    hullset.push({group: j, x: minX, y:minY, width:(maxX - minX), height:(maxY - minY)});
+				  }
+				  return hullset;
+			},
+			
+			getNodebyId: function(id){
+				for(var i = 0; i < gragh_data.nodes.length; ++i){
+					if(gragh_data.nodes[i].id == id)
+						return gragh_data.nodes[i];
+				}
+				return null;
+			},// getNodebyId
+			
+			jointString: function(strings){
+				var str= "";
+				for(var i = 0; i < arguments.length; ++i){
+					str = str + arguments[i];
+				}
+				return str;
+			} // jointString
+			
+		}//return 
+});

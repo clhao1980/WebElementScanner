@@ -1,0 +1,28 @@
+
+.task-css .modal{
+  width: 50%;
+  margin: auto;
+}
+
+#edit-method{
+	width: 50%;
+    margin: auto;
+}
+
+#step-argument-configure-modal{
+    width: 70%;
+    margin: auto;
+}
+
+.modal-body .ui-table{
+	width:100%
+}
+
+#exArg_dropdown{
+	z-index: 9999;
+    position: fixed;
+}
+
+#exArg_value{
+	height:30px;
+}

@@ -1,0 +1,938 @@
+app.factory('BuildTree', function($log, $rootScope, $location, $timeout, WidgetService, TaskService, CaseService, SuiteService, SwalMessage) {
+	$rootScope.widgetTreeData = [];
+	$rootScope.taskTreeData = [];
+	$rootScope.caseTreeData = [];
+	$rootScope.suiteTreeData = [];
+	
+	function getNamesFromData(data, nameList) {
+		var result = nameList;
+		for (var i = 0; i < data.length; i++) {
+			if (data[i].type == "leaf") {
+				result.push(data[i]);
+			} else {
+				getNamesFromData(data[i].children, result);
+			}
+		}
+		return result;
+	}
+		
+	$rootScope.getFolderNamesFromData = function getFolderNames(
+			data, nameList) {
+		var result = nameList;
+		for (var i = 0; i < data.length; i++) {
+			if (data[i].type == "folder") {
+				result.push(data[i]);
+				if (data[i].children != undefined) {
+					getFolderNames(data[i].children, result);
+				}
+
+			}
+		}
+		return result;
+	}
+	
+	function existSameName(newitem, list) {
+		for(var n in list){
+            if(newitem.id==null){ //Add a new item 
+                if(newitem.name.toLowerCase() == list[n].text.toLowerCase()){
+                    return true;
+                }
+            }else{  //Update an item
+                if(newitem.name.toLowerCase() == list[n].text.toLowerCase() && newitem.id != list[n].id){
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+    
+    function existSameFolder(newitem, data) {	
+    	for(var n in data) {
+			if(newitem.id==null){
+			if(newitem.text.toLowerCase() == data[n].text.toLowerCase()){
+				  return true;
+			  }
+		  }else{
+			  if(newitem.text.toLowerCase() == data[n].text.toLowerCase() && newitem.id != data[n].id){
+                  return true;
+              }
+		  }
+	  }
+	  return false;
+  };
+	
+	//Build Widget Tree
+	//Context Menu Config for left Widget tree	
+	var contextMenuWidget = function(node){
+	var items = {
+			createFolder : {
+				label : "New Sub Folder",
+				action : function() {
+					$rootScope.createFolder(node);
+				}
+			},
+			newWidget : {
+				label : "New Widget",
+				action : function() {
+					$rootScope.createWidget();
+				}
+			},
+			rename : {
+				label : "Rename Folder",
+				action : function() {
+					$rootScope.renameFolder(node);
+				}
+			},
+			remove : {
+				label : "Remove Folder",
+				action : function() {
+					$rootScope.removeFolder(node);
+				}
+			},
+			removeWidget : {
+				label : "Remove Widget",
+				action : function() {
+					$rootScope.removeWidget(node);
+				}
+			},
+			copyWidget: {
+                label: "Copy Widget",
+                action: function () {
+                	$rootScope.copyWidget(node);
+                }
+            }
+		};
+		if (node.id == "root") {
+			var rootItems = angular.copy(items);
+			if ($rootScope.taskClass == "active"){
+				delete rootItems["remove"];
+				delete rootItems["rename"];
+				delete rootItems["removeWidget"];
+				delete rootItems["newWidget"];
+			} else {
+				delete rootItems["remove"];
+				delete rootItems["rename"];
+				delete rootItems["removeWidget"];
+			}
+			return rootItems;
+		}
+		if (node.original.type.toLowerCase() == 'folder') {
+			var folderItems = angular.copy(items);
+			if ($rootScope.taskClass == "active"){
+				delete folderItems["removeWidget"];
+				delete folderItems["newWidget"];
+			} else {
+				delete folderItems["removeWidget"];
+			}
+			return folderItems;
+		} else {
+			var leafItems = angular.copy(items);
+			if ($rootScope.taskClass == "active"){
+				delete leafItems["createFolder"];
+				delete leafItems["rename"];
+				delete leafItems["remove"];
+				delete leafItems["newWidget"];
+				delete leafItems["removeWidget"];
+				delete leafItems["copyWidget"];
+			} else {	
+				delete leafItems["createFolder"];
+				delete leafItems["rename"];
+				delete leafItems["remove"];
+			}
+			return leafItems;
+		}
+	};
+
+	var widgetTreeConfig = {
+			plugins : [ 'contextmenu', 'wholerow', 'themes',
+					'types', 'search'],
+			core : {
+				multiple : false,
+				animation : true,
+				error : function(error) {
+					$log.error('treeCtrl: error from js tree - '
+							+ angular.toJson(error));
+				},
+				themes : {
+					'name' : 'proton',
+					'responsive' : true,
+					'dot' : false
+				},
+				check_callback : true,
+				worker : true
+			},
+			types : {
+				leaf : {
+					"icon" : "/CTAP/app/resources/file-icon.png"
+				}
+
+			},
+			contextmenu : {
+				items : contextMenuWidget
+			},
+			version : 1
+		};
+	
+	function loadWidgetTree() {
+		WidgetService
+				.getWidgetTreeData()
+				.then(
+						function(data) {
+							if (data.value.selfFolder.id == "root") {
+								$rootScope.curUser = data.value.selfFolder.name;
+							}
+							$rootScope.dataForWidgetTree = [ $rootScope
+									.phaseTree(data.value) ];
+							$timeout(
+									function() {
+										angular
+												.copy(
+														$rootScope.dataForWidgetTree,
+														$rootScope.widgetTreeData);
+										widgetTreeConfig.version++;
+									}, 500, true);
+							$rootScope.widgetNames = 
+									getNamesFromData(
+											$rootScope.dataForWidgetTree,
+											new Array());							
+							$rootScope.folderNames = $rootScope
+									.getFolderNamesFromData(
+											$rootScope.dataForWidgetTree,
+											new Array());
+							$log.debug("$rootScope.folderNames:",
+									$rootScope.folderNames);
+						}, function(reason) {
+							$location.path("/login");
+						});
+	};
+	
+//Build Task Tree
+	var contextmenuTask = function(node) {
+        // The default set of all items
+        var items = {
+            composeTask:{
+                label: "New Task",
+                action: function () {
+                	$rootScope.composeTask();
+                }
+            },
+            createFolder: {
+                label: "New Sub Folder",
+                action: function () {
+                	$rootScope.createTaskFolder(node);
+                }
+            },
+            rename: {
+                label: "Rename Folder",
+                action: function () {
+                	$rootScope.renameTaskFolder(node);
+                }
+            },
+            removeFloder: {
+                label: "Remove Folder",
+                action: function () {
+                	$rootScope.removeTaskFolder(node);
+                }
+            }, 
+            removeTask: {
+                label: "Remove Task",
+                action: function(){
+                	$rootScope.removeTask(node);
+                }
+            },
+            copyTask:{
+                label: "Copy Task",
+                action: function(){
+                	$rootScope.copyTask(node);
+                }
+            }
+        };
+        if (node.id == "rootLeft"){
+            var rootItems = angular.copy(items);
+            if($rootScope.caseClass == "active"){
+            	    delete rootItems["removeFloder"];
+                delete rootItems["rename"];
+                delete rootItems["removeTask"];
+                delete rootItems["copyTask"];
+                delete rootItems["composeTask"];
+            } else {
+            		delete rootItems["removeFloder"];
+            		delete rootItems["rename"];
+            		delete rootItems["removeTask"];
+            		delete rootItems["copyTask"];
+            }
+            return rootItems;
+        }
+        if (node.original.type.toLowerCase() == 'folder') {
+            var folderItems = angular.copy(items);
+            if($rootScope.caseClass == "active"){
+            		delete folderItems["removeTask"];
+                delete folderItems["copyTask"];
+                delete folderItems["composeTask"];
+            } else {
+            		delete folderItems["removeTask"];
+            		delete folderItems["copyTask"];
+            }
+            return folderItems;
+        }
+        else{
+            var leafItems = angular.copy(items);
+            if($rootScope.caseClass == "active"){
+            		delete leafItems["createFolder"];
+                delete leafItems["removeFloder"];
+                delete leafItems["rename"];
+                delete leafItems["composeTask"];
+                delete leafItems["copyTask"];
+                delete leafItems["removeTask"];
+            } else {
+            		delete leafItems["createFolder"];
+            		delete leafItems["removeFloder"];
+            		delete leafItems["rename"];
+            }
+            return leafItems;
+        }
+    };
+    
+    var taskTreeConfig = {
+            plugins : ['contextmenu','wholerow','themes','types','search'],
+            core : {
+                multiple : false,
+                animation: true,
+                error : function(error) {
+                    $log.error('treeCtrl: error from js tree - ' + angular.toJson(error));
+                },
+                themes: {
+                    'name': 'proton',
+                    'responsive': true,
+                    'dot':false
+                },
+                check_callback : true,
+                worker : true
+            },
+            types: {
+                leaf: {
+                    "icon": "/CTAP/app/resources/file-icon.png"
+                }
+            },
+            contextmenu: {
+                items:contextmenuTask
+            },
+            version : 1
+        };
+    
+    function loadTaskTree() {
+        TaskService.getTaskTreeData().then(function (data) {
+            $log.debug('After get task tree success', data);
+            $rootScope.dataForTaskTree = [$rootScope.phaseTaskTree(data.value)];
+            $timeout(function() {
+                angular.copy($rootScope.dataForTaskTree,$rootScope.taskTreeData);
+                $rootScope.taskTreeData[0].id='rootLeft'
+                	taskTreeConfig.version++;
+            }, 500,true);
+            $rootScope.taskfolderNames = $rootScope
+			.getFolderNamesFromData(
+					$rootScope.dataForTaskTree,
+					new Array());
+        }, function (reason) {
+        	$location.path("/login");
+        });
+    };
+ 
+  //Build Case Tree
+    var contextmenuCase = function(node) {
+        // The default set of all items
+        var items = {
+            createCase: {
+                label: "New Case",
+                action: function () {
+                	$rootScope.createCase(node);
+                }
+            },
+            createFolder: {
+                label: "New Sub Folder",
+                action: function () {
+                	$rootScope.createCaseFolder(node);
+                }
+            },
+            rename: {
+                label: "Rename Folder",
+                action: function () {
+                	$rootScope.renameCaseFolder(node);
+                }
+            },
+            removeFolder: {
+                label: "Remove Folder",
+                action: function () {
+                	$rootScope.removeCaseFolder(node);
+                }
+            },
+            removeCase: {
+                label: "Remove Case",
+                action: function () {
+                	$rootScope.deleteCase(node);
+                }
+            },
+            copyCase: {
+                label: "Copy Case",
+                action: function () {
+                	$rootScope.copyCase(node);
+                }
+            }
+        };
+        if (node.id == "root"){
+            var rootItems = angular.copy(items);
+            if($rootScope.suiteClass == "active"){
+            		delete rootItems["rename"];
+                delete rootItems["removeFolder"];
+                delete rootItems["removeCase"];
+                delete rootItems["createCase"];
+            } else {
+            		delete rootItems["rename"];
+            		delete rootItems["removeFolder"];
+            		delete rootItems["removeCase"];
+            }
+            return rootItems;
+        }
+        if (node.original.type.toLowerCase() == 'folder') {
+            var folderItems = angular.copy(items);
+            if($rootScope.suiteClass == "active"){
+            		delete folderItems["removeCase"];
+            		delete folderItems["createCase"];
+            } else {
+            		delete folderItems["removeCase"];
+            }
+            return folderItems;
+        }
+        else{
+        		var caseItems = angular.copy(items);
+        		if($rootScope.suiteClass == "active"){
+        			delete caseItems["createFolder"];
+                delete caseItems["rename"];
+                delete caseItems["removeFolder"];
+                delete caseItems["createCase"];
+                delete caseItems["removeCase"];
+                delete caseItems["copyCase"];
+        		} else {
+        			delete caseItems["createFolder"];
+        			delete caseItems["rename"];
+        			delete caseItems["removeFolder"];
+            }
+            return caseItems;
+        }
+    };
+    
+    var caseTreeConfig = {
+            plugins : ['contextmenu','wholerow','themes','types','search'],
+            core : {
+                multiple : false,
+                animation: true,
+                error : function(error) {
+                    $log.error('treeCtrl: error from js tree - ' + angular.toJson(error));
+                },
+                themes: {
+                    'name': 'proton',
+                    'responsive': true,
+                    'dot':false
+                },
+                check_callback : true,
+                worker : true
+            },
+            types: {
+                leaf: {
+                    "icon": "/CTAP/app/resources/file-icon.png"
+                }
+            },
+            contextmenu: {
+                items:contextmenuCase
+            },
+            version : 1
+        };
+	
+    function loadCaseTree() {
+        CaseService.getCaseTreeData().then(function (data) {
+            $log.debug('After get case tree success', data);
+            $rootScope.dataForCaseTree = [$rootScope.phaseTree(data.value)];
+            if (data.value.selfFolder.id == "root") {
+				$rootScope.curUser = data.value.selfFolder.name;
+			}
+            $timeout(function() {
+                angular.copy($rootScope.dataForCaseTree,$rootScope.caseTreeData);
+                caseTreeConfig.version++;
+            }, 500,true);
+            $rootScope.casefolderNames = $rootScope
+			.getFolderNamesFromData(
+					$rootScope.dataForCaseTree,
+					new Array());
+        }, function (reason) {
+        	$location.path("/login");
+        });
+    };
+
+    //Build Suite Tree
+    var contextmenuSuite = function(node) {
+        // The default set of all items
+        var items = {
+        	refresh: {
+                label: "New Suite",
+                action: function () {
+                	$rootScope.createSuite(node);
+                }
+            },
+        	add:{
+                label:"Add to Suite",
+                action: function () {
+                	$rootScope.addSuite(node);
+                }
+            },
+            
+            remove: {
+                label: "Remove Suite",
+                action: function () {
+                	$rootScope.removeSuite(node);
+                }
+            },
+            copySuite: {
+                label: "Copy Suite",
+                action: function () {
+                	$rootScope.copySuite(node);
+                }
+            }
+        };
+        if (node.original.type.toLowerCase() == 'folder') {
+            var folderItems = angular.copy(items);
+            if (node.parent != "#") {
+            	delete folderItems["remove"];
+            }
+            return folderItems;
+        }
+        else{
+            return null;
+        }
+    };
+	
+    var suiteTreeConfig = {
+            plugins : ['contextmenu','wholerow','themes','types','search'],
+            core : {
+                multiple : false,
+                animation: true,
+                error : function(error) {
+                    $log.error('treeCtrl: error from js tree - ' + angular.toJson(error));
+                },
+                themes: {
+                    'name': 'proton',
+                    'responsive': true,
+                    'dot':false
+                },
+                check_callback : true,
+                worker : true
+            },
+            types: {
+                leaf: {
+                    "icon": "/CTAP/app/resources/file-icon.png"
+                }
+            },
+            contextmenu: {
+                items:contextmenuSuite
+            },
+            version : 1
+        };
+    
+    function loadSuiteTree() {
+    	    var counter = 0;
+    		SuiteService.getSuiteTreeData().then(function (data) {
+            $log.debug('After get suite tree success', data);
+            $rootScope.dataForSuiteTree = $rootScope.phaseSuiteTree(data.value, "suite");
+            counter++;
+            if (counter == 2) {
+        	        renderSuiteTree();
+            }
+        }, function (reason) {
+            $log.debug('Get suite tree failed');
+        });
+    		SuiteService.getSeSuiteTreeData().then(function (data) {
+            $log.debug('After get suite tree success', data);
+            $rootScope.dataForSubSuiteTree = $rootScope.phaseSuiteTree(data.value, "sequential suite");
+            counter++;
+            if (counter == 2) {
+            	    renderSuiteTree();
+            }
+        }, function (reason) {
+            $log.debug('Get suite tree failed');
+        });
+    };
+    
+    function renderSuiteTree() {
+    	    $rootScope.dataForSuiteTree = $rootScope.dataForSuiteTree.concat($rootScope.dataForSubSuiteTree);
+    	    angular.copy($rootScope.dataForSuiteTree,$rootScope.suiteTreeData);
+        suiteTreeConfig.version++;
+    }
+    
+    //Tree Action for Widget Tree	
+	var currentFolderModelConfig = {};
+	
+	function initCurrentFolderModel() {
+		$rootScope.currentFolderModelConfig = {
+			"id" : "",
+			"text" : "",
+			"type" : "WIDGET",
+			"desc" : "",
+			"parent":""
+		};
+	};
+	
+	$rootScope.createFolder = function(node) {
+		initCurrentFolderModel();
+		$rootScope.cleanFlag++;//in order to trigger $watch for cleaning the currentFolderModel	
+		$rootScope.currentFolderModelConfig.parent = node.original.id;
+		$('#create-folder-modal').modal({
+			backdrop : 'static'
+		});
+	}
+	
+	function doCreateFolderInBuildTree(currentFolderModel) {
+		currentFolderModel.parent = $rootScope.currentFolderModelConfig.parent;
+		currentFolderModel.id = "";
+		if(currentFolderModel.text =="" || currentFolderModel.text == undefined){
+    			SwalMessage.swalInputFolder();
+    			return;
+		}
+		if(existSameFolder(currentFolderModel,$rootScope.folderNames)){
+    			SwalMessage.swalDuplicateFolder();
+    			return;
+		}
+		WidgetService.createWidgetFolder(currentFolderModel).then(function (data) {
+    			SwalMessage.swalAddFolderSuccess();
+    			$('#create-folder-modal').modal("hide");
+    			loadWidgetTree();
+    			$rootScope.loadAllWidgetFolder();
+		}, function (reason) {
+			$log.info("create folder failed");
+			SwalMessage.swalAddFolderFailed();
+		});  
+	};
+	
+	$rootScope.renameFolder = function() {
+		$('#rename-folder-modal').modal({
+			backdrop : 'static'
+		});
+	}
+	
+	function doRenameFolderInBuildTree(currentFolderModel) {
+        if(currentFolderModel.text =="" || currentFolderModel.text ==undefined){
+        		SwalMessage.swalInputFolder();
+            return;
+        }       
+        if(existSameFolder(currentFolderModel,$rootScope.folderNames)){
+        		SwalMessage.swalDuplicateFolder();
+        		return;
+        }       
+        WidgetService.renameWidgetFolder(currentFolderModel).then(function (data) {
+        		SwalMessage.swalUpdateFolderSuccess();
+            $('#rename-folder-modal').modal("hide");
+            loadWidgetTree();
+            $rootScope.loadAllWidgetFolder();
+        }, function (reason) {
+            $log.info("rename folder failed");
+            SwalMessage.swalUpdateFolderFailed();
+        });
+    };
+	
+	$rootScope.removeFolder = function(node) {
+		swal({
+			title : '',
+			text : "Are you sure to remove this folder: "+node.text+"?",
+			type : 'warning',
+			showCancelButton : true,
+			confirmButtonText : "YES",
+			cancelButtonText : "NO",
+		}).then(function() {
+			$log.info("User confirm remove");
+			$rootScope.doRemoveFolder();
+
+		}, function(dismiss) {
+			// dismiss can be 'cancel', 'overlay',
+			// 'close', and 'timer'
+			if (dismiss === 'cancel') {
+				$log.info("User give up remove");
+			}
+		});
+	};
+    
+	function doRemoveFolderInBuildTree(currentFolderModel) {
+		WidgetService.removeWidgetFolder(currentFolderModel).then(function (data) {
+        	if(data.value){
+        		$log.info("remove folder success!");
+        		SwalMessage.swalRemoveFolderSuccess();
+            loadWidgetTree();
+            $rootScope.loadAllWidgetFolder();
+            }
+            else{
+                $log.info("Remove folder failed");
+                swal('','Folder can’t be removed because folder or its sub folders have widgets! Please delete widgets first!', 'info');
+            }	
+           
+        }, function (reason) {
+            $log.info("remove folder failed");
+            SwalMessage.swalRemoveFolderFailed();
+        });
+    };
+	
+	//Tree Action For Task Tree
+	var currentTaskFolderModelConfig = {};
+    
+	function initCurrentTaskFolderModel() {
+		$rootScope.currentTaskFolderModelConfig = {"id":"","text":"","user_name":"","desc":"","parent":""};
+    };
+    
+	
+	$rootScope.createTaskFolder = function(node){
+    		initCurrentTaskFolderModel();
+    		$rootScope.cleanFlag++;//in order to trigger $watch for cleaning the currentFolderModel
+        if(node.id == "rootLeft")  {
+        		$rootScope.currentTaskFolderModelConfig.parent = "root";
+        }
+        else {
+        		$rootScope.currentTaskFolderModelConfig.parent = node.original.id;
+        }
+      
+        $('#create-Task-folder-modal').modal({
+            backdrop: 'static'
+        });
+    };
+    
+    function doCreateTaskFolderInBuildTree(currentTaskFolderModel){
+    		currentTaskFolderModel.parent = $rootScope.currentTaskFolderModelConfig.parent;
+    		currentTaskFolderModel.id = "";
+    		if(currentTaskFolderModel.text =="" || currentTaskFolderModel.text ==undefined){
+    			SwalMessage.swalInputFolder();
+            return;
+        }        
+        if(existSameFolder(currentTaskFolderModel,$rootScope.taskfolderNames)){
+        	SwalMessage.swalDuplicateFolder();
+    		return;
+        }       
+        TaskService.createFolderInTaskTree(currentTaskFolderModel).then(function(data){
+        		SwalMessage.swalAddFolderSuccess();
+            $('#create-Task-folder-modal').modal("hide");
+            loadTaskTree();
+            $rootScope.loadAllTaskFolder();
+        },function(reason){
+            $log.info("create task folder failed",reason);
+            SwalMessage.swalAddFolderFailed();
+        });
+    };
+    
+    $rootScope.renameTaskFolder = function(node){
+    		currentTaskFolderModelConfig = node.original;
+        $('#rename-Task-folder-modal').modal({
+            backdrop: 'static'
+        });
+    };
+    
+    function doRenameTaskFolderInBuildTree(currentTaskFolderModel) {
+        if(currentTaskFolderModel.text =="" || currentTaskFolderModel.text ==undefined){
+        		SwalMessage.swalInputFolder();
+            return;
+        }
+        
+        if(existSameFolder(currentTaskFolderModel,$rootScope.taskfolderNames)){
+        	SwalMessage.swalDuplicateFolder();
+    		return;
+    	}
+        
+        TaskService.renameFolderInTaskTree(currentTaskFolderModel).then(function (data) {
+        		SwalMessage.swalUpdateFolderSuccess();
+            $('#rename-Task-folder-modal').modal("hide");
+            loadTaskTree();
+            $rootScope.loadAllTaskFolder();
+        }, function (reason) {
+            $log.info("rename task folder failed");
+            SwalMessage.swalUpdateFolderFailed();
+        });
+    };
+    
+    $rootScope.removeTaskFolder = function(node){
+        swal({
+                title: '',
+                text: "Are you sure to remove this folder: "+node.text+"?",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "YES",
+                cancelButtonText: "NO",
+                }).then(function (p) {
+                    $log.info("User confirm remove");
+                    $rootScope.doRemoveTaskFolder();
+                },function(p) {
+                    $log.info("User give up remove");
+            }
+        );
+    };
+    
+    function doRemoveTaskFolderInBuildTree(currentTaskFolderModel) {
+        TaskService.removeTaskFolder(currentTaskFolderModel).then(function (data) {
+        	if(data.value){
+        		$log.info("remove folder success!");
+        		SwalMessage.swalRemoveFolderSuccess();
+        		 loadTaskTree();
+        		 $rootScope.loadAllTaskFolder();
+            }
+            else{
+                $log.info("Remove folder failed");
+                swal('','Folder can’t be removed because folder or its sub folders have Tasks! Please delete Tasks first!', 'info');
+            }	
+            
+        }, function (reason) {
+            $log.info("remove task folder failed");
+            SwalMessage.swalRemoveFolderFailed();
+        });
+    };
+    
+    //Tree Action for Case Tree
+    var currentCaseFolderModelConfig = {};
+    
+    function initCurrentCaseFolderModel() {
+    		$rootScope.currentCaseFolderModelConfig = {"id":"","text":"","type":"folder","desc":"","parent":""};
+    };
+    
+    $rootScope.createCaseFolder = function(node){
+    		initCurrentCaseFolderModel();
+    		$rootScope.cleanFlag++;//in order to trigger $watch for cleaning the currentFolderModel
+        $rootScope.currentCaseFolderModelConfig.parent = node.original.id;
+        $('#create-folder-modal').modal({
+            backdrop: 'static'
+        });
+    };
+    
+    function doCreateCaseFolderInBuildTree(currentFolderModel) {
+    		currentFolderModel.parent = $rootScope.currentCaseFolderModelConfig.parent;
+    		currentFolderModel.id = "";
+    		if(currentFolderModel.text =="" || currentFolderModel.text ==undefined){
+    		SwalMessage.swalInputFolder();
+    		return;
+    		}    	
+    		if(existSameFolder(currentFolderModel,$rootScope.casefolderNames)){
+    			SwalMessage.swalDuplicateFolder();
+    			return;
+    		}   	
+        CaseService.createFolder(currentFolderModel).then(function (data) {
+        		SwalMessage.swalAddFolderSuccess();
+            $('#create-folder-modal').modal("hide");
+            loadCaseTree();
+            $rootScope.loadAllCaseFolder();    
+        }, function (reason) {
+            $log.info("create folder failed");
+            SwalMessage.swalAddFolderFailed();
+        	});  
+    };
+    
+    $rootScope.renameCaseFolder = function(node){
+    		currentCaseFolderModelConfig = node.original;
+        $('#rename-folder-modal').modal({
+            backdrop: 'static'
+        });
+    };
+    
+    function doRenameCaseFolderInBuildTree(currentFolderModel) {
+    		if(currentFolderModel.text =="" || currentFolderModel.text ==undefined){
+    			SwalMessage.swalAddFolderSuccess();
+    			return;
+    		}   	
+    		if(existSameFolder(currentFolderModel,$rootScope.casefolderNames)){
+    			SwalMessage.swalDuplicateFolder();
+    			return;
+    		}   	
+        CaseService.renameFolder(currentFolderModel).then(function (data) {
+        		SwalMessage.swalUpdateFolderSuccess();
+            $('#rename-folder-modal').modal("hide");
+            loadCaseTree();
+            $rootScope.loadAllCaseFolder();
+        }, function (reason) {
+            $log.info("rename folder failed");
+            SwalMessage.swalUpdateFolderFailed();
+        });
+    };
+    
+    $rootScope.removeCaseFolder = function(node){
+        swal({
+    		  title: '',
+    		  text: "Are you sure to remove this folder: "+node.text+"?",
+    		  type: 'warning',
+    		  showCancelButton: true,
+    		  confirmButtonText: "YES",
+        	  cancelButtonText: "NO",
+    		}).then(function () {
+    			$log.info("User confirm remove");
+    			$rootScope.doRemoveCaseFolder();
+    		},function (dismiss) {
+    			  // dismiss can be 'cancel', 'overlay',
+    			  // 'close', and 'timer'
+    			  if (dismiss === 'cancel') {
+    				$log.info("User give up remove");
+    			  }
+    		});
+    };
+    
+    function doRemoveCaseFolderInBuildTree(currentFolderModel) {
+        CaseService.removeCaseFolder(currentFolderModel).then(function (data) {
+        	if(data.value){
+        		$log.info("remove folder success!");
+        		SwalMessage.swalRemoveFolderSuccess();
+            loadCaseTree();
+            $rootScope.loadAllCaseFolder();
+            }
+            else{
+                $log.info("Remove folder failed");
+                swal('','Folder can’t be removed because folder or its sub folders have cases! Please delete cases first!', 'info');
+            }	
+        }, function (reason) {
+            $log.info("remove folder failed");
+            SwalMessage.swalRemoveFolderFailed();
+        });
+    };
+    
+    function searchTree(id, treeId) {
+        	var to = false;
+    	    $(id).keyup(function () {
+    	    if(to) { clearTimeout(to); }
+    	    to = setTimeout(function () {
+    	      var v = $(id).val();
+    	      $(treeId).jstree(true).search(v);
+    	    }, 250);
+    	});
+    }
+    
+	
+	return {
+		loadWidgetTree : loadWidgetTree,
+		loadTaskTree : loadTaskTree,
+		loadCaseTree : loadCaseTree,
+		loadSuiteTree : loadSuiteTree,
+		widgetTreeConfig,
+		taskTreeConfig,
+		caseTreeConfig,
+		suiteTreeConfig,
+		contextmenuTask,
+		contextmenuCase,
+		contextmenuSuite,
+		
+		initCurrentFolderModel : initCurrentFolderModel,
+		initCurrentTaskFolderModel : initCurrentTaskFolderModel,
+		initCurrentCaseFolderModel : initCurrentCaseFolderModel,
+		
+		existSameName : existSameName,
+		existSameFolder : existSameFolder,
+		getNamesFromData : getNamesFromData,
+		
+		doCreateFolderInBuildTree : doCreateFolderInBuildTree,
+		doRenameFolderInBuildTree : doRenameFolderInBuildTree,
+		doRemoveFolderInBuildTree : doRemoveFolderInBuildTree,
+		doRenameTaskFolderInBuildTree : doRenameTaskFolderInBuildTree,
+		doCreateTaskFolderInBuildTree : doCreateTaskFolderInBuildTree,
+		doRemoveTaskFolderInBuildTree : doRemoveTaskFolderInBuildTree,
+		doCreateCaseFolderInBuildTree : doCreateCaseFolderInBuildTree,
+		doRenameCaseFolderInBuildTree : doRenameCaseFolderInBuildTree,
+		doRemoveCaseFolderInBuildTree : doRemoveCaseFolderInBuildTree,
+		searchTree: searchTree
+	};
+
+});

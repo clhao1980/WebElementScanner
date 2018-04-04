@@ -1,0 +1,118 @@
+/**
+ * Created by lizhu on 2017/3/15.
+ */
+"use strict";
+app.service('CaseService',function(Utils,Config) {
+        var service = {};
+        service.getCaseTreeData = function () {
+            return Utils.ctapGet(Config.RestMapping.caseTreeUrl);
+        };
+
+        service.getTaskTreeData = function () {
+            return Utils.ctapGet(Config.RestMapping.taskTreeUrl);
+        };
+
+        service.getCaseById = function (id) {
+            return Utils.ctapGet(Config.RestMapping.caseByIdUrl(id));
+        };
+
+        service.getAllCaseFolder = function () {
+            return Utils.ctapGet(Config.RestMapping.allCaseFolderUrl);
+        };
+
+        service.deleteCase = function (id,name) {
+            return Utils.ctapPost(Config.RestMapping.removeCaseUrl,{"name":name,"id":id});
+        };
+
+        service.mappingFolder = function (caseId,folderId) {
+            var data = [{
+                "type": "link",
+                "p_egg_id": folderId,
+                "c_egg_id": caseId
+            }];
+            return Utils.ctapPost(Config.RestMapping.mappingCaseFolderUrl,data);
+        };
+
+        service.mappingTask = function (caseId,tasks) {
+            var taskIds = [];
+            for (var i = 0; i < tasks.length; i++) {
+                taskIds.push(tasks[i].id);
+            }
+            var data = {
+                "case_id": caseId,
+                "task_ids": taskIds
+            };
+            return Utils.ctapPost(Config.RestMapping.mappingCaseTasksUrl,data);
+        };
+        service.updateCase = function (model,folderId) {
+            var tasks = model.tasks;
+            delete model["tasks"];
+            delete model["user_name"];
+            Utils.ctapPost(Config.RestMapping.updateCaseUrl,model);
+            service.mappingFolder(model.id,folderId);
+            return service.mappingTask(model.id,tasks);
+        };
+
+        service.createCase = function (model,folderId) {
+            delete model["tasks"];
+            return Utils.ctapPost(Config.RestMapping.createCaseUrl,model);
+        };
+
+        service.getAllTasks = function () {
+            return Utils.ctapGet(Config.RestMapping.getAllTaskUrl);
+        };
+
+        service.createFolder = function (model) {
+            var data = {"name":model.text,"desc":model.desc,"pFolderId":model.parent,"type":"CASE"};
+            return Utils.ctapPost(Config.RestMapping.createFolderUrl,data);
+        };
+
+        service.renameFolder = function (model) {
+            var data = {"name":model.text,"id":model.id,"pFolderId":null,"type":"CASE"};
+            return Utils.ctapPost(Config.RestMapping.renameFolderUrl,data);
+        };
+
+        service.removeCaseFolder = function (model) {
+            var data = {
+                "name": model.text,
+                "id": model.id
+            };
+            return Utils.ctapPost(Config.RestMapping.removeCaseFolderUrl,data);
+        };
+
+        service.removeTask = function(model){
+            var data = {
+                "name":model.name,
+                "id":model.id
+            };
+            return Utils.ctapPost(Config.RestMapping.removeTaskUrl,data);
+        };
+
+        service.createFolderInTaskTree = function(model){
+            var data = {
+                "name":model.text,
+                "desc":model.desc,
+                "id":"",
+                "pEggId":model.parent
+            };
+            return Utils.ctapPost(Config.RestMapping.createTaskFolderUrl,data);
+        };
+
+        service.renameFolderInTaskTree = function (model) {
+            var data = {
+                "id":model.id,
+                "name":model.text,
+            };
+            return Utils.ctapPost(Config.RestMapping.renameTaskFolderUrl,data);
+        };
+
+        service.removeTaskFolder = function (model) {
+            var data = {
+                "name": model.text,
+                "id": model.id
+            };
+            return Utils.ctapPost(Config.RestMapping.removeTaskFolderUrl,data);
+        };
+        
+        return service;
+    });

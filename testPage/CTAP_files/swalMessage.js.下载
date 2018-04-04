@@ -1,0 +1,99 @@
+app.factory('SwalMessage', function($rootScope) {
+	//info
+	function swalDuplicateFolder(){
+		swal('','Duplicate folder name, please change the name.', 'info');
+	}
+	
+	function swalInputFolder(){
+		swal('','Please input folder name!', 'info');
+	}
+	
+	
+	//success
+	function swalAddFolderSuccess(){
+		swal('',	'Add folder successfully!','success');
+	}
+	
+	function swalUpdateFolderSuccess(){
+		swal('',	'Update folder name successfully!','success');
+	}
+	
+	function swalRemoveFolderSuccess(){
+		swal('','Remove folder successfully!','success');
+	}
+	
+	function swalRemoveWidgetSuccess(){
+		swal('','Remove widget successfully!','success');
+	}
+	
+	function swalRemoveTaskSuccess(){
+		swal('','Remove task successfully!','success');
+	}
+
+	function swalRemoveCaseSuccess(){
+		swal('','Remove case successfully!','success');
+	}
+	
+	//error
+	function swalAddFolderFailed(){
+		swal('','Create folder failed, please try again later.','error');
+	}
+	
+	function swalUpdateFolderFailed(){
+		swal('','Rename folder failed, please try again later.','error');
+	}
+	
+	function swalRemoveFolderFailed(){
+		swal('','Remove folder failed, please try again later.','error');
+	}
+	
+	function swalRemoveWidgetFailed(){
+		swal('','Remove widget failed, please try later','error');
+	}
+	
+	function swalRemoveTaskFailed(){
+		swal('','Remove task failed, please try later','error');
+	}
+	
+	function swalRemoveCaseFailed(){
+		swal('','Remove case failed, please try later','error');
+	}
+	
+	//warning
+	function swalWidgetUsed(){
+		swal('','Widget is used in task, can’t remove it!', 'warning');
+	}
+	
+	function swalTaskUsed(){
+		swal('',"Task is used in case, can't remove it!", 'warning');
+	}
+	
+	function swalCaseUsed(){
+		swal('','Case is used in suite, can’t remove it!', 'warning');
+	}
+	
+	
+	return {
+		swalDuplicateFolder : swalDuplicateFolder,
+		swalInputFolder : swalInputFolder,
+		
+		swalAddFolderSuccess : swalAddFolderSuccess,
+		swalUpdateFolderSuccess : swalUpdateFolderSuccess,
+		swalRemoveFolderSuccess : swalRemoveFolderSuccess,
+		swalRemoveWidgetSuccess : swalRemoveWidgetSuccess,
+		swalRemoveTaskSuccess : swalRemoveTaskSuccess,
+		swalRemoveCaseSuccess : swalRemoveCaseSuccess,
+		
+		swalAddFolderFailed : swalAddFolderFailed,
+		swalUpdateFolderFailed : swalUpdateFolderFailed,
+		swalRemoveFolderFailed : swalRemoveFolderFailed,
+		swalRemoveWidgetFailed : swalRemoveWidgetFailed,
+		swalRemoveTaskFailed : swalRemoveTaskFailed,
+		swalRemoveCaseFailed : swalRemoveCaseFailed,
+		
+		swalWidgetUsed : swalWidgetUsed,
+		swalTaskUsed : swalTaskUsed,
+		swalCaseUsed : swalCaseUsed
+	};
+
+});

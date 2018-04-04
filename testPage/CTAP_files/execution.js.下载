@@ -1,0 +1,1525 @@
+'use strict';
+
+angular
+		.module('myApp.execution', [ 'ngRoute', 'ui.grid.treeView', 'ui.bootstrap'])
+		
+		.config([ '$routeProvider', function($routeProvider) {
+			$routeProvider.when('/execution', {
+				templateUrl : './modules/execution/execution.html',
+				controller : 'executionCtrl'
+			});
+		} ])
+
+		.filter('tagsFilter', function () {
+			return function (value) {
+				if(value == undefined){
+					return value;
+				}
+					
+				if(value.length == 0){
+					return null;
+				}else{
+					return value;
+				}
+			};
+		})
+		
+		.filter('valuesFilter', function () {
+			return function (value) {
+//				if(value == ''){
+				if(value == undefined){
+					return value;
+				}
+					
+				if(value.length == 0){
+					return null;
+				}else{
+					return value;
+				}
+			};
+		})
+		
+		.controller(
+				'executionCtrl',
+				function($location, $scope, $window, $rootScope, $log, $timeout,
+						CaseService, ExecutionService, SuiteService,
+						uiGridTreeViewConstants, debugCaseService, BuildTree,uiGridConstants) {
+					if ($rootScope.curUser == "") {
+						$location.path("/login")
+					}
+					// set the style to "active" for the users input URL
+					// directly.
+					$rootScope.activeNavButton("execution");
+					$scope.execute_meta = {};
+					$scope.customizedProfile = null;
+//					Add by ran, load customized data by default
+					$scope.executionOption = "customized";
+					
+					$scope.initCurrentSuiteModel = function() {
+						SuiteService.getSuiteTreeData().then(function(data) {
+							//$scope.suiteTreeData = [];
+						}, function(reason) {
+							$log.debug('Refresh failed');
+						});
+					};
+
+					$scope.initCurrentSuiteModel();
+					
+					BuildTree.searchTree("#search-suite", "#suite-tree");
+
+					// Context Menu Config for left Suite tree
+//					var contextmenuLeft = function(node) {
+//						// // The default set of all items
+//					};
+					$scope.suiteTreeConfigFromBuildTree = BuildTree.suiteTreeConfig;
+					$scope.suiteTreeConfigFromBuildTree.contextmenu.items = null;
+
+					// loadSuiteTree
+				    $scope.loadSuiteTreeFromBuildTree = function(){
+						BuildTree.loadSuiteTree();
+					}
+
+					$scope.loadAllSuiteFolder = function() {
+						SuiteService.getAllSuiteFolder().then(function(data) {
+							$log.info("Get suite folder success", data);
+							$scope.folderModel = data.value;
+						}, function(reason) {
+							$log.info("Get suite folder failed");
+
+						});
+					};
+
+					$scope.onSuiteSelected = function() {
+						var node = $scope.suiteTreeInstance.jstree(
+								"get_selected", true)[0];
+
+						if (node.original.type.toLowerCase() == 'folder') {
+							if (node.original.suitetype.toLowerCase() == 'suite') {
+								$scope.loadSuiteById(node.original.node_id);
+//								comment by ran, not use task default data anymore
+//								setExecutionOption(true);
+							} else if (node.original.suitetype.toLowerCase() == 'sequential suite') {
+								$scope.loadSubSuiteById(node.original.node_id);
+//								comment by ran, not use task default data anymore
+//								setExecutionOption(true);
+							}
+						} else if (node.original.type.toLowerCase() == 'leaf') {
+							// $scope.loadCaseById(node.original.id);
+						}
+//						Add by ran, switch to data tab
+						$scope.IsActive = 0;
+
+					}
+
+					$scope.loadSuiteById = function(id) {
+
+						ExecutionService.getSuiteWithTagById(id).then(
+								function(data) {
+									$log.debug("$scope.loadSuiteById: ", id,
+											data.value);									
+									$scope.selectedSuite = data.value;
+									$scope.suiteFile = JSON.stringify(
+											$scope.selectedSuite, null, 4);
+									var tmpData = $scope
+											.parseSuiteJsonToGrid(JSON
+													.parse($scope.suiteFile));
+//									add by ran, initial export and import file by customized data
+									$scope.jsonExport = JSON.parse($scope.suiteFile);
+									$scope.jsonImport = JSON.parse($scope.suiteFile);
+									if ($scope.suiteFile) {
+										var title = 'Values customized in debug page';
+										$scope.updateColumnTitle(title);
+										$scope.GenGridExecutionData();
+									}
+									if($scope.isSuiteNoCustomized_data(tmpData)){
+										swal('', 'Some cases do not have customized data! Please check values highlight with yellow!',
+										'info');
+									}
+								},
+								function(reason) {
+									swal('', 'Can not get suite. ID - ' + id,
+											'error');
+									$log.error("$scope.loadSuiteById - ",
+											reason)
+								})
+
+					};
+
+					$scope.loadSubSuiteById = function(id) {
+						ExecutionService.getSubSuiteWithTagById(id).then(
+								function(data) {
+									$log.debug(
+											"$scope.loadSubSuiteById: " + id,
+											data.value);
+									$scope.selectedSuite = data.value;
+									$scope.suiteFile = JSON.stringify(
+											$scope.selectedSuite, null, 4);
+									var tmpData = $scope
+											.parseSuiteJsonToGrid(JSON
+													.parse($scope.suiteFile));
+//									add by ran, initial export and import file by customized data
+									$scope.jsonExport = JSON.parse($scope.suiteFile);
+									$scope.jsonImport = JSON.parse($scope.suiteFile);
+
+									if ($scope.suiteFile) {
+										var title = 'Values customized in debug page';
+										$scope.updateColumnTitle(title);
+										$scope.GenGridExecutionData();
+									}
+									if($scope.isSuiteNoCustomized_data(tmpData)){
+										swal('', 'Some cases do not have customized data! Please check values highlight with yellow!',
+										'info');
+									}
+
+								},
+								function(reason) {
+									swal('',
+											'Can not get subsuite. ID - ' + id,
+											'error');
+									$log.error("$scope.loadSubSuiteById - ",
+											reason)
+								})
+					};
+
+					// Suite Tree Loading Action and context menu
+					$scope.onSuiteTreeLoaded = function() {
+						// make sure the highlight is the same height as the
+						// node text
+						$.vakata.context.settings.hide_onmouseleave = 1;
+						$scope.suiteTreeInstance
+								.bind(
+										"show_contextmenu.jstree",
+										function(e, data) {
+											var $node = $('#' + data.node.id), $menu = $(
+													'.vakata-context').first(), nodeTop = $node
+													.offset().top, menuTop = nodeTop
+													+ $node.height()
+													- $menu.height(), menuLeft = $node
+													.offset().left + 100;
+											if (menuTop > 800) {
+												menuTop = 76;
+												// menuLeft=menuLeft+20
+											}
+											$menu.offset({
+												left : menuLeft,
+												top : menuTop + 20
+											});
+										})
+					};
+
+					$scope.saveToPc = function(data, filename) {
+
+						if (!data) {
+							console.error('No data');
+							return;
+						}
+
+						if (!filename) {
+							filename = 'download.json';
+						}
+
+						if (typeof data === 'object') {
+							data = JSON.stringify(data, undefined, 2);
+						}
+
+						var blob = new Blob([ data ], {
+							type : 'text/json'
+						});
+
+						// FOR IE:
+
+						if (window.navigator
+								&& window.navigator.msSaveOrOpenBlob) {
+							window.navigator.msSaveOrOpenBlob(blob, filename);
+						} else {
+							var e = document.createEvent('MouseEvents'), a = document
+									.createElement('a');
+
+							a.download = filename;
+							a.href = window.URL.createObjectURL(blob);
+							a.dataset.downloadurl = [ 'text/json', a.download,
+									a.href ].join(':');
+							e.initEvent('click', true, false, window, 0, 0, 0,
+									0, 0, false, false, false, false, 0, null);
+							a.dispatchEvent(e);
+						}
+					};
+					// ////////////////////////////////////
+					$scope.gridDummy = {
+						enableFullRowSelection : false,
+						enableRowHeaderSelection : false,
+						enableSorting : false,
+						enableColumnMenus : false,
+						minRowsToShow : 3,
+						showTreeExpandNoChildren : true,
+
+					}
+					$scope.gridDummy.columnDefs = [
+							{
+								name : 'type',
+								displayName : '',
+								width : '38',
+								cellTemplate : '<div class="ui-grid-cell-contents" title="TOOLTIP">{{}}</div>',
+								cellClass : function(grid, row, col,
+										rowRenderIndex, colRenderIndex) {
+									return 'suite';
+
+								}
+							},
+							{
+								name : 'name',
+								displayName : '',
+								cellTemplate : '<div class="ui-grid-cell-contents" title="TOOLTIP">{{row.entity.title}}</div>',
+							} ];
+					;
+					$scope.gridDummy.data = [ {
+						title : "Please	select suite from suites tree."
+					} ];
+					// //////////////////////////////////
+					$scope.gridExecution = {
+						enableFullRowSelection : false,
+						enableRowHeaderSelection : false,
+						enableSorting : false,
+						enableColumnMenus : false,
+						minRowsToShow : 3,
+						showTreeExpandNoChildren : false,
+						columnDefs :$scope.column
+					};
+					
+					$scope.column = [
+						{
+							name : 'id',
+							visible : false
+						},
+						{
+							name : 'level',
+							visible : false,
+							width : '10%'
+						},
+						{
+							name : 'type',
+							displayName : '',
+							width : '38',
+							cellTemplate : '<div class="ui-grid-cell-contents" title="TOOLTIP">{{}}</div>',
+							cellTooltip : function(row, col) {
+								return row.entity.type;
+							},
+							cellClass : function(grid, row, col,
+									rowRenderIndex, colRenderIndex) {
+								if (grid.getCellValue(row, col) === 'suite') {
+									return 'suite';
+								}
+								if (grid.getCellValue(row, col) === 'seq suite') {
+									return 'subsuite';
+								}
+								if (grid.getCellValue(row, col) === 'case') {
+									return 'case';
+								}
+
+							}
+						}, {
+							name : 'name',
+							displayName : 'Cases',
+							width : '20%',
+							cellTooltip: true
+						}, {
+							name : 'tags',
+							displayName : 'Customization Tags',
+							width : '40%',
+							cellFilter: 'tagsFilter',
+							cellTooltip: true
+						}, {
+							name : 'values',
+							displayName : 'Values customized in debug page',
+							cellFilter: 'valuesFilter',
+							cellTooltip: true,
+							cellClass: function(grid, row, col, rowRenderIndex, colRenderIndex) {
+								  if(grid.getCellValue(row,col)!= null && grid.getCellValue(row,col)!= undefined){
+						          if ($scope.isRowNoCustomized_data(grid.getCellValue(row,col))) {
+						            return 'ui-grid-red';
+						          }
+						        }
+							}
+						}];					
+				
+					$scope.gridExecution.multiSelect = true;
+					$scope.gridExecution.modifierKeysToMultiSelect = false;
+					$scope.gridExecution.noUnselect = false;
+					$scope.gridExecution.onRegisterApi = function(gridApi) {
+						$scope.gridExecutionApi = gridApi;
+						$scope.gridExecutionApi.core.handleWindowResize();
+						gridApi.selection.on.rowSelectionChanged($scope,
+								function(row) {
+									// $scope.getSelectedXpattern();
+								});
+					};
+															
+					$scope.parseSuiteJsonToGrid = function(jsonObject) {
+						var result = [];
+						var newEntry = function() {
+
+							var entry = {
+								id : "",
+								type : "",
+								level : 0,
+							};
+							return entry;
+						}
+
+						var parseAuto = function(json, level, currentList) {
+							var result = currentList;
+							if (json["suite id"]) {
+								result = parseSuite(json, level, result);
+							}
+							if (json["seq suite id"]) {
+								result = parseSeqSuite(json, level, result);
+							}
+							if (json["case id"]) {
+								result = parseCase(json, level, result);
+							}
+
+							return result;
+
+						}
+
+						var parseSuite = function(json, level, currentList) {
+							var entry = newEntry();
+							var result = currentList;
+							if (json["suite id"]) {
+								entry.id = json["suite id"];
+								entry.name = json["suite name"]
+								entry.type = "suite";
+								entry.level = level;
+								result.push(entry)
+								if (json.data) {
+									for (var i = 0; i < json.data.length; i++) {
+										result = parseAuto(json.data[i],
+												level + 1, result);
+									}
+								}
+
+							}
+
+							return result;
+						}
+
+						var parseSeqSuite = function(json, level, currentList) {
+							var entry = newEntry();
+							var result = currentList;
+							if (json["seq suite id"]) {
+								entry.id = json["seq suite id"];
+								entry.name = json["seq suite name"]
+								entry.type = "seq suite";
+								entry.level = level;
+								result.push(entry);
+								if (json.data) {
+									for (var i = 0; i < json.data.length; i++) {
+										result = parseAuto(json.data[i],
+												level + 1, result);
+									}
+								}
+
+							}
+
+							return result;
+						}
+
+						var parseCase = function(json, level, currentList) {
+							var result = currentList;
+							var entry = newEntry();
+							if (json["case id"]) {
+								entry.id = json["case id"];
+								entry.name = json["case name"];
+								entry.type = "case";
+								entry.level = level;
+								entry.tags = [];
+								entry.values = [];
+
+								if (json.data) {
+									for (var i = 0; i < json.data.length; i++) {
+										// tasks
+										if (json.data[i].data) {
+											for (var j = 0; j < json.data[i].data.length; j++) {
+												// tags
+												entry.tags
+														.push(json.data[i].data[j]["customization tag"]);
+												entry.values
+														.push(json.data[i].data[j]["value"]);												
+
+											}
+										}
+
+									}
+								}
+
+							}
+							result.push(entry);
+							return result;
+						}
+
+						var ss = parseAuto(jsonObject, 0, []);
+						return ss;
+					}
+
+					$scope.GenGridExecutionData = function() {
+						var data = $scope.parseSuiteJsonToGrid(JSON
+								.parse($scope.suiteFile));
+						$scope.gridExecution.data = data;
+						for (var i = 0; i < data.length; i++) {
+							$scope.gridExecution.data[i].$$treeLevel = $scope.gridExecution.data[i].level;
+						}
+						$log.debug("$scope.GenGridExecutionData: ",
+								$scope.gridExecution.data);
+						
+					}
+					
+					// ////////////////////////////
+					$scope.gridEnv = {
+						enableFullRowSelection : false,
+						enableRowHeaderSelection : true,
+						enableSorting : false,
+						enableColumnMenus : false,
+						minRowsToShow : 2
+					};
+
+					$scope.gridEnv.columnDefs = [ {
+						name : 'id',
+						visible : false
+					}, {
+						name : 'platform',
+						visible : true,
+						width : '20%'
+					}, {
+						name : 'browser',
+						displayName : 'Browser',
+						width : '20%'
+					}, {
+						name : 'version',
+						width : '15%'
+					}, {
+						name : 'url',
+						displayName : 'VM'
+					}, ];
+
+					$scope.gridEnv.multiSelect = true;
+					$scope.gridEnv.modifierKeysToMultiSelect = false;
+					$scope.gridEnv.noUnselect = false;
+					$scope.gridEnv.onRegisterApi = function(gridApi) {
+						$scope.gridEnvApi = gridApi;
+					};
+					$scope.getExecutionEnv = function() {
+						debugCaseService.getExecutionEnv().then(
+								function(data) {
+									$log.debug(
+											'After get execution env success',
+											data);
+									$scope.executionEnv = data.value;
+									$scope.gridEnv.data = $scope.executionEnv;
+									$scope.selectDefaultEnv();
+								}, function(reason) {
+									$log.debug('Get case tree failed');
+								});
+
+					};
+					$scope.getExecutionEnv();
+					$scope.selectDefaultEnv = function() {
+						$scope.gridEnvApi.grid.modifyRows($scope.gridEnv.data);
+						for ( var n in $scope.gridEnv.data) {
+							if ($scope.gridEnv.data[n].browser == "chrome") {
+								$scope.gridEnvApi.selection
+										.selectRow($scope.gridEnv.data[n]);
+								break;
+							}
+						}
+						if ($scope.gridEnvApi.selection.getSelectedCount() == 0) {
+							$scope.gridEnvApi.selection
+									.selectRow($scope.gridEnv.data[0]);
+						}
+					};
+
+					$scope.gridUrl = {
+						enableFullRowSelection : true,
+						enableRowHeaderSelection : false,
+						enableSorting : false,
+						enableColumnMenus : false,
+						minRowsToShow : 3
+					};
+
+					$scope.gridUrl.columnDefs = [ {
+						name : 'id',
+						visible : false
+					}, {
+						name : 'name',
+						visible : true,
+						width : '23%'
+					}, {
+						name : 'app_url',
+						displayName : 'Application URL',
+					} ];
+					$scope.gridUrl.multiSelect = false;
+					$scope.gridUrl.modifierKeysToMultiSelect = false;
+					$scope.gridUrl.noUnselect = false;
+					$scope.gridUrl.onRegisterApi = function(gridApi) {
+						$scope.gridUrlApi = gridApi;
+					};
+
+					$scope.getProductionAppUrl = function() {
+						debugCaseService.getProductionAppUrl().then(
+								function(data) {
+									$log.debug(
+											'After get execution env success',
+											data);
+									$scope.productionUrl = data.value;
+									$scope.gridUrl.data = $scope.productionUrl;
+									$scope.selectDefaultUrl();
+								}, function(reason) {
+									// $log.debug('Get case tree failed');
+									$location.path("/login");
+								});
+					}
+
+					$scope.getProductionAppUrl();
+
+					$scope.selectDefaultUrl = function() {
+						$scope.gridUrlApi.grid.modifyRows($scope.gridUrl.data);
+						for ( var n in $scope.gridUrl.data) {
+							if ($scope.gridUrl.data[n]._default) {
+								$scope.gridUrlApi.selection
+										.selectRow($scope.gridUrl.data[n]);
+								break;
+							}
+						}
+						if ($scope.gridUrlApi.selection.getSelectedCount() == 0) {
+							$scope.gridUrlApi.selection
+									.selectRow($scope.gridUrl.data[0]);
+						}
+					};
+
+					$scope.createModel = function(modelType) {
+						var suiteModel = {
+							"suite id" : "",
+							"suite name" : "",
+							"data" : []
+						}
+
+						var caseModel = {
+							"case id" : "",
+							"case name" : "",
+							"data" : []
+						}
+
+						var seqSuiteModel = {
+							"seq suite id" : "",
+							"seq suite name" : "",
+							"data" : []
+						}
+
+						var taskModel = {
+							"task id" : "",
+							"task name" : "",
+							"data" : []
+						}
+
+						var tagModel = {
+							"customization tag" : "",
+							"value" : ""
+						}
+
+						switch (modelType) {
+						case "suite":
+							return suiteModel;
+						case "seqSuite":
+							return seqSuiteModel;
+						case "case":
+							return caseModel;
+						case "task":
+							return taskModel;
+						case "tag":
+							return tagModel
+						default:
+							alert("can not create model for " + modelType);
+							return;
+
+						}
+					}
+
+					$scope.exportSuiteFile = function() {
+//						update by ran, always export customized data
+//						var tmpJson = $scope.suiteFile;
+//						var json = JSON.parse(tmpJson);
+						var json = $scope.jsonExport;
+						var filename = "SuiteExecution"
+						if (json) {
+							if (json["suite id"]) {
+								filename = json["suite name"];
+							}
+							if (json["seq suite id"]) {
+								filename = json["seq suite name"];
+							}
+						}
+						filename = filename + ".json"
+
+//						$scope.saveToPc(JSON.parse(tmpJson), filename);
+						$scope.saveToPc(json, filename);
+					}
+					
+					$scope.startSuiteExecution = function() {
+//						Update by ran, allow user run with customized data and no need import
+//						when use run suite, first save data, then execute suite
+//						var tmpJson = $scope.suiteFile;					
+						var tmpJson = $scope.jsonImport;
+						$log.debug("executeSuite: ", tmpJson);
+						ExecutionService
+									.updateSuiteExecution(tmpJson)
+									.then(
+											function(data) {
+//												if (data.value) {
+//													$log
+//															.debug(
+//																	"Update Suite Execution completed",
+//																	data);
+//													$scope.customizedProfile = data.value;
+//													$log
+//															.debug(
+//																	"$scope.customizedProfile",
+//																	$scope.customizedProfile);
+//												}
+												$log
+												.debug(
+														"Update Suite Execution data completed",
+														data);
+//											after save data, start run suite										
+												if (tmpJson["suite id"]) {
+													$log.debug("ExecutionService.executeSuite: ",
+															tmpJson["suite id"], $scope.execute_meta);
+													ExecutionService
+															.executeSuite(tmpJson["suite id"],
+																	$scope.execute_meta)
+															.then(
+																	function(data) {
+																		swal(
+																				'',
+																				'Submit suite to queue completed!',
+																				'success');
+																	},
+																	function(reason) {
+																		swal(
+																				'',
+																				'Failed when trying to submit to queue.',
+																				'error');
+																		$log
+																				.error(
+																						"Failed when trying to submit the suite to queue. ",
+																						reason)
+																	})
+												} else if (tmpJson["seq suite id"]) {
+													$log.debug("ExecutionService.executeSuite: ",
+															tmpJson["seq suite id"], $scope.execute_meta);
+													ExecutionService
+															.executeSubSuite(tmpJson["seq suite id"],
+																	$scope.execute_meta)
+															.then(
+																	function(data) {
+																		swal(
+																				'',
+																				'Submit seq suite to queue completed!',
+																				'success');
+																	},
+																	function(reason) {
+																		swal(
+																				'',
+																				'Failed when trying to submit the seq suite to queue.',
+																				'error');
+																		$log
+																				.error(
+																						"Failed when trying to submit the suite to queue. ",
+																						reason)
+																	})
+												}
+
+											},
+											function(reason) {
+												swal(
+														'',
+														'Start Suite Execution failed.',
+														'error');
+												$log
+														.error(
+																"Update Suite Execution failed, ",
+																reason);
+											})
+
+					}
+
+					var populateExecuteMeta = function(suiteJsonObject) {
+						var result = {};
+						var data = [];
+
+						var envList = [];
+						var platform = "";
+						for ( var n in $scope.selectedenvs) {
+							var row = $scope.selectedenvs[n];
+							envList.push({
+								platform : row['platform'],
+								browser : row['browser'],
+								version : row['version'],
+								url : row['url']
+							});
+						}
+						result.production_id = $scope.selectedurl[0]['id'];
+						result.envs = envList;
+						result.rerun = false;
+						result.profile = {};
+						var profile = {
+							suite : {
+								"suiteId" : "",
+								"name" : "",
+								"type" : 1,
+								"suites" : [],
+								"subsuites" : [],
+								"cases" : []
+							}
+						}
+//						update by ran, no use data profile anymore
+//						if (getExecutionOption()) {
+							if (suiteJsonObject["suite id"]) {
+								profile.suite.suiteId = suiteJsonObject["suite id"];
+								profile.suite.name = suiteJsonObject["suite name"];
+								profile.suite.type = 1;
+								// loop in the suiteJsonObject.data and push it
+								data = suiteJsonObject.data;
+								for (var i = 0; i < data.length; i++) {
+									if (data[i]["case id"]) {
+										profile.suite.cases
+												.push(populateCase(data[i]))
+
+									}
+									if (data[i]["seq suite id"]) {
+										profile.suite.subsuites
+												.push(populateSeqSuite(data[i]));
+									}
+									if (data[i]["suite id"]) {
+										profile.suite.suites
+												.push(populateSuite(data[i]));
+									}
+								}
+							} else if (suiteJsonObject["seq suite id"]) {
+								profile = {
+									subsuite : []
+								};
+
+								profile.subsuite.subsuiteId
+								// loop in the suiteJsonObject.data and push it
+								data = suiteJsonObject.data;
+								for (var i = 0; i < data.length; i++) {
+									if (data[i]["case id"]) {
+										profile.subsuite
+												.push(populateCase(data[i]));
+
+									}
+								}
+
+							}
+//						} else {
+//							if ($scope.customizedProfile.type == 1) {
+//								profile.suite = $scope.customizedProfile;
+//							} else if ($scope.customizedProfile.type == 3) {
+//								$log.debug("$scope.customizedProfile : ",
+//										$scope.customizedProfile);
+//								profile = {
+//									subsuite : []
+//								};
+//								profile.subsuite = $scope.customizedProfile.cases;
+//							} else {
+//								swal('', 'Can not identify the profile type - '
+//										+ $scope.customizedProfile.type,
+//										'error');
+//								return;
+//							}
+//							$log.debug("assigning the profile: ", profile);
+//						}
+
+						result.profile = profile;
+						$scope.execute_meta = result;
+						$log.debug("Generated execute_meta: ", result);
+					}
+					var populateSuite = function(jsonObject) {
+						var data = [];
+						var suite = {
+							suiteId : "",
+							name : "",
+							type : 1,
+							suites : [],
+							subsuites : [],
+							cases : []
+						}
+						if (jsonObject["suite id"]) {
+							suite.suiteId = jsonObject["suite id"];
+							suite.name = jsonObject["suite name"];
+							suite.type = 1;
+							data = jsonObject.data;
+							for (var i = 0; i < data.length; i++) {
+								if (data[i]["suite id"]) {
+									suite.suites.push(populateSuite(data[i]))
+								}
+								if (data[i]["seq suite id"]) {
+									suite.subsuites
+											.push(populateSeqSuite(data[i]))
+								}
+								if (data[i]["case id"]) {
+									suite.cases.push(populateCase(data[i]))
+								}
+							}
+						}
+
+						return suite;
+					}
+					var populateSeqSuite = function(jsonObject) {
+						var data = [];
+						var seqSuite = {
+							"subsuiteid" : "",
+							"name" : "",
+							"type" : 3,
+							"cases" : []
+						}
+						data = jsonObject.data;
+						if (jsonObject["seq suite id"]) {
+							seqSuite.subsuiteid = jsonObject["seq suite id"];
+							seqSuite.name = jsonObject["seq suite name"];
+							seqSuite.type = 3;
+							for (var i = 0; i < data.length; i++) {
+								if (data[i]["case id"]) {
+									seqSuite.cases.push(populateCase(data[i]))
+								}
+							}
+						}
+
+						return seqSuite;
+					}
+
+					var populateCase = function(jsonObject) {
+						var data = [];
+						var result = {
+							"caseid" : "",
+							"name" : "",
+							"type" : 2,
+							"profiles" : [],
+						// "tasks" : []
+						}
+						data = jsonObject.data;
+						if (jsonObject["case id"]) {
+							result.caseid = jsonObject["case id"];
+							result.name = jsonObject["case name"];
+							result.type = 2;
+//							update by ran, use customized data 
+							if (getExecutionOption()) {
+								result.profiles = [ "undefined" ];
+							}
+							else{
+								result.profiles = [ "customized" ];
+							}
+						}
+						return result;
+					}
+
+					var populateTask = function(jsonObject) {
+						var data = jsonObject.data;
+						var task = {
+							taskid : "",
+							name : "",
+							tags : []
+						}
+						if (jsonObject["task id"]) {
+							task.taskid = jsonObject["task id"];
+							task.name = jsonObject["task name"];
+							for (var i = 0; i < data.length; i++) {
+								if (data[i]["customization tag"]) {
+									task.tags.push(populateTag(data[i]))
+								}
+							}
+						}
+
+						return task;
+
+					}
+
+					var populateTag = function(jsonObject) {
+						var tag = {
+							tagName : "",
+							tagValue : ""
+						}
+						if (jsonObject["customization tag"]) {
+							tag.tagName = jsonObject["customization tag"];
+							tag.tagValue = jsonObject.value;
+						}
+						return tag;
+					}
+
+					$scope.executeSuite = function() {
+						$scope.selectedenvs = $scope.gridEnvApi.selection
+								.getSelectedRows();
+						$scope.selectedurl = $scope.gridUrlApi.selection
+								.getSelectedRows();
+
+						if ($scope.suiteFile == "") {
+							swal(
+									'',
+									'Please select suite before execute.',
+									'info');
+							return;
+						}
+						if ($scope.selectedenvs.length == 0) {
+							swal('',
+									"Please select the Execution Environment.",
+									'info');
+							return;
+						}
+						if ($scope.selectedurl.length == 0) {
+							swal('', "Please select the Application URL.",
+									'info');
+							return;
+						}
+//						Update by ran,
+//						var tmpJson = JSON.parse($scope.suiteFile)
+						var tmpJson = $scope.jsonImport;
+						// $log.debug("executeSuite: ", tmpJson);
+						populateExecuteMeta(tmpJson);
+						
+//						save json data first then start run
+						$scope.startSuiteExecution();
+//						comment by ran, move start run to save json data function
+//						if (tmpJson["suite id"]) {
+//							$log.debug("ExecutionService.executeSuite: ",
+//									tmpJson["suite id"], $scope.execute_meta);
+//							ExecutionService
+//									.executeSuite(tmpJson["suite id"],
+//											$scope.execute_meta)
+//									.then(
+//											function(data) {
+//												swal(
+//														'',
+//														'Submit suite to queue completed!',
+//														'success');
+//											},
+//											function(reason) {
+//												swal(
+//														'',
+//														'Failed when trying to submit to queue.',
+//														'error');
+//												$log
+//														.error(
+//																"Failed when trying to submit the suite to queue. ",
+//																reason)
+//											})
+//						} else if (tmpJson["seq suite id"]) {
+//							$log.debug("ExecutionService.executeSuite: ",
+//									tmpJson["seq suite id"], $scope.execute_meta);
+//							ExecutionService
+//									.executeSubSuite(tmpJson["seq suite id"],
+//											$scope.execute_meta)
+//									.then(
+//											function(data) {
+//												swal(
+//														'',
+//														'Submit seq suite to queue completed!',
+//														'success');
+//												$('#execution-parameter-modal')
+//														.modal('hide');
+//											},
+//											function(reason) {
+//												swal(
+//														'',
+//														'Failed when trying to submit the seq suite to queue.',
+//														'error');
+//												$log
+//														.error(
+//																"Failed when trying to submit the suite to queue. ",
+//																reason)
+//											})
+//						}
+
+					}
+					$scope.fileNameChanged = function(ele) {
+						var files = ele.files;
+						var l = files.length;
+						var namesArr = [];
+						var r = new FileReader();
+						r.readAsBinaryString(files[0]);
+						r.onloadend = function(e) {
+							var data = e.target.result;
+							$scope.suiteFile = data;
+//							add by ran, store import data 
+							//$scope.jsonImport = JSON.parse($scope.suiteFile);
+							try {
+								$scope.jsonImport = JSON.parse($scope.suiteFile);
+								var flag = $scope.compareObj($scope.jsonExport,$scope.jsonImport);
+								if(!flag)
+								{
+									swal(
+											'',
+											'Json file is not correct, please make sure only value changed!',
+											'info');
+									return;
+								}
+
+								var title = 'Values from import file';
+								$scope.updateColumnTitle(title);
+								
+								$scope.GenGridExecutionData();
+								$scope.gridExecutionApi.treeBase
+										.collapseAllRows();
+								setExecutionOption(false);
+//								comment by ran, save suite data to back end when click run button
+//								$scope.saveSuiteExecution();
+							} catch (err) {
+								swal(
+										'',
+										'Can not parse the json file, please check and import later.',
+										'error');
+								$log.error(
+										"Error when import the suite file: ",
+										$scope.suiteFile, err);
+							}
+
+							// send your binary data via $http or $resource
+							// or do anything else with it
+						}
+
+					}
+
+					var getExecutionOption = function() {
+						// If running as undefined(default value), return true.
+						var result = false;
+						if ($scope.executionOption == "undefined") {
+							result = true;
+						}
+						return result;
+					}
+					var setExecutionOption = function(indicator) {
+						// If indicator == true, running as undefined(default),
+						// else running as customized
+						if (indicator) {
+							$scope.executionOption = "undefined"
+						} else {
+							$scope.executionOption = "customized"
+						}
+
+					}
+
+					$scope.setSchedule = function() {
+						$scope.getScheduleEnv();
+						$scope.iniTimeValue();
+						$('#schedule-parameter-modal').modal({
+							backdrop : 'static'
+						});
+					}
+
+					$scope.closeSchedule = function() {
+						$('#schedule-parameter-modal').modal('hide');
+					}
+
+					$scope.gridScheduleEnv = {
+						enableFullRowSelection : false,
+						enableRowHeaderSelection : false,
+						enableSorting : false,
+						enableColumnMenus : false,
+						minRowsToShow : 2
+					};
+
+					$scope.gridScheduleEnv.columnDefs = [ {
+						name : 'id',
+						visible : false
+					}, {
+						name : 'name',
+						displayName : 'Suite Name',
+						visible : true,
+						width : '25%'
+					}, {
+						name : 'platform',
+						displayName : 'Execution Environments',
+						visible : true,
+						width : '45%'
+					}, {
+						name : 'url',
+						displayName : 'Application URL',
+					} ];
+
+					$scope.gridScheduleEnv.multiSelect = false;
+					$scope.gridScheduleEnv.modifierKeysToMultiSelect = false;
+					$scope.gridScheduleEnv.noUnselect = false;
+					$scope.gridScheduleEnv.onRegisterApi = function(gridApi) {
+						$scope.gridScheduleEnvApi = gridApi;
+					};
+					$scope.getScheduleEnv = function() {
+
+						if ($scope.suiteFile) {
+							var tmpJson = JSON.parse($scope.suiteFile);
+							$scope.selectedenvs = $scope.gridEnvApi.selection
+									.getSelectedRows();
+							$scope.selectedurl = $scope.gridUrlApi.selection
+									.getSelectedRows();
+							if ($scope.suiteFile == "") {
+								swal(
+										'',
+										'Please select suite before execute.',
+										'info');
+								return;
+							}
+							if ($scope.selectedenvs.length == 0) {
+								swal(
+										'',
+										"Please select the Execution Environment.",
+										'info');
+								return;
+							}
+							if ($scope.selectedurl.length == 0) {
+								swal('', "Please select the Application URL.",
+										'info');
+								return;
+							}
+							var data = {};
+							if (tmpJson["suite name"]) {
+								data.name = tmpJson["suite name"];
+							} else if (tmpJson["seq suite name"]) {
+								data.name = tmpJson["seq suite name"];
+							}
+							var platform = "";
+							var tmpStr = "";
+							for ( var n in $scope.selectedenvs) {
+								var row = $scope.selectedenvs[n];
+								tmpStr = row['platform'] + ", "
+										+ row['browser'] + ", Ver."
+										+ row['version'];
+								if (platform == "") {
+									platform = tmpStr;
+								} else {
+									platform = platform + " && " + tmpStr;
+								}
+
+							}
+							data.platform = platform;
+							data.url = $scope.selectedurl[0]["app_url"];
+							$scope.gridScheduleEnv.data[0] = data;
+						}
+					};
+
+					$scope.set_date = new Date();
+					
+					$scope.openDate = function($event) {
+					    //open date select
+						$event.preventDefault();
+					    $event.stopPropagation();
+					    $scope.dateOpened = true;
+					};					  
+					
+					$scope.gridSchedule = {
+						enableFullRowSelection : false,
+						enableRowHeaderSelection : false,
+						enableSorting : false,
+						enableColumnMenus : false,
+						minRowsToShow : 2
+					};
+
+					$scope.gridSchedule.columnDefs = [ {
+						name : 'id',
+						visible : false
+					}, {
+						name : 'purpose',
+						displayName : 'Execution Purpose',
+						visible : true,
+						width : '50%'
+					}, {
+						name : 'scheduledTime',
+						displayName : 'Scheduled Time',
+						visible : true,
+						width : '17%'
+					}, {
+						name : 'repeatCount',
+						displayName : 'Repeat Count',
+						visible : true,
+						width : '17%'
+					}, {
+						name : 'delayTime',
+						displayName : 'Delay Time(H)',
+					} ];
+
+					$scope.gridSchedule.multiSelect = false;
+					$scope.gridSchedule.modifierKeysToMultiSelect = false;
+					$scope.gridSchedule.noUnselect = false;
+					$scope.gridSchedule.onRegisterApi = function(gridApi) {
+						$scope.gridScheduleApi = gridApi;
+					};
+					$scope.getSchedule = function() {
+						var data = {};
+						data.purpose = $scope.currentScheduleModel.name;
+						$scope.currentScheduleModel.scheduledTime = getScheduledTime($scope.currentScheduleModel.repeatDays, $scope.currentScheduleModel.repeatHours);
+						data.scheduledTime = $scope.currentScheduleModel.scheduledTime;
+						data.repeatCount = $scope.currentScheduleModel.repeatcount;
+						data.delayTime = $scope.currentScheduleModel.delaytime;
+						$scope.gridSchedule.data[0] = data;
+					};
+					$scope.saveSchedule = function() {
+						var validStr = validateSchedule();
+						if(validStr == ""){
+							exeSchedule();
+							//$scope.getSchedule();
+						} else{
+							swal('',validStr,'info')
+						}
+						
+					}
+
+					var iniScheduleParameter = function(){
+						$scope.currentScheduleModel = {};
+						$scope.currentScheduleModel.name = "";
+						$scope.currentScheduleModel.scheduledTime = 0;
+						$scope.currentScheduleModel.repeatDays = 0;
+						$scope.currentScheduleModel.repeatHours = 1;
+						$scope.currentScheduleModel.repeatcount = 1;
+						$scope.currentScheduleModel.delaytime = 0;							
+					}
+					iniScheduleParameter();
+					var validateSchedule = function(){
+						var result = "";
+						var append = function(origStr, newStr){
+							var result = "";
+							if(origStr == ""){
+								result = newStr;
+							} else{
+								result = origStr + "<br>" + newStr
+							}
+							
+							return result;
+						}
+						if($scope.currentScheduleModel.name == ""){
+							result = append(result, "Please input the Scheduled Name");
+						};
+						if(isNaN($scope.currentScheduleModel.repeatDays)){
+							result = append(result, "Please input a valid repeat time in days.");
+						};
+						if(isNaN($scope.currentScheduleModel.repeatHours)){
+							result = append(result, "Please input a valid repeat time in hours.");
+						};
+						if(isNaN($scope.currentScheduleModel.repeatcount)){
+							result = append(result, "Please input a valid repeat count.");
+						};
+						if($scope.currentScheduleModel.repeatcount < 1){
+							result = append(result, "Please input a valid repeat count.");
+						};
+						if(($scope.hour_value < 0)||($scope.hour_value > 23)){
+							result = append(result, "Please input a valid hour value from 0 to 23.");
+						};
+						if(($scope.min_value < 0)||($scope.min_value > 59)){
+							result = append(result, "Please input a valid hour value from 0 to 59.");
+						};
+						if(getScheduledTime($scope.currentScheduleModel.repeatDays, $scope.currentScheduleModel.repeatHours) < 1){
+							result = append(result, "Please input a valid repeat time.");
+						}
+						
+						return result
+					}
+					var getScheduledTime = function(days, hours){
+						var result = Number(days) * 24 + Number(hours);
+						return result;
+						
+					}
+					
+					$scope.getDelayTime = function(){
+						var nowTime = new Date();
+						var startTime = $scope.set_date.setHours($scope.hour_value,$scope.min_value,0);
+						var delayTime = startTime - nowTime.getTime();
+						if(delayTime <= 0){
+							delayTime = 0;
+						}
+						return delayTime;						
+					}
+					
+					$scope.iniTimeValue = function(){
+						var nowTime = new Date();
+						$scope.hour_value = nowTime.getHours();
+						$scope.min_value = nowTime.getMinutes();
+					}
+					
+					var exeSchedule = function() {
+
+						$scope.selectedenvs = $scope.gridEnvApi.selection
+								.getSelectedRows();
+						$scope.selectedurl = $scope.gridUrlApi.selection
+								.getSelectedRows();
+
+						if ($scope.suiteFile == "") {
+							swal(
+									'',
+									'Please select suite before save schedule.',
+									'info');
+							return;
+						}
+						if ($scope.selectedenvs.length == 0) {
+							swal('',
+									"Please select the Execution Environment.",
+									'info');
+							return;
+						}
+						if ($scope.selectedurl.length == 0) {
+							swal('', "Please select the Application URL.",
+									'info');
+							return;
+						}
+//						update by ran
+//						var tmpJson = JSON.parse($scope.suiteFile);
+						var tmpJson = $scope.jsonImport;
+						// $log.debug("executeSuite: ", tmpJson);
+						populateExecuteMeta(tmpJson);
+						$scope.scheduleMeta = {};
+						$scope.scheduleMeta["execute_meta"] = $scope.execute_meta;
+						$scope.scheduleMeta["name"] = $scope.currentScheduleModel.name;
+						$scope.scheduleMeta["repeatspace"] = getScheduledTime($scope.currentScheduleModel.repeatDays, $scope.currentScheduleModel.repeatHours);
+						$scope.scheduleMeta["repeatcount"] = $scope.currentScheduleModel.repeatcount;
+						$scope.scheduleMeta["delaytime"] = $scope.getDelayTime();
+						$log.debug("ExecutionService.scheduleSuite: ",
+								$scope.scheduleMeta);
+						$scope.startScheduleSuiteExecution();
+						
+					}
+					
+					$scope.startScheduleSuiteExecution = function() {
+//						Update by ran, allow user run with customized data and no need import
+//						when use run suite, first save data, then execute suite
+//						var tmpJson = $scope.suiteFile;					
+						var tmpJson = $scope.jsonImport;
+						$log.debug("executeSuite: ", tmpJson);
+						ExecutionService
+									.updateSuiteExecution(tmpJson)
+									.then(
+											function(data) {
+												$log
+												.debug(
+														"Update Suite Execution data completed",
+														data);
+//											after save data, start run suite										
+												if (tmpJson["suite id"]) {
+													ExecutionService
+															.scheduleSuite(tmpJson["suite id"],
+																	$scope.scheduleMeta)
+															.then(
+																	function(data) {
+																		swal(
+																				'',
+																				'Save suite schedule completed!',
+																				'success');
+//																		$('#execution-parameter-modal')
+//																				.modal('hide');
+																	},
+																	function(reason) {
+																		swal(
+																				'',
+																				'Failed when trying to save the suite schedule.',
+																				'error');
+																		$log
+																				.error(
+																						"Failed when trying to save the suite schedule. ",
+																						reason)
+																	})
+												} else if (tmpJson["seq suite id"]) {
+													ExecutionService
+															.scheduleSubSuite(tmpJson["seq suite id"],
+																	$scope.scheduleMeta)
+															.then(
+																	function(data) {
+																		swal(
+																				'',
+																				'Save seq suite schedule completed!',
+																				'success');
+																	},
+																	function(reason) {
+																		swal(
+																				'',
+																				'Failed when trying to save the seq suite schedule.',
+																				'error');
+																		$log
+																				.error(
+																						"Failed when trying to save the seq suite schedule. ",
+																						reason)
+																	})
+												}
+
+
+											},
+											function(reason) {
+												swal(
+														'',
+														'Schedule Suite Execution failed.',
+														'error');
+												$log
+														.error(
+																"Schedule Suite Execution failed, ",
+																reason);
+											})
+
+					}
+					
+					var isArray = function(object) {
+					    return object && typeof(object) == 'object' && object.constructor == Array;
+					}
+					
+					$scope.compareObj = function (objA, objB) {
+					    var flag = true;
+					    for(var key in objA) {
+					        if(!flag) 
+					            break;
+							if(key == 'value')
+								continue;
+					        if(!isArray(objA[key])) { //if not array, compare value
+					            if(objB[key] != objA[key]) {
+					                flag = false;
+					                break;
+					            }
+					        } else {
+					            if(!isArray(objB[key])) {
+					                flag = false;
+					                break;
+					            }
+					            var oA = objA[key],
+					                oB = objB[key];
+									
+					            for(var k in oA) {
+					                if(!flag)  
+					                    break;
+					                flag = $scope.compareObj(oA[k], oB[k], flag);
+					            }
+					        }
+					    }
+					    return flag;
+					}
+					
+					$scope.isRowNoCustomized_data = function(data)
+				    {	
+				        for(var i=0;i<data.length;i++)
+				        {
+				            if(data[i] == null)
+				                return true;
+				        }
+				        return false;
+				    }
+					
+					$scope.isSuiteNoCustomized_data = function(suitedata)
+				    {	
+				        for(var m = 0; m < suitedata.length; m ++)
+				        {
+				        	if(suitedata[m].values != null && suitedata[m].values != undefined){
+				        		for(var i=0;i<suitedata[m].values.length;i++)
+						        {
+						            if(suitedata[m].values[i] == null)
+						                return true;
+						        }
+				        	}
+				        }
+				        return false;
+				    }
+					
+					$scope.updateColumnTitle = function(title){
+						$scope.column[5].displayName = title;
+						$scope.gridExecution.columnDefs = $scope.column;
+						$scope.gridExecutionApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN );
+					}
+				});

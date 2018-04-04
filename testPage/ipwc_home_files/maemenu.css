@@ -1,0 +1,308 @@
+#dealMenu .mae-menu {
+	background: #eee;  /*was "Menu"*/
+	border: 2px outset Menu;
+	filter: shadow(color=777777, direction=135, strength=4);
+	-moz-opacity: 1;
+	padding: 1px;
+	position: absolute;
+	visibility: hidden;
+	width: 130px;
+	z-index: 100;
+}
+
+#dealMenu .mae-menu a {
+	border: 0;
+	color: #000000;
+	cursor: default;
+	display: block;
+	font: Menu;
+	/*height: expression(constExpression("1px"));*/
+	height: 1px;
+	min-height:1.4em;
+	padding: 2px;
+	padding-left: 3px;
+	padding-right: 3px;
+	text-decoration: none;
+	vertical-align: center;
+	/* width: expression(constExpression(ieBox ? "100%" : "auto")); should be 	ignored by mz and op */
+	\width: 100%;
+	w\idth: auto;
+	xxxheight: 18px;
+	xxxoverflow: hidden;
+}
+
+#dealMenu .mae-menu a .arrow {
+	border: 0;
+	float: right;
+	margin-right: 3px;
+	margin-top: 3px;
+	width: 3px;
+	xxxheight: 16px;
+}
+
+#dealMenu .mae-menu a:visited {
+	border: 0;
+	color: MenuText;
+}
+
+#dealMenu .mae-menu a:hover,
+#dealMenu .mae-menu a:visited:hover {
+	background: #98b1c4; /*was "Highlight"*/
+	border: 0;
+	color: HighlightText;
+	text-decoration: none;
+}
+
+/* separator */
+#dealMenu .mae-menu div {
+	border-bottom: 1px solid ButtonHighlight;
+	border-top: 1px solid ButtonShadow;
+	font-size: 0mm;
+	/*height: expression(constExpression(ieBox ? 2 : 0));*/
+	\height: 2;
+	h\eight: 0;
+	margin: 0;
+	margin-bottom: 0px;
+	margin-top: 0px;
+	overflow: hidden;
+}
+
+#dealMenu .mae-menu, .mae-menu * {
+	box-sizing: content-box; 
+	-moz-box-sizing: content-box;
+}
+
+#dealMenu .mae-menu-bar {
+	/*background: #F0F2CA url(../images/crumb_bg.png) repeat-x;*/  /*was buttonface*/
+	background-color: #C8D7E3;
+	font-family: Trebuchet, Arial, Helvetica, Sans-Serif;
+	font-weight: bold;
+	font-size: 11px; /* IE5.0 has the wierdest box model for inline elements */
+	text-align: center;
+	width: 132px;
+	margin: 0px;
+	/*padding: expression(constExpression(ie50 ? "1px" : "0px"));*/
+ 	\padding: 1px;
+	p\padding: 1px;
+	border: 0px;
+}
+
+.mae-menu-bar a .arrow {
+	border: 0;
+	/*margin-right: 3px;
+	margin-top: 0px;
+	width: 12px;
+	xxxheight: 16px;*/
+}
+
+#dealMenu .mae-menu-bar a,
+#dealMenu .mae-menu-bar a:visited,
+#dealMenu .mae-menu-bar a:visited:hover {
+	border-bottom: 1px solid ButtonShadow;
+	border-left: 1px solid ButtonHighlight;
+	border-right: 1px solid ButtonShadow;
+	border-top: 1px solid ButtonHighlight;
+		/*height: expression(constExpression(ie50 ? "17px" : "auto"));*/
+	\height: 17px:
+	h\eight: auto;
+	display: block;
+	width: 123px;
+	padding: 2px 4px 2px 4px;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+#dealMenu .mae-menu-bar a:hover {
+	/*background: #F0F2CA url(../images/deal_bg.png) repeat-x;*/
+	background-color: #eee;
+	border-bottom: 1px solid ButtonShadow;
+	border-left: 1px solid ButtonHighlight;
+	border-right: 1px solid ButtonShadow;
+	border-top: 1px solid ButtonHighlight;
+	color: #036;
+	text-decoration: none;
+}
+
+#dealMenu .mae-menu-bar a:active, .mae-menu-bar a:focus {
+	border-bottom: 1px solid ButtonHighlight;
+	border-left: 1px solid ButtonShadow;
+	border-right: 1px solid ButtonHighlight;
+	border-top: 1px solid ButtonShadow;
+	 /*ie-dummy: expression(this.hideFocus=true);
+	-moz-outline: none;
+	outline: none;
+		ie does not support outline but ie55 can hide the outline using
+		a proprietary property on HTMLElement. Did I say that IE sucks at CSS?
+	*/
+}
+
+/*BEGIN REGULAR MENU STUFF*/
+
+.mae-menu {
+	background: #fff;
+	border: 2px outset Menu;
+	filter: shadow(color=777777, direction=135, strength=4);
+	-moz-opacity: 1;
+	padding: 1px;
+	position: absolute;
+	visibility: hidden;
+	width: 150px;
+	z-index: 200;
+}
+
+.mae-menu a {
+	border: 0;
+	color: #000000;
+	cursor: default;
+	display: block;
+	font: Menu;
+	/*height: expression(constExpression("1px"));*/
+	height: 1px;
+	padding: 2px 6px 2px 6px;
+	text-decoration: none;
+	vertical-align: center;
+	/* width: expression(constExpression(ieBox ? "100%" : "auto")); should be ignored by mz and op */
+	\width: 100%;
+	w\idth: auto;
+	xxxheight: 18px;
+	xxxoverflow: hidden;
+}
+
+.mae-menu a .arrow {
+	border: 0;
+	float: right;
+	margin-right: 3px;
+	margin-top: 3px;
+	width: 3px;
+	xxxheight: 16px;
+}
+
+.mae-menu a:visited {
+	border: 0;
+	color: MenuText;
+}
+
+.mae-menu a:hover,
+.mae-menu a:visited:hover {
+	background: #036; /*was "Highlight"*/
+	border: 0;
+	color: HighlightText;
+	text-decoration: none;
+}
+
+/* separator */
+.mae-menu div {
+	border-bottom: 1px solid ButtonHighlight;
+	border-top: 1px solid ButtonShadow;
+	font-size: 0mm;
+	/*height: expression(constExpression(ieBox ? "2px" : "0px"));*/
+	\height: 2px;
+	h\eight: 0px;
+	margin: 0;
+	margin-bottom: 2px;
+	margin-top: 2px;
+	overflow: hidden;
+}
+
+.mae-menu, .mae-menu * {
+	box-sizing: content-box; 
+	-moz-box-sizing: content-box;
+}
+
+.mae-menu-bar {
+	background: #C8D7E3; /*was buttonface*/
+	border: 1px solid;
+	border-color: #C8D7E3 #2E3C35 #2E3C35 #C8D7E3;
+	font: normal 12px Verdana, Arial, Helvetica, sans-serif;
+	margin: 15px 15px 15px 15px;
+	width: auto;
+	height: 17px;
+	/*padding: expression(constExpression(ie50 ? "0px" : "1px"));*/
+	\padding: 1px;
+	p\adding: 0px;
+	white-space: nowrap;
+	clear: none;
+}
+
+.mae-menu-bar .vertbar{
+	display: inline-block;
+	background-color: #949896;
+	border-left: 1px solid #D2ECD5;
+	margin: 0px 15px 0px 15px;
+	width: 1px;
+	height: 19px;
+	float: left;
+}
+
+.mae-menu-bar a, .mae-menu-bar a:visited, .mae-menu-bar a:visited:hover {
+	border: 1px solid #C8D7E3;
+	color: #000;
+	/*height: expression(constExpression(ie50 ? "17px" : "auto"));*/
+	\height: 17px:
+	h\eight: auto;
+	padding: 1px 10px 1px 10px;
+	/* IE5.0 Does not paint borders and padding on inline 				   elements without a hieght/width */
+	text-decoration: none;
+	white-space: nowrap;
+	float: left;
+}
+
+.mae-menu-bar a#closeId, .mae-menu-bar a#saveId{
+	float: right;
+	background: #689183;
+	color: white;
+	border: 1px solid;
+	border-color: #C8D7E3 #2E3C35 #2E3C35 #C8D7E3;
+	margin: 0px 2px 0px 2px;
+	padding: 1px 6px 0px 6px;
+}
+
+.mae-menu-bar  a:active#closeId, .mae-menu-bar  a:active#saveId{
+	border: 1px solid;
+	border-color: #2E3C35 #C8D7E3 #C8D7E3 #2E3C35;
+	margin: 1px 1px 0px 3px;
+	
+}
+
+.mae-menu-bar a span{
+	font: bold 10px/14px  Verdana, Arial, Helvetica, sans-serif;
+	vertical-align: top;
+}
+
+.mae-menu-bar img.baricon{
+	/*margin: 1px 0px 0px 0px;*/
+	vertical-align: middle;
+}
+
+.mae-menu-bar a:hover {
+	background: #C8D7E3;
+	border-bottom: 1px solid ButtonShadow;
+	border-left: 1px solid ButtonHighlight;
+	border-right: 1px solid ButtonShadow;
+	border-top: 1px solid ButtonHighlight;
+	color: #036;
+	text-decoration: none;
+}
+
+
+.mae-menu-bar a:active, .mae-menu-bar a:focus {
+	border-bottom: 1px solid ButtonHighlight;
+	border-left: 1px solid ButtonShadow;
+	border-right: 1px solid ButtonHighlight;
+	border-top: 1px solid ButtonShadow;
+	/*ie-dummy: expression(this.hideFocus=true);
+	-moz-outline: none;
+	outline: none; 
+		ie does not support outline but ie55 can hide the outline using
+		a proprietary property on HTMLElement. Did I say that IE sucks at CSS?
+	*/
+}
+
+.mae-menu-empty {
+	color: MenuText;
+	display: block;
+	font: Menu;
+	height: 16px;
+	padding-left: 5px;
+	padding-right: 5px;
+}

@@ -1,0 +1,97 @@
+.left-accordion{
+	width:25%;
+	float: left;
+    height: calc(100% - 10px);
+    background-color: #fafafa;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    overflow:auto;
+}
+
+.left-tree{
+    margin-left: 0px;
+    width: 100%;
+    float: left;
+    height: calc(100% - 10px);
+    background-color: #fafafa;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    overflow:auto;
+}
+
+.diagram-container{
+	width: calc(75% - 10px);
+    height: calc(100% - 10px);
+    float: left;
+    margin-left: 5px;
+    margin-right: 5px;
+    background-color: #fafafa;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.diagram-paper{
+	width: calc(100% - 10px);
+    height: 80%;
+    float: left;
+    margin-left: 5px;
+    margin-right: 5px;
+    background-color: #fafafa;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/**** the midlle node in case********/
+.node {
+	fill: #7EC0EE;
+	stroke: #8B8682;
+	stroke-width: 0;
+}
+
+/******start node in one case ******/
+.startNode {
+	fill: #FF6EB4;
+	stroke: #8B8682;
+	stroke-width: 0;
+}
+
+/******end node in one case ********/
+.endNode {
+	fill: #8B8682;
+	stroke: #8B8682;
+	stroke-width: 0px;
+}
+
+/******start node in some cases and end node in some other cases***/
+.dbNode {
+	fill: #FF6EB4;
+	stroke: #8B8682;
+    stroke-width: 3px;
+}
+
+/********links in gragh**************/
+.link {
+	fill: none;
+	stroke: #9ACD32;
+	stroke-opacity: 0.5;
+	stroke-width: 2px;
+}
+
+.selectedlink{
+	fill: none;
+	stroke: #FF4500;
+	stroke-opacity: 0.5;
+	stroke-width: 2px;
+}
+
+.arrow {
+	fill: #FFB80F;
+} 
+
+/*****hulls in overall gragh *****/
+.hull {
+	fill: #D1EEEE;
+}
+
+/*******style of legend *********/
+.legendrect {
+	fill: #EAEAEA;
+	stroke:#3B3B3B;
+	stroke-width: 1px;
+} 

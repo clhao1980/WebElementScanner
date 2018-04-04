@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<!-- saved from url=(0042)http://9.111.221.116:8080/CTAP/app/#/login -->
+<html lang="en" ng-app="myApp" class="js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms no-csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths ng-scope" style="min-height:600px;"><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style type="text/css">[uib-typeahead-popup].dropdown-menu{display:block;}</style><style type="text/css">.uib-time input{width:50px;}</style><style type="text/css">[uib-tooltip-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-bottom > .tooltip-arrow,[uib-popover-popup].popover.top-left > .arrow,[uib-popover-popup].popover.top-right > .arrow,[uib-popover-popup].popover.bottom-left > .arrow,[uib-popover-popup].popover.bottom-right > .arrow,[uib-popover-popup].popover.left-top > .arrow,[uib-popover-popup].popover.left-bottom > .arrow,[uib-popover-popup].popover.right-top > .arrow,[uib-popover-popup].popover.right-bottom > .arrow,[uib-popover-html-popup].popover.top-left > .arrow,[uib-popover-html-popup].popover.top-right > .arrow,[uib-popover-html-popup].popover.bottom-left > .arrow,[uib-popover-html-popup].popover.bottom-right > .arrow,[uib-popover-html-popup].popover.left-top > .arrow,[uib-popover-html-popup].popover.left-bottom > .arrow,[uib-popover-html-popup].popover.right-top > .arrow,[uib-popover-html-popup].popover.right-bottom > .arrow,[uib-popover-template-popup].popover.top-left > .arrow,[uib-popover-template-popup].popover.top-right > .arrow,[uib-popover-template-popup].popover.bottom-left > .arrow,[uib-popover-template-popup].popover.bottom-right > .arrow,[uib-popover-template-popup].popover.left-top > .arrow,[uib-popover-template-popup].popover.left-bottom > .arrow,[uib-popover-template-popup].popover.right-top > .arrow,[uib-popover-template-popup].popover.right-bottom > .arrow{top:auto;bottom:auto;left:auto;right:auto;margin:0;}[uib-popover-popup].popover,[uib-popover-html-popup].popover,[uib-popover-template-popup].popover{display:block !important;}</style><style type="text/css">.uib-datepicker-popup.dropdown-menu{display:block;float:none;margin:0;}.uib-button-bar{padding:10px 9px 2px;}</style><style type="text/css">.uib-position-measure{display:block !important;visibility:hidden !important;position:absolute !important;top:-9999px !important;left:-9999px !important;}.uib-position-scrollbar-measure{position:absolute !important;top:-9999px !important;width:50px !important;height:50px !important;overflow:scroll !important;}.uib-position-body-scrollbar-measure{overflow:scroll !important;}</style><style type="text/css">.uib-datepicker .uib-title{width:100%;}.uib-day button,.uib-month button,.uib-year button{min-width:100%;}.uib-left,.uib-right{width:100%}</style><style type="text/css">.ng-animate.item:not(.left):not(.right){-webkit-transition:0s ease-in-out left;transition:0s ease-in-out left}</style><style type="text/css">@charset "UTF-8";[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>CTAP</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/main.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/style.min.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/sweetalert.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/dataTable.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/material.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/angucomplete-alt.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/ui-grid.min.css">
+	<link rel="stylesheet" type="text/css" href="./CTAP_login_files/ui-bootstrap-csp.css">
+	<link rel="stylesheet" type="text/css" href="./CTAP_login_files/sweetalert2.min.css">
+	<link rel="stylesheet" type="text/css" href="./CTAP_login_files/app.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/case.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/widget.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/suite.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/task.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/debugCase.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/login.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/report.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/execution.css">
+    <link rel="stylesheet" type="text/css" href="./CTAP_login_files/diagram.css">
+<style type="text/css" abt="234"></style><script>//console.log('a')
+</script><script>doAdblock();
+function doAdblock(){
+    (function() {
+        function A() {}
+        A.prototype = {
+            rules: {
+                'pps_pps': {
+                    'find': /^http:\/\/www\.iqiyi\.com\/player\/cupid\/common\/pps_flvplay_s\.swf/,
+                    'replace': 'http://swf.adtchrome.com/pps_20140420.swf'
+                },
+                '17173_in':{
+                    'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/PreloaderFile(Customer)?\.swf/,
+                    'replace':"http://swf.adtchrome.com/17173_in_20150522.swf"
+                },
+                '17173_out':{
+                    'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/PreloaderFileFirstpage\.swf/,
+                    'replace':"http://swf.adtchrome.com/17173_out_20150522.swf"
+                },
+                '17173_live':{
+                    'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/Player_stream(_firstpage)?\.swf/,
+                    'replace':"http://swf.adtchrome.com/17173_stream_20150522.swf"
+                },
+                '17173_live_out':{
+                    'find':/http:\/\/f\.v\.17173cdn\.com\/(\d+\/)?flash\/Player_stream_(custom)?Out\.swf/,
+                    'replace':"http://swf.adtchrome.com/17173.out.Live.swf"
+                }
+            },
+            _done: null,
+            get done() {
+                if(!this._done) {
+                    this._done = new Array();
+                }
+                return this._done;
+            },
+            addAnimations: function() {
+                var style = document.createElement('style');
+                style.type = 'text/css';
+                style.innerHTML = 'object,embed{\
+                -webkit-animation-duration:.001s;-webkit-animation-name:playerInserted;\
+                -ms-animation-duration:.001s;-ms-animation-name:playerInserted;\
+                -o-animation-duration:.001s;-o-animation-name:playerInserted;\
+                animation-duration:.001s;animation-name:playerInserted;}\
+                @-webkit-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
+                @-ms-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
+                @-o-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}\
+                @keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}';
+                document.getElementsByTagName('head')[0].appendChild(style);
+            },
+            animationsHandler: function(e) {
+                if(e.animationName === 'playerInserted') {
+                    this.replace(e.target);
+                }
+            },
+            replace: function(elem) {
+                if (/http:\/\/v.youku.com\/v_show\/.*/.test(window.location.href)){
+                    var tag = document.getElementById("playerBox").getAttribute("player")
+                    if (tag == "adt"){
+                        console.log("adt adv")
+                        return;
+                    }
+                }
+                if(this.done.indexOf(elem) != -1) return;
+                this.done.push(elem);
+                var player = elem.data || elem.src;
+                if(!player) return;
+                var i, find, replace = false;
+                for(i in this.rules) {
+                    find = this.rules[i]['find'];
+                    if(find.test(player)) {
+                        replace = this.rules[i]['replace'];
+                        if('function' === typeof this.rules[i]['preHandle']) {
+                            this.rules[i]['preHandle'].bind(this, elem, find, replace, player)();
+                        }else{
+                            this.reallyReplace.bind(this, elem, find, replace)();
+                        }
+                        break;
+                    }
+                }
+            },
+            reallyReplace: function(elem, find, replace) {
+                elem.data && (elem.data = elem.data.replace(find, replace)) || elem.src && ((elem.src = elem.src.replace(find, replace)) && (elem.style.display = 'block'));
+                var b = elem.querySelector("param[name='movie']");
+                this.reloadPlugin(elem);
+            },
+            reloadPlugin: function(elem) {
+                var nextSibling = elem.nextSibling;
+                var parentNode = elem.parentNode;
+                parentNode.removeChild(elem);
+                var newElem = elem.cloneNode(true);
+                this.done.push(newElem);
+                if(nextSibling) {
+                    parentNode.insertBefore(newElem, nextSibling);
+                } else {
+                    parentNode.appendChild(newElem);
+                }
+            },
+            init: function() {
+                var handler = this.animationsHandler.bind(this);
+                document.body.addEventListener('webkitAnimationStart', handler, false);
+                document.body.addEventListener('msAnimationStart', handler, false);
+                document.body.addEventListener('oAnimationStart', handler, false);
+                document.body.addEventListener('animationstart', handler, false);
+                this.addAnimations();
+            }
+        };
+        new A().init();
+    })();
+}
+// 20140730
+(function cnbeta() {
+    if (document.URL.indexOf('cnbeta.com') >= 0) {
+        var elms = document.body.querySelectorAll("p>embed");
+        Array.prototype.forEach.call(elms, function(elm) {
+            elm.style.marginLeft = "0px";
+        });
+    }
+})();
+//baidu
+if(document.URL.indexOf('www.baidu.com') >= 0){
+    if(document && document.getElementsByTagName && document.getElementById && document.body){
+        var aa = function(){
+            var all = document.body.querySelectorAll("#content_left div,#content_left table");
+            for(var i = 0; i < all.length; i++){
+                if(/display:\s?(table|block)\s!important/.test(all[i].getAttribute("style"))){all[i].style.display= "none";all[i].style.visibility='hidden';}
+            }
+            all = document.body.querySelectorAll('.result.c-container[id="1"]');
+            //if(all.length == 1) return;
+            for(var i = 0; i < all.length; i++){
+                if(all[i].innerHTML && all[i].innerHTML.indexOf('广告')>-1){
+                    all[i].style.display= "none";all[i].style.visibility='hidden';
+                }
+            }
+        }
+        aa();
+        document.getElementById('wrapper_wrapper').addEventListener('DOMSubtreeModified',aa)
+    };
+}
+if (document.URL.indexOf("tv.sohu.com") >= 0){
+    if (document.cookie.indexOf("fee_status=true")==-1){document.cookie='fee_status=true'};
+}
+if (document.URL.indexOf("56.com") >= 0){
+    if (document.cookie.indexOf("fee_status=true")==-1){document.cookie='fee_status=true'};
+}
+if (document.URL.indexOf("iqiyi.com") >= 0){
+    if (document.cookie.indexOf("player_forcedType=h5_VOD")==-1){
+        document.cookie='player_forcedType=h5_VOD'
+        if(localStorage.reloadTime && Date.now() - parseInt(localStorage.reloadTime)<60000){
+            console.log('no reload')
+        }else{
+            location.reload()
+            localStorage.reloadTime = Date.now();
+        }
+    }
+}
+</script><style type="text/css">object,embed{                -webkit-animation-duration:.001s;-webkit-animation-name:playerInserted;                -ms-animation-duration:.001s;-ms-animation-name:playerInserted;                -o-animation-duration:.001s;-o-animation-name:playerInserted;                animation-duration:.001s;animation-name:playerInserted;}                @-webkit-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @-ms-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @-o-keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}                @keyframes playerInserted{from{opacity:0.99;}to{opacity:1;}}</style></head>
+<body class="" style="">
+<div class="top-menu ng-hide" ng-hide="isLogin" ng-init="init()">
+    <div style="float:left; margin-left: 1%; margin-top: 10px;">
+		<h4 class="top-title">CTAP</h4>
+    </div>
+    <ul class="nav nav-pills ul-nav">
+        <li role="presentation" ng-class="widgetClass" class="nav-item locate-widget-nav" uib-tooltip="Widget Location" tooltip-placement="bottom"><a class="icon-widget" ng-click="checkBeforeLeave(&#39;/widget&#39;)"></a><div></div></li>
+        <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="taskClass" class="nav-item compose-task-nav" uib-tooltip="Task Composition" tooltip-placement="bottom"><a class="icon-task" ng-click="checkBeforeLeave(&#39;/task&#39;)"></a><div></div></li>       
+        <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="caseClass" class="nav-item compose-case-nav active" uib-tooltip="Case Composition" tooltip-placement="bottom"><a class="icon-case" ng-click="checkBeforeLeave(&#39;/case&#39;)"></a><div></div></li>
+         <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="debugClass" class="nav-item run-case-nav" uib-tooltip="Debug Case" tooltip-placement="bottom"><a class="icon-debug" ng-click="checkBeforeLeave(&#39;/debug&#39;)"></a><div></div></li>
+        <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="suiteClass" class="nav-item compose-suite-nav" uib-tooltip="Suite Composition" tooltip-placement="bottom"><a class="icon-suite" ng-click="checkBeforeLeave(&#39;/suite&#39;)"></a><div></div></li>
+        <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="executionClass" class="nav-item excute-suite-nav" uib-tooltip="Execution" tooltip-placement="bottom"><a class="icon-execute" ng-click="checkBeforeLeave(&#39;/execution&#39;)"></a><div></div></li>
+        <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="queueClass" class="nav-item work-queue-nav" uib-tooltip="Work Queue" tooltip-placement="bottom"><a class="icon-workqueue" ng-click="checkBeforeLeave(&#39;/workQueue&#39;)"></a><div></div></li>
+        <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="reportClass" class="nav-item excute-result-nav" uib-tooltip="Report" tooltip-placement="bottom"><a class="icon-report" ng-click="checkBeforeLeave(&#39;/report&#39;)"></a><div></div></li>
+        <!-- <li class="nav-line"><div></div></li>
+        <li role="presentation" ng-class="diagramClass" class="nav-item show-diagram-nav" uib-tooltip="Diagram" tooltip-placement="bottom"><a class="icon-diagram" ng-click= checkBeforeLeave('/diagram')></a><div></div></li> -->
+    </ul>
+    <div style="float:right; margin-right: 1%; margin-top: 10px;">
+		<button class="btn btn-default" ng-click="logout()">Logout</button>
+    </div>
+</div>
+
+<!--[if lt IE 7]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+    your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<!-- ngView: --><div ng-view="" style="height:calc(100% - 70px);" class="ng-scope"><div class="login login-css ng-scope" style="height:calc(100% + 70px);">
+	<div id="placeholder-top" style="padding-bottom: 12%"></div>
+	<div class="row">
+		<div class="col-md-4"></div>
+		<div class="col-md-4 main">
+			<div class="row" style="height: 15px"></div>
+			<div class="row">
+				<div class="col-md-12 input-group input-group-md">
+					<label style="height: 28px">Tenant ID:</label><input type="text" class="input ng-pristine ng-untouched ng-valid ng-empty" placeholder="Tenant ID" ng-model="user.username">
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 input-group input-group-md">
+					<label>Password:</label><input type="password" placeholder="Password" class="input ng-pristine ng-untouched ng-valid ng-empty" ng-model="user.password">
+				</div>
+			</div>
+			<div class="row" ng-show="true">
+				<div class="col-md-12 input-group input-group-md">
+					<label>Operator:</label><input type="text" placeholder="Operator" class="input ng-pristine ng-untouched ng-valid ng-empty" ng-model="user.operator">
+				</div>
+			</div>
+			<div class="row" style="height: 15px"></div>
+			<div class="row">
+				<div class="col-md-12 text-center">
+					<button class="btn btn-primary" ng-click="submit()">Submit</button>
+					<button class="btn btn-default" ng-click="reset()">Reset</button>
+				</div>
+			</div>
+			<div class="row" style="height: 15px"></div>
+			<div class="col-md-4"></div>
+		</div>
+	</div>
+	<div id="placeholder-bottom" style="padding-bottom: 23%"></div>
+</div></div>
+
+<!-- In production use:
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
+-->
+<script src="./CTAP_login_files/modernizr-2.8.3.min.js.下载"></script>
+<script src="./CTAP_login_files/jquery.js.下载"></script>
+<script src="./CTAP_login_files/angular.js.下载"></script>
+<script src="./CTAP_login_files/d3.min.js.下载"></script>
+<script src="./CTAP_login_files/angular-animate.js.下载"></script>
+<script src="./CTAP_login_files/angular-route.js.下载"></script>
+<script src="./CTAP_login_files/bootstrap.js.下载"></script>
+<script src="./CTAP_login_files/ui-bootstrap.js.下载"></script>
+<script src="./CTAP_login_files/jstree.js.下载"></script>
+<script src="./CTAP_login_files/ngJsTree.min.js.下载"></script>
+<script src="./CTAP_login_files/sweetalert.min.js.下载"></script>
+<script src="./CTAP_login_files/ng-sweet-alert.js.下载"></script>
+<script src="./CTAP_login_files/dataTable.js.下载"></script>
+<script src="./CTAP_login_files/angular-sanitize.js.下载"></script>
+<script src="./CTAP_login_files/angucomplete-alt.js.下载"></script>
+<script src="./CTAP_login_files/ui-grid.min.js.下载"></script>
+<script src="./CTAP_login_files/draggable-rows.js.下载"></script>
+<script src="./CTAP_login_files/ui-bootstrap-tpls.min.js.下载"></script>
+<script src="./CTAP_login_files/sweetalert2.min.js.下载"></script>
+<script src="./CTAP_login_files/app.js.下载"></script>
+
+
+<script src="./CTAP_login_files/config.service.js.下载"></script>
+<script src="./CTAP_login_files/utils.js.下载"></script>
+<script src="./CTAP_login_files/buildTree.js.下载"></script>
+<script src="./CTAP_login_files/buildDiagram.js.下载"></script>
+<script src="./CTAP_login_files/swalMessage.js.下载"></script>
+
+<script src="./CTAP_login_files/case.js.下载"></script>
+<script src="./CTAP_login_files/widget.js.下载"></script>
+<script src="./CTAP_login_files/task.js.下载"></script>
+<script src="./CTAP_login_files/login.js.下载"></script>
+<script src="./CTAP_login_files/report.js.下载"></script>
+
+<script src="./CTAP_login_files/caseService.js.下载"></script>
+<script src="./CTAP_login_files/widgetService.js.下载"></script>
+<script src="./CTAP_login_files/taskService.js.下载"></script>
+<script src="./CTAP_login_files/suite.js.下载"></script>
+<script src="./CTAP_login_files/task.js.下载"></script>
+<script src="./CTAP_login_files/suiteService.js.下载"></script>
+<script src="./CTAP_login_files/debugCase.js.下载"></script>
+<script src="./CTAP_login_files/debugCaseService.js.下载"></script>
+<script src="./CTAP_login_files/reportService.js.下载"></script>
+<script src="./CTAP_login_files/execution.js.下载"></script>
+<script src="./CTAP_login_files/executionService.js.下载"></script>
+<script src="./CTAP_login_files/workQueue.js.下载"></script>
+<script src="./CTAP_login_files/workQueueService.js.下载"></script>
+<script src="./CTAP_login_files/diagram.js.下载"></script>
+<script src="./CTAP_login_files/diagramService.js.下载"></script>
+
+<!-- 导航栏的active切换-->
+<script>
+    $(document).ready(function () {
+        /* $('ul.nav li').on('click', function () {
+            $('ul.nav li.nav-item').removeClass('active');
+            $(this).addClass('active');
+        }); */
+        
+        $('ul.nav li.not-available-nav').on('click', function () {
+        	swal('','This function will be available in next release!', 'info');
+        });
+      
+    })
+</script>
+
+
+</body></html>

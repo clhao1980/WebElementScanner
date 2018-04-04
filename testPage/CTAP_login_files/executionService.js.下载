@@ -1,0 +1,74 @@
+/**
+ * Created by Bo.
+ */
+"use strict";
+app.service('ExecutionService',
+		function($log, Utils, Config) {
+			var service = {};
+			service.getCaseDebugData = function(id) {
+				return Utils
+						.ctapGet(Config.RestMapping.getCaseDebugDataUrl(id));
+			};
+
+			service.getTagsByTaskId = function(taskId) {
+				return Utils
+						.ctapGet(Config.RestMapping.tagsByTaskIdUrl(taskId));
+			};
+
+			service.updateSuiteExecution = function(executionModel) {
+				var data = {};
+				if (executionModel["suite id"]) {
+					data = {
+						suite_id : executionModel["suite id"],
+						suite_name : executionModel["suite name"],
+						suite_type : "suite",
+						profile : executionModel.data
+
+					}
+				} else if (executionModel["seq suite id"]) {
+					data = {
+						suite_id : executionModel["seq suite id"],
+						suite_name : executionModel["seq suite name"],
+						suite_type : "seqsuite",
+						profile : executionModel.data
+					}
+
+				} else {
+					swal('', 'Can not determine the suite type', 'error')
+				}
+
+				$log.debug("service.updateSuiteExecution - data: ", data)
+				return Utils.ctapPost(
+						Config.RestMapping.updateSuiteExecutionUrl, data);
+			}
+
+			service.executeSuite = function(suiteId, executeMeta) {
+
+				return Utils.ctapPost(Config.RestMapping
+						.executeSuiteUrl(suiteId), executeMeta);
+			};
+			service.executeSubSuite = function(subSuiteId, executeMeta) {
+
+				return Utils.ctapPost(Config.RestMapping
+						.executeSubSuiteUrl(subSuiteId), executeMeta);
+			};
+
+			service.getSuiteWithTagById = function(suiteId) {
+				return Utils.ctapGet(Config.RestMapping
+						.suiteWithTagByIdUrl(suiteId));
+			};
+			service.getSubSuiteWithTagById = function(subSuiteId) {
+				return Utils.ctapGet(Config.RestMapping
+						.subSuiteWithTagByIdUrl(subSuiteId));
+			};
+			service.scheduleSuite = function(suiteId, executeMeta) {
+				return Utils.ctapPost(Config.RestMapping
+						.scheduleSuiteUrl(suiteId), executeMeta);
+			}
+			service.scheduleSubSuite = function(subSuiteId, executeMeta) {
+				return Utils.ctapPost(Config.RestMapping
+						.scheduleSubSuiteUrl(subSuiteId), executeMeta);
+			}
+
+			return service;
+		});

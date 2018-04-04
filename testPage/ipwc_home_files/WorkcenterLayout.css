@@ -1,0 +1,139 @@
+html, body
+{	
+	overflow: hidden;		
+	width: 100%;
+	height: 100%;
+}
+#WorkcenterLayoutTable
+{
+	border-collapse:separate; 
+	border-spacing:15px 10px;
+}		
+#PageLayoutTable
+{
+	width: 100%;
+	height: 100%;
+	border-style: none;
+}
+#PageHeaderCell
+{
+	height: 77px;
+}
+#MainViewPaneCell
+{
+	height: 100%;
+	width: 100%;
+}
+#MainViewPane
+{
+	overflow: auto;
+	overflow-y: scroll;
+	position: relative;
+	height:100%;
+	background-color: #F1F1F1;
+}
+#MainViewPaneContent
+{
+	overflow: visible;
+	position: relative;
+}
+#MainViewPaneTable
+{
+	width: 100%;
+	position: relative;
+}
+#ServerEventMessagesTarget
+{
+	position:absolute;
+	right:1.6em;
+	font-weight:bold;
+	height:1.4em;
+	width:70%;
+	text-align:right;
+}
+
+#parentGridContainer #mainContainer #mainContainer_header {
+	border:0;
+}
+
+#parentGridContainer #mainContainer #mainContainer-body #menuButtonContainer #menuButtonContainer-body {
+	border:0;
+}
+
+#parentGridContainer #mainContainer #mainContainer-body #menuButtonContainer #menuButtonContainer-body {
+	border:0;
+}
+
+#parentGridContainer #mainContainer #mainContainer-body #headerContainer #headerContainer_header #headerContainer_header-body #headerContainer_header-innerCt #headerContainer_header-innerCt #headerContainer_header-targetEl #headerContainer_header_hd #headerContainer_header_hd-textEl div label {
+	/*not implemented yet*/
+}
+
+#parentGridContainer #mainContainer #mainContainer-body #statusButtonContainer #statusButtonContainer-body {
+	border:0;
+}
+
+.leftLabelStatusButtonContainer {
+	margin:15px 0px 0px 15px;
+	float:left;
+}
+
+.leftButtonStatusButtonContainer {
+	margin:10px 0px 0px 5px;
+	float:left;
+}
+
+.rightTextFieldStatusButtonContainer {
+	margin:12px 0px 0px 25px;
+	float:right;
+}
+
+.rightButtonStatusButtonContainer {
+	margin:12px 0px 0px 20px;
+}
+
+#dateSelectorCell {
+	width:700px;
+}
+
+#dateSelectorsContainer {
+	float:left;
+	width:75%;
+	height:25px;
+}
+
+#dateSelectorsContainer .dateLabels {
+	float:left;
+	font:normal 12px Arial;
+	margin: 3px 5px 0 0;
+}
+
+#dateInputsContainer {
+	height:25px;
+	width:100%;
+}
+
+.x-form-item-label {
+    -moz-user-select: none;
+    cursor: default;
+    display: block;
+    font-size: 12px;
+    margin-left: 5px;
+    padding: 3px 0 0;
+}
+
+/*#dateSelectorsContainer .dateLabels:first-child {
+	margin-left:15px !important;
+}
+
+#dateSelectorsContainer div {
+	float:right;
+	margin-right: 25px;
+}
+
+#dateSelectorsContainer div label {
+	float:left !important;
+}
+
+#dateSelectorsContainer div input {
+	float:right !important;
+}*/

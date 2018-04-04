@@ -1,0 +1,205 @@
+/**
+ * Created by lizhu on 2017/3/15.
+ */
+"use strict";
+app.service('TaskService',function(Utils,Config) {
+        var service = {};
+        service.getTaskTreeData = function () {
+            return Utils.ctapGet(Config.RestMapping.taskTreeUrl);
+        };
+
+        service.removeTask = function(model){
+            var data = {
+                "name":model.name,
+                "id":model.id
+            };
+            return Utils.ctapPost(Config.RestMapping.removeTaskUrl,data);
+        };
+
+        service.getAllTaskFolder = function () {
+            return Utils.ctapGet(Config.RestMapping.allTaskFolderUrl);
+        };
+
+        service.createFolderInTaskTree = function(model){
+            var data = {
+                "name":model.text,
+                "desc":model.desc,
+                "id":"",
+                "pEggId":model.parent
+            };
+            return Utils.ctapPost(Config.RestMapping.createTaskFolderUrl,data);
+        };
+
+        service.renameFolderInTaskTree = function (model) {
+            var data = {
+                "id":model.id,
+                "name":model.text,
+            };
+            return Utils.ctapPost(Config.RestMapping.renameTaskFolderUrl,data);
+        };
+
+        service.removeTaskFolder = function (model) {
+            var data = {
+                "name": model.text,
+                "id": model.id
+            };
+            return Utils.ctapPost(Config.RestMapping.removeTaskFolderUrl,data);
+        };
+
+        service.getTaskById = function (id) {
+            return Utils.ctapGet(Config.RestMapping.taskByIdUrl(id));
+        };
+
+        service.createTask = function (model,folderId) {
+            delete model["steps"];
+            return Utils.ctapPost(Config.RestMapping.createCaseUrl,model);
+        };
+
+        service.mappingTaskFolder = function (taskId,folderId) {
+            var data = [{
+                "type": "link",
+                "p_egg_id": folderId,
+                "c_egg_id": taskId
+            }];
+            return Utils.ctapPost(Config.RestMapping.mappingTaskFolderUrl,data);
+        };
+
+        service.setTaskSStep = function(data){
+        	var taskStep = angular.copy(data.steps);
+            for(var i=0;i<taskStep.length;i++){
+                if(taskStep[i].arguments){
+                	 for(var j=0;j<taskStep[i].arguments.length;j++){
+                         if(taskStep[i].arguments[j].type == "Value from Result Map"){
+                             taskStep[i].arguments[j].type = "JAVATYPE";
+                         }
+                     } 
+                }   
+            }
+            // console.log(taskStep);
+        	var result={ task_id:data.id, steps:[]}
+        	angular.forEach(taskStep,function(step){
+        		angular.forEach(step.arguments,function(arg){
+        			if(arg.updateFlag){
+        				delete arg.updateFlag
+        			}
+        		});
+        		var item={
+        				method_id:step.method_id,	
+        				widget_id:step.widget_id,
+        				result:step.result,
+        				arguments:step.arguments?step.arguments:[],
+        		};
+        		result.steps.push(item);
+        	});
+        	return Utils.ctapPost(Config.RestMapping.setTaskSStep,result);
+        }
+        
+        // update exist Task (Task id exist)
+        service.updateTask = function (model,folderId) {
+            var tasks = angular.copy(model);
+            delete tasks["steps"];            
+            return Utils.ctapPost(Config.RestMapping.updateTaskUrl,tasks);
+        };
+        
+        // create Task (Task id not exist)
+        service.createTask = function (model){
+            var tasks = angular.copy(model);
+            delete tasks["steps"];
+            return Utils.ctapPost(Config.RestMapping.createTaskUrl,tasks);
+        }
+
+        service.getValueById = function(data,attr,value){
+        	var result=null;
+        	if(data){
+        		for(var i=0;i<data.length;i++){
+            	    if(	data[i][attr]==value){
+            	    	result=data[i];break;
+            	    }
+            	}
+            	return result;
+        	}       	
+        };
+        
+        service.processArgumentTypeData = function(sourceType){
+        	var data = [];
+			if(sourceType == 'JAVATYPE'){
+				data = [
+			               {name:"Value from Result Map", id:"Value from Result Map"}       
+			           ];
+			}else if(sourceType == 'STRING'){
+				data = [
+			               {name:"STRING", id:"STRING"},
+			               {name:"Value from Result Map", id:"Value from Result Map"}       
+			           ];
+			}else if(sourceType == 'NUMBER'){
+				data = [
+			               {name:"NUMBER", id:"NUMBER"},
+			               {name:"Value from Result Map", id:"Value from Result Map"}       
+			           ];
+			}else if(sourceType == 'WIDGET'){
+				data = [
+			               {name:"WIDGET", id:"WIDGET"},
+			               {name:"Value from Result Map", id:"Value from Result Map"}       
+			           ];
+			}else if(sourceType == 'BOOLEAN'){
+				data = [
+			               {name:"BOOLEAN", id:"BOOLEAN"},
+			               {name:"Value from Result Map", id:"Value from Result Map"}       
+			           ];
+			} 
+			return data;
+        }
+
+        service.transferEditArgToStep = function(args){
+        	var data= angular.copy(args);
+        	angular.forEach(data,function(arg){
+        		
+        		if(arg.value&&arg.type=='WIDGET'&&typeof arg.value=='object'){
+        			var oldValue=arg.value;
+        			arg.value=oldValue.originalObject.id;
+        		}
+        		if(arg.tag==""){
+        			arg.tag=null;
+        		}
+                // if(arg.type=="Value from Result Type"){
+                //     arg.tag="JAVATYPE";
+                // }
+        	});
+        	return data;
+        }
+        service.createWidgetFolder = function (model) {
+            var data = {"name":model.text,"desc":model.desc,"pFolderId":model.parent,"type":"WIDGET"};
+            return Utils.ctapPost(Config.RestMapping.createFolderUrl,data);
+        };
+
+        service.renameWidgetFolder = function (model) {
+            var data = {"name":model.text,"id":model.id,"pFolderId":null,"type":"WIDGET"};
+            return Utils.ctapPost(Config.RestMapping.renameFolderUrl,data);
+        };
+
+        service.removeWidgetFolder = function (model) {
+            var data = {"name":model.text,"id":model.id};
+            return Utils.ctapPost(Config.RestMapping.removeWidgetFolderUrl,data);
+        };
+
+        service.removeWidget = function(model) {
+            var data = {"id":model.id,"name":model.name};
+            return Utils.ctapPost(Config.RestMapping.widgetRemoveUrl,data);
+        };
+
+        service.getWidgetTreeData = function () {
+            return Utils.ctapGet(Config.RestMapping.getWidgetTreeUrl);  
+        };
+
+        service.getWidgetAllData = function() {
+            return Utils.ctapGet(Config.RestMapping.widgetGetAllUrl);
+        };
+
+        service.getWidgetPrototypeWithOthersUrl = function(id){
+            return Utils.ctapGet(Config.RestMapping.getWidgetPrototypeWithOthersUrl(id));
+        };
+        service.getMehtodWithType = function(id){
+            return Utils.ctapGet(Config.RestMapping.getMehtodWithTypeUrl(id));
+        };
+        return service;
+    });

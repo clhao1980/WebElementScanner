@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="10px" height="6px" viewBox="0 0 10 6" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 46.2 (44496) - http://www.bohemiancoding.com/sketch -->
+    <title>arrow copy 2</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="ui-kit" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" opacity="0.7">
+        <g id="light-theme" transform="translate(-521.000000, -1203.000000)" fill="#ffffff">
+            <path d="M525.039026,1208.76317 C525.298156,1209.07718 525.78467,1209.07931 526.04692,1208.76731 L530.008355,1204.05001 C530.237908,1203.77707 530.1987,1203.37293 529.921526,1203.14692 C529.643809,1202.92132 529.233135,1202.95985 529.004124,1203.23279 L525.559864,1207.35941 L522.157527,1203.23692 C521.930686,1202.96199 521.520555,1202.92025 521.240668,1203.14372 C520.961458,1203.36666 520.918994,1203.7708 521.145834,1204.04587 L525.039026,1208.76317 Z" id="arrow-copy-2" transform="translate(525.578947, 1206.000000) rotate(-180.000000) translate(-525.578947, -1206.000000) "></path>
+        </g>
+    </g>
+</svg>

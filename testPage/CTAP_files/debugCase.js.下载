@@ -1,0 +1,561 @@
+'use strict';
+
+angular.module('myApp.debugCase', ['ngRoute'])
+
+    .config(['$routeProvider', function($routeProvider) {
+        $routeProvider.when('/debug', {
+            templateUrl: './modules/debug/debugCase.html',
+            controller: 'debugCaseCtrl'
+        });
+    }])
+
+    .controller('debugCaseCtrl', function($location, $scope,$rootScope,$log,$timeout,CaseService,debugCaseService,BuildTree) {
+    	if($rootScope.curUser == ""){
+    		$location.path("/login")
+    	}	
+    	//set the style to "active" for the users input URL directly.
+		$rootScope.activeNavButton("debug");
+    	
+    	$scope.caseDebugData = [];
+        $scope.debugTableData = [];
+        $scope.executionEnv =[];
+        $scope.productionUrl =[];
+        $scope.execute_meta = {};
+        $scope.debugdatavalue ="Default value in task";
+        $scope.initTableData = true;
+        $scope.initDebugCaseModel = function () {
+        	 $scope.caseDebugData = [];
+             $scope.debugTableData = [];
+             $scope.initTableData = false;
+        };
+        
+        $rootScope.checkBeforeLeaveInDebug = function(targetUrl){
+			if($scope.debugTableData!=""){
+				if ($scope.currentDataModel.case_id != ""){
+					var preTable = localStorage.getItem("selectedData.table");
+					var newTable = angular.copy($scope.debugTableData);//clean the $$hashKey
+					if(JSON.stringify(newTable)!=preTable){
+			            swal({
+		                    title: '',
+		                    text: "Are you sure to leave without save?",
+		                    type: 'warning',
+		                    showCancelButton: true,
+		                    confirmButtonText: "YES",
+		                    cancelButtonText: "NO",
+		                    }).then(function () {		                        
+		                    		$location.path(targetUrl);
+		                    		$scope.$apply();
+		                    		},function() {
+		                    			$log.info("User give up leave");
+		                    			}
+		                    		);
+							} else {
+								$location.path(targetUrl);
+							}																					
+				} else {
+					swal({
+	                    title: '',
+	                    text: "Are you sure to leave without save?",
+	                    type: 'warning',
+	                    showCancelButton: true,
+	                    confirmButtonText: "YES",
+	                    cancelButtonText: "NO",
+	                    }).then(function () {		                        
+	                    		$location.path(targetUrl);
+	                    		$scope.$apply();
+	                    		},function() {
+	                    			$log.info("User give up leave");
+	                    			}
+	                    		);
+						}				
+			} else {
+				$location.path(targetUrl);
+			}
+		};
+        
+        BuildTree.searchTree("#search-case", "#case-tree");
+        
+        $scope.initCurrentDataModel = function () {
+            $scope.currentDataModel = {"case_id":"","case_name":"",profile:[]};
+        };
+        
+        $scope.initCurrentDataModel();
+    	
+        $scope.initCurrentCaseModel = function () {
+            $scope.currentCaseModel = {"id":"","name":"","desc":"","user_name":"",tasks:[]};
+            //case/{id}/get_case_with_task
+            //$scope.caseTreeData = [];
+        };
+
+        $scope.initCurrentCaseModel();
+
+        $scope.initCurrentUrlrModel = function () {
+            $scope.currentUrlModel = {"id":"","name":"","app_url":"","user_name":"currency", "_default": null};
+        };
+        
+        $scope.sysWidget = ["SYSTEM","WEBDRIVER","ASSERTION","CommonActions","Cookies","FindSingleElement","FindElementsList",
+        	"FrameActions","KeyActions","MouseActions","TimeOut","ElementAttributes","ElementStatus","WindowActions"];
+        
+        $scope.envgridOptions = {
+                multiSelect: true,
+                enableRowSelection: true,
+                enableSelectAll: true,
+                enableColumnMenus: false,
+                columnDefs: [
+                {
+                    name: "Platform",
+                    field: "platform",
+                    width:'20%'
+                }, {
+                    name: "Browser",
+                    field: "browser",
+                    width:'20%'
+                },
+                {
+                    name: "Version",
+                    field: "version",
+                    width:'20%'
+                },{
+                	displayName : 'VM',
+                    field: "url"
+                }
+                ]
+               
+            };
+        
+        $scope.envgridOptions.onRegisterApi = function( gridApi ) {
+       	 $scope.envgridApi = gridApi;
+       }
+        
+        $scope.urlgridOptions = {
+                multiSelect: false,
+                enableRowSelection: true,
+                enableRowHeaderSelection : false,
+                enableColumnMenus: false,
+                columnDefs: [
+                {
+                    name: "Id",
+                    field: "id",
+                    visible: false
+                },
+                {
+                    name: "Name",
+                    field: "name",
+                    enableHiding: true,
+                    width:'23%'
+                }, {
+                    name: "Application Url",
+                    displayName : 'Application URL',
+                    enableCellEdit: true,
+                    field: "app_url"
+                }
+                ]
+               
+            };
+         
+         $scope.urlgridOptions.onRegisterApi = function( gridApi ) {
+       	 $scope.urlgridApi = gridApi;
+       }
+        	  
+        $scope.getExecutionEnv = function(){
+        	debugCaseService.getExecutionEnv().then(function (data) {
+                 $log.debug('After get execution env success', data);
+                 $scope.executionEnv = data.value;
+                 $scope.envgridOptions.data = $scope.executionEnv;
+                 $scope.selectDefaultEnv();
+             }, function (reason) {
+                 $log.debug('Get case tree failed');
+             });
+        	
+        	
+        };
+        
+        $scope.getProductionAppUrl = function(){
+        	debugCaseService.getProductionAppUrl().then(function (data) {
+                 $log.debug('After get execution env success', data);
+                 $scope.productionUrl = data.value;
+                 $scope.urlgridOptions.data = $scope.productionUrl;
+                 $scope.selectDefaultRow();
+             }, function (reason) {
+//                 $log.debug('Get case tree failed');
+                 $location.path("/login");
+             });	
+        }
+        
+        $scope.getExecutionEnv();
+        $scope.getProductionAppUrl();
+        
+        $scope.selectDefaultRow = function(){
+        	$scope.urlgridApi.grid.modifyRows($scope.urlgridOptions.data);
+        	for(var n in $scope.urlgridOptions.data){
+        		if( $scope.urlgridOptions.data[n]._default){
+      			     $scope.urlgridApi.selection.selectRow($scope.urlgridOptions.data[n]);
+      			     break;
+        		}
+        	}
+        	if($scope.urlgridApi.selection.getSelectedCount() == 0)
+        	{
+        		$scope.urlgridApi.selection.selectRow($scope.urlgridOptions.data[0]);
+        	}
+        };
+        
+        $scope.selectDefaultEnv = function(){
+            $scope.envgridApi.grid.modifyRows($scope.envgridOptions.data);
+        	for(var n in  $scope.envgridOptions.data){
+        		if( $scope.envgridOptions.data[n].browser == "chrome"){
+        			$scope.envgridApi.selection.selectRow($scope.envgridOptions.data[n]);
+        			break;
+        		}
+        	}
+        	if($scope.envgridApi.selection.getSelectedCount() == 0)
+        	{
+        		$scope.envgridApi.selection.selectRow($scope.envgridOptions.data[0]);
+        	}
+        };
+        
+        ///Context Menu Config for left Case tree
+          $scope.caseTreeConfigFromBuildTree = BuildTree.caseTreeConfig;
+          $scope.caseTreeConfigFromBuildTree.contextmenu.items = null;
+
+        // loadCaseTree
+          $scope.loadCaseTreeFromBuildTree = function(){
+  			BuildTree.loadCaseTree();
+  		}
+
+      $scope.argCount = function(data){
+    	  var argumentCount =[];
+    	  for(var m in data){
+    		var argLen =data[m].arguments.length;
+    		var flag = false;
+    		for(var n in $scope.sysWidget){
+    			if (data[m].widget_name == $scope.sysWidget[n]){
+    				flag = true;
+    				break;
+    			}
+    		}
+    		if(!flag){
+      			for(var j in data[m].arguments){
+      				if(data[m].arguments[j].type =="WIDGET"){
+      					argLen--;
+      				}
+      			}
+      		}
+  			argumentCount.push(argLen);	  
+    	  }
+    	  return argumentCount;
+      }
+        $scope.phaseDebugData = function(data){
+            var debugdata=[];
+            var tabledata =[];
+            for(var n in data){
+            	if (data[n].steps.length == 0){
+            		tabledata.push({seq:n,taskid:data[n].id,taskname:data[n].name,widget:null,method:null,defaultvalue:null,tag:null,customizevalue:null,stepcount:1,stepindex:0, argindex:0, argcount:1});
+            		continue;
+            	}
+            	var stepCount = 0;
+            	var argCounts =  $scope.argCount(data[n].steps);
+            	for(var k in argCounts){
+            		if(argCounts[k] == 0){ 
+            			stepCount++;
+            		}
+            		else{
+            			stepCount += argCounts[k] ;
+            		}
+            	}
+            	if(stepCount == 0) stepCount =1;
+            	for(var m in data[n].steps){
+            		var stepIndex =1;
+            		var argIndex = 1;
+            		var argCount = 0;
+            		if(m == 0) stepIndex = 0;
+            		argCount = argCounts[m];
+            		
+            		if(argCount == 0){
+            			tabledata.push({seq:n,taskid:data[n].id,taskname:data[n].name,widget:data[n].steps[m].widget_name,method:data[n].steps[m].method_name,defaultvalue:null,tag:null,customizevalue:null,stepcount:stepCount,stepindex:stepIndex, argindex:0, argcount:1});
+            			if(stepIndex == 0) stepIndex=1;
+            			continue;
+            		}
+            		
+            		for(var j in data[n].steps[m].arguments){
+            			if(j == 0) argIndex = 0;
+////            			else argIndex = 1;
+//            			//when step widget is customized widget and argument type is widget, not show it
+            			if(argCount != data[n].steps[m].arguments.length) {
+            				if(data[n].steps[m].arguments[j].type !="WIDGET"){
+            					tabledata.push({seq:n,taskid:data[n].id,taskname:data[n].name,widget:data[n].steps[m].widget_name,method:data[n].steps[m].method_name,defaultvalue:data[n].steps[m].arguments[j].value,tag:data[n].steps[m].arguments[j].tag,customizevalue:null,stepcount:stepCount,stepindex:stepIndex, argindex:argIndex, argcount:argCount});
+            					if(argIndex == 0) argIndex=1;
+            					if(stepIndex == 0) stepIndex=1;
+            				}
+            				
+            			}
+            			else{
+            				tabledata.push({seq:n,taskid:data[n].id,taskname:data[n].name,widget:data[n].steps[m].widget_name,method:data[n].steps[m].method_name,defaultvalue:data[n].steps[m].arguments[j].value,tag:data[n].steps[m].arguments[j].tag,customizevalue:null,stepcount:stepCount,stepindex:stepIndex, argindex:argIndex, argcount:argCount});
+            				if(argIndex == 0) argIndex=1;
+            				if(stepIndex == 0) stepIndex=1;
+            			}
+            		}
+            	}
+            }
+            if(tabledata.length == 0)
+              $scope.debugTableData = null; 
+            else
+            $scope.debugTableData = tabledata;   
+        }; 
+        $scope.getTagCustomizeData = function(){
+//	        for(var x in $scope.caseDebugData){
+//	        	for(var y in $scope.caseDebugData[x].data){
+//	        		for(var z in  $scope.debugTableData ){
+//	        			if($scope.caseDebugData[x].taskid ==  $scope.debugTableData[z].taskid &&  $scope.debugTableData[z].tag == $scope.caseDebugData[x].data[y].tag && $scope.debugTableData[z].seq == $scope.caseDebugData[x].seq){
+//	        				 $scope.debugTableData[z].customizevalue = $scope.caseDebugData[x].data[y].value; 
+////	        				break;
+//	        			}
+//	        		}		
+//	        	}		
+//	        }
+        	for(var z in  $scope.debugTableData ){
+        		for(var x in $scope.caseDebugData){
+        			if($scope.caseDebugData[x].taskid ==  $scope.debugTableData[z].taskid  && $scope.debugTableData[z].seq == $scope.caseDebugData[x].seq){
+            			for(var y in $scope.caseDebugData[x].data){
+            				if($scope.debugTableData[z].tag == $scope.caseDebugData[x].data[y].tag){
+            					$scope.debugTableData[z].customizevalue = $scope.caseDebugData[x].data[y].value; 
+	            				break;
+            				}	
+        			   }
+        		    }
+	        	}		
+	        }
+        }
+
+        $scope.convertTabletoDebugData = function(){
+            for(var n in $scope.caseDebugData){
+            	for(var m in $scope.caseDebugData[n].data){
+            		for(var j in $scope.debugTableData ){
+            			if($scope.caseDebugData[n].taskid == $scope.debugTableData[j].taskid && $scope.debugTableData[j].tag == $scope.caseDebugData[n].data[m].tag && $scope.caseDebugData[n].seq == $scope.debugTableData[j].seq){
+            					$scope.caseDebugData[n].data[m].value = $scope.debugTableData[j].customizevalue;
+            				break;
+            			}
+            		}		
+            	}		
+            }  
+        }; 
+        
+		  $scope.loadDebugCaseDataById = function (id) {
+	    	  $scope.initDebugCaseModel();
+			   debugCaseService.getCaseDebugData(id).then(function (data) {
+	    	   $scope.caseDebugData = data.value;
+		       $log.info("Get debug case data by id",data);    
+		       debugCaseService.getCaseStepData(id).then(function (data) {
+			    	  $scope.phaseDebugData(data.value);
+			    	  $scope.getTagCustomizeData();
+			    	  localStorage.setItem("selectedData.table",JSON.stringify($scope.debugTableData));
+			         $log.info("Get case step data by id",data);       
+			  }, function (reason) {
+			      $log.info("Get case step data by id failed");
+			      swal('','Load debug data failed, please try later!', 'error');
+			      });
+			  }, function (reason) {
+				  $log.info("Get debug case data by id failed");
+				  swal('','Load debug data failed, please try later!', 'error');
+			  });
+			    
+		       
+		  };
+
+        $scope.onCaseSelected = function(){
+            var node = $scope.caseTreeInstance.jstree("get_selected",true)[0];
+            if(node.original.type.toLowerCase() == 'leaf'){
+               $scope.initCurrentCaseModel();
+                $scope.currentDataModel.case_id = node.original.id;
+                $scope.loadDebugCaseDataById(node.original.id);	
+            }
+//			Add by ran, switch to data tab
+			$scope.IsActive = 0;
+        };
+        
+        $scope.cleanInput = function(){
+//        	if($scope.currentDataModel.case_id !="" && $scope.hasTagFlag() ){
+//        		swal({
+//            		  title: '',
+//            		  text: "Are you sure to give up your eidt?",
+//            		  type: 'warning',
+//            		  showCancelButton: true,
+//            		  confirmButtonText: "YES",
+//                	  cancelButtonText: "NO",
+//            		}).then(function () {
+//            			$log.info("User confirm save");
+//            			if($scope.currentDataModel.case_id !=""){
+//            				$scope.loadDebugCaseDataById($scope.currentDataModel.case_id);
+//            			}
+//            			
+//            		},function (dismiss) {
+//            			  // dismiss can be 'cancel', 'overlay',
+//            			  // 'close', and 'timer'
+//            			  if (dismiss === 'cancel') {
+//            				  $log.info("User give up edit");
+//            			  }
+//            	});
+        	if($scope.currentDataModel.case_id !=""){
+        		$scope.loadDebugCaseDataById($scope.currentDataModel.case_id);
+        	}
+
+        }
+        
+        $scope.hasTagFlag = function()
+        {
+        	for(var x in  $scope.debugTableData ){
+    			if($scope.debugTableData[x].tag != "" && $scope.debugTableData[x].tag != null ){
+    				return true;
+    			}
+    		}
+        	return false;  	
+        }
+
+        $scope.doUpdateData = function (model) {
+        	debugCaseService.updateCaseData(model).then(function (data) {
+        		 swal('','Save case debug data success!', 'success');
+        		 localStorage.setItem("selectedData.table",JSON.stringify(angular.copy($scope.debugTableData)));
+            }, function (reason) {
+                $log.info("Update case data failed");
+                swal('',"Save case debug data failed, please try later!", 'error');
+            });
+        };
+
+        //Save debug case data from user input 
+        $scope.saveDebugCaseData = function () {
+        	if($scope.currentDataModel.case_id =="")
+        	{
+        		swal('',"Please choose a case!",'info');
+        		return;
+        	}
+        	
+        	if(!$scope.hasTagFlag())
+        	{
+        		swal('',"Case don't have tag, can't customize case data!",'info');
+        		return;
+        	}
+        	
+        	$scope.convertTabletoDebugData();
+        	$scope.currentDataModel.profile = $scope.caseDebugData;
+        	$scope.doUpdateData($scope.currentDataModel);
+//        	No need promote info for save
+//        	swal({
+//        		  title: '',
+//        		  text: "Are you sure to save customized data for case?",
+//        		  type: 'warning',
+//        		  showCancelButton: true,
+//        		  confirmButtonText: "YES",
+//            	  cancelButtonText: "NO",
+//        		}).then(function () {
+//        			$log.info("User confirm save");
+//                	  $scope.currentDataModel.profile = $scope.caseDebugData;
+//                    $scope.doUpdateData($scope.currentDataModel);
+//        		},function (dismiss) {
+//        			  // dismiss can be 'cancel', 'overlay',
+//        			  // 'close', and 'timer'
+//        			  if (dismiss === 'cancel') {
+//        				  $log.info("User give up edit");
+//        			  }
+//        	});
+        }    
+        //Execution selected case
+        $scope.exeConfigRun = function () {
+        	$scope.selectedenvs = $scope.envgridApi.selection.getSelectedRows();
+        	$scope.selectedurl = $scope.urlgridApi.selection.getSelectedRows();
+        	if($scope.currentDataModel.case_id =="")
+        	{
+        		swal('','Please choose a case on case tree!', 'info');
+				return;
+        	}
+        	if ($scope.selectedenvs.length == 0)
+			{
+				swal('',"Please choose a browser in 'Environment'!", 'info');
+				return;
+			}
+        	if($scope.selectedurl.length == 0)
+			{
+				swal('',"Please choose url in 'Url'!", 'info');
+				return;
+			} 	
+        	$scope.caseIds = [];
+			var envList = [];
+			var platform="";
+			for(var n in $scope.selectedenvs){
+				var row = $scope.selectedenvs[n];
+				envList.push({platform:row['platform'], browser:row['browser'], version:row['version'], url:row['url']});
+			}
+			
+			$scope.execute_meta.production_id = $scope.selectedurl[0]['id'];
+			$scope.execute_meta.envs = envList;
+			$scope.execute_meta.rerun = false;
+			$scope.execute_meta.profile ={"case":[]};
+		
+			var str=[];
+			var debugdatavalue = getDebugValueResult();
+			if(debugdatavalue =="Default value in task"){
+				str.push("undefined");
+				$scope.execute_meta.profile.case = str;
+				
+		       	debugCaseService.runCase($scope.currentDataModel.case_id,$scope.execute_meta).then(function (data) {
+	      		swal('','Case is submitted to workqueue!', 'success');
+	          }, function (reason) {
+	              $log.info("Run case  failed");
+	              swal('','Debug case error, please try later!', 'error');
+	          });
+			}
+				
+			else {
+				str.push("customized");
+				debugCaseService.checkDebugData($scope.currentDataModel.case_id).then(function (data) {
+					if(data.value){
+						$log.info("Run has debug data");
+			      		$scope.execute_meta.profile.case = str;
+						
+				       	debugCaseService.runCase($scope.currentDataModel.case_id,$scope.execute_meta).then(function (data) {
+			      		swal('','Case is submitted to workqueue!', 'success');
+			          }, function (reason) {
+			              $log.info("Run case  failed");
+			              swal('','Debug case error, please try later!', 'error');
+			          });
+					}
+					else {
+						$log.info("Run don't have debug data, can not run with debug data!");
+			            swal('',"Case don't have customized data! Please customize data first or run with default data!", 'info');
+					}
+		          }, function (reason) {
+		              $log.info("Check case debug data error!");
+		          });
+			}	
+        } 
+
+        function getDebugValueResult(){
+        	var radios = document.getElementsByName('datavalue');
+        	for (var i = 0, length = radios.length; i < length; i++) {
+        		if (radios[i].checked) {
+        			return radios[i].value;
+        			break;
+        		    }
+         	}
+        }
+        
+               //Open Add url dialog
+        $scope.addUrl = function(){
+            $scope.initCurrentUrlrModel();
+            $('#create-url-modal').modal({
+                backdrop: 'static'
+            });
+        };
+        
+        // Do url create Action
+        $scope.doCreateUrl = function () {   	
+        	debugCaseService.createUrl($scope.currentUrlModel).then(function (data) {
+                swal('','Add url successfully!', 'success');
+                $('#create-url-modal').modal("hide");
+                $scope.initCurrentUrlrModel();
+                $scope.getProductionAppUrl();
+            }, function (reason) {
+                $log.info("create url failed");
+                swal('','Create url failed, please try later.', 'error');
+            });  
+        };
+
+   });

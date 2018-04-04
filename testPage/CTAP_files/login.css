@@ -1,0 +1,38 @@
+.login {
+	margin: 0 auto;
+	padding: 15px;
+	width: auto;
+	overflow: hidden !important;
+	position: relative;
+	border: 0;
+	background-image: url(../resources/background.jpg);
+	background-position: center;
+}
+.ibm_logo{
+	background-image:url(../resources/IBM_logo.png);
+	background-position: center;
+	background-repeat: no-repeat;
+	width:60px;
+	height:21px;
+	margin:10px 0 0 10px;
+	padding:10px 0 0 10px;
+}
+.login-css .main{
+	
+	background: -moz-linear-gradient(top, #7FA6D1, #4F7793);
+	background: -webkit-gradient(linear, left top, left bottom, from(#7FA6D1),
+		to(#4F7793) );
+	filter: progid : DXImageTransform.Microsoft.gradient ( startColorstr =
+		'#7FA6D1', endColorstr = '#4F7793' gradientType=0 ); /*IE*/
+	background-color: #4F7793;
+	border-radius: 2em;
+}
+.login-css .container{
+	height:400px;
+}
+.login-css .input{
+    width: calc(100% - 90px);
+    height: 28px;
+    padding: 5px;
+    float:right;
+}

@@ -1,0 +1,192 @@
+/**
+ * Created by lizhu on 2017/3/15.
+ */
+"use strict";
+app.service('SuiteService',function(Utils,Config) {
+        var service = {};
+        service.getCaseTreeData = function () {
+            return Utils.ctapGet(Config.RestMapping.caseTreeUrl);
+        };
+
+        service.getSuiteTreeData = function () {
+            return Utils.ctapGet(Config.RestMapping.suiteTreeUrl);
+        };
+        
+        service.getSeSuiteTreeData = function () {
+            return Utils.ctapGet(Config.RestMapping.seSuiteTreeUrl);
+        };
+        
+        service.getCaseById = function (id) {
+            return Utils.ctapGet(Config.RestMapping.caseByIdUrl(id));
+        };
+        
+        service.getSuiteById = function (id) {
+            return Utils.ctapGet(Config.RestMapping.suiteByIdUrl(id));
+        };
+        
+        service.getSubSuiteById = function (id) {
+            return Utils.ctapGet(Config.RestMapping.subSuiteByIdUrl(id));
+        };
+
+        service.getAllSuiteFolder = function () {
+            return Utils.ctapGet(Config.RestMapping.allCaseFolderUrl);
+        };
+
+        service.deleteCase = function (id,name) {
+            return Utils.ctapPost(Config.RestMapping.removeCaseUrl,{"name":name,"id":id});
+        };
+
+        service.mappingFolder = function (caseId,folderId) {
+            var data = [{
+                "type": "link",
+                "p_egg_id": folderId,
+                "c_egg_id": caseId
+            }];
+            return Utils.ctapPost(Config.RestMapping.mappingSuiteFolderUrl,data);
+        };
+
+        service.mappingSuite = function (suiteId,cases,subsuites,suites) {
+            var caseIds = [];
+            for (var i = 0; i < cases.length; i++) {
+            	caseIds.push(cases[i].id);
+            }
+            var subSuiteIds = [];
+            for (var i = 0; i < subsuites.length; i++) {
+            	subSuiteIds.push(subsuites[i].id);
+            }
+            var suiteIds = [];
+            for (var i = 0; i < suites.length; i++) {
+            	suiteIds.push(suites[i].id);
+            }
+            var data = {
+                "suite_id": suiteId,
+                "cases": caseIds,
+                "sub_suites": subSuiteIds,
+                "suites": suiteIds
+            };
+            return Utils.ctapPost(Config.RestMapping.mappingSuiteCasesUrl,data);
+        };
+        
+        service.mappingSeSuite = function (suiteId,cases) {
+            var caseIds = [];
+            for (var i = 0; i < cases.length; i++) {
+            	caseIds.push(cases[i].id);
+            }
+            
+            var data = {
+                "sub_suite_id": suiteId,
+                "cases": caseIds,
+            };
+            return Utils.ctapPost(Config.RestMapping.mappingSeSuiteCasesUrl,data);
+        };
+        
+        service.updateSuite = function (model) {
+        	delete model["cases"];
+            delete model["suites"];
+            delete model["subsuites"];
+            delete model["items"];
+            delete model["suiteType"];
+            delete model["isNew"];
+            Utils.ctapPost(Config.RestMapping.updateSuiteUrl,model);
+        };
+        
+        service.updateSeSuite = function (model) {
+        	delete model["cases"];
+            delete model["suites"];
+            delete model["subsuites"];
+            delete model["items"];
+            delete model["suiteType"];
+            delete model["isNew"];
+            Utils.ctapPost(Config.RestMapping.updateSeSuiteUrl,model);
+        };
+
+        service.createSuite = function (model) {
+            delete model["cases"];
+            delete model["suites"];
+            delete model["subsuites"];
+            delete model["items"];
+            delete model["suiteType"];
+            delete model["isNew"];
+            return Utils.ctapPost(Config.RestMapping.createSuiteUrl,model);
+        };
+        
+        service.createSeSuite = function (model) {
+            delete model["cases"];
+            delete model["suites"];
+            delete model["subsuites"];
+            delete model["items"];
+            delete model["suiteType"];
+            delete model["isNew"];
+            return Utils.ctapPost(Config.RestMapping.createSeSuiteUrl,model);
+        };
+
+        service.getAllCases = function () {
+            return Utils.ctapGet(Config.RestMapping.getAllCaseUrl);
+        };
+        
+        service.createFolder = function (model) {
+            var data = {"name":model.text,"desc":model.desc,"pFolderId":model.parent,"type":"CASE"};
+            return Utils.ctapPost(Config.RestMapping.createFolderUrl,data);
+        };
+
+        service.renameFolder = function (model) {
+            var data = {"name":model.text,"id":model.id,"pFolderId":null,"type":"CASE"};
+            return Utils.ctapPost(Config.RestMapping.renameFolderUrl,data);
+        };
+
+        service.removeCaseFolder = function (model) {
+            var data = {
+                "name": model.text,
+                "id": model.id
+            };
+            return Utils.ctapPost(Config.RestMapping.removeCaseFolderUrl,data);
+        };
+
+        service.removeSuite = function(model){
+            var data = {
+                "name":model.name,
+                "id":model.id
+            };
+            return Utils.ctapPost(Config.RestMapping.removeSuiteUrl,data);
+        };
+
+        service.createFolderInSuiteTree = function(model){
+            var data = {
+                "name":model.name,
+                "desc":model.desc,
+                "id":"",
+                "user_name":""
+            };
+            return Utils.ctapPost(Config.RestMapping.createSuiteFolderUrl,data);
+        };
+
+        service.renameFolderInSuiteTree = function (model) {
+            var data = {
+                "id":model.id,
+                "name":model.name,
+            };
+            return Utils.ctapPost(Config.RestMapping.renameSuiteFolderUrl,data);
+        };
+
+        service.removeSuiteFolder = function (model) {
+            var data = {
+                "name": model.name,
+                "id": model.id
+            };
+            return Utils.ctapPost(Config.RestMapping.removeSuiteFolderUrl,data);
+        };
+        
+        service.removeSeSuiteFolder = function (model) {
+            var data = {
+                "name": model.name,
+                "id": model.id
+            };
+            return Utils.ctapPost(Config.RestMapping.removeSeSuiteFolderUrl,data);
+        };
+        
+        service.refresh = function () {
+            return 0;
+        };
+        
+        return service;
+    });

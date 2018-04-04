@@ -1,0 +1,68 @@
+app.factory('Utils', function($http, $q, $log, Config, $rootScope, $location) {
+
+	function commonRequest(source, method, url, data) {
+		var host = $location.host();
+		var protocol = $location.protocol();
+		var port = $location.port();
+//		alert(host + protocol + port);
+		// var params = { method: method, url: 'http://localhost:8080/CTAP/' +
+		// url,
+		var params = {
+			method : method,
+			url : protocol + '://' + host + ':' + port + '/CTAP/' + url,
+			timeout : Config.httpTimedout,
+			headers : {
+				'Content-type' : 'application/json'
+			},
+			data : data
+		}, defer = $q.defer();
+		if (method == 'GET') {
+			params.params = data;
+		} else if (method == 'POST') {
+			params.data = data;
+		}
+		$log.debug("http params", params);
+		var startTime = new Date().getTime();
+		$http(params).then(function(data) {
+			$log.info("Utils response data", data);
+			if (source == 'CTAP') {
+				if (data.status == 200) {
+					if (data.data.status == 0) {
+						defer.resolve(data.data);
+					} else {
+						defer.reject(data.data.errorMessage);
+					}
+				} else {
+					$log.error(data);
+					defer.reject('Request Failed. status=' + data.status);
+				}
+			} else {
+				defer.resolve(data.data);
+			}
+		}, function(err) {
+			var endTime = new Date().getTime();
+			if (endTime - startTime >= Config.httpTimedout) {
+				$rootScope.$broadcast('http:timedout');
+			}
+			$log.error(err);
+			defer.reject(err);
+		});
+		return defer.promise;
+	}
+	function ctapGet(url) {
+		return commonRequest('CTAP', 'GET', 'rest/' + url, {});
+	}
+	function ctapGetByParam(url, param) {
+		return commonRequest('CTAP', 'GET', 'rest/' + url, param);
+	}
+	function ctapPost(url, params) {
+		return commonRequest('CTAP', 'POST', 'rest/' + url, params);
+	}
+
+	return {
+		ctapPost : ctapPost,
+		ctapGet : ctapGet,
+		ctapGetByParam : ctapGetByParam
+	};
+
+});

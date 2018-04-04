@@ -1,0 +1,2059 @@
+'use strict';
+
+angular
+		.module('myApp.widget', [ 'ngRoute', 'data-table' ])
+
+		.config([ '$routeProvider', function($routeProvider) {
+			$routeProvider.when('/widget', {
+				templateUrl : './modules/widget/widget.html',
+				controller : 'WidgetCtrl'
+			});
+		} ])
+
+		.controller(
+				'WidgetCtrl',
+				function($scope, $rootScope, $log, $timeout, uiGridConstants,
+						SweetAlert, WidgetService, $location, BuildTree, SwalMessage) {
+
+					$scope.currentTasks = [];
+					$scope.widgetPrototypeDate = [];
+					$scope.widgetPrototypeTreeData = [];
+					$scope.canNotRename = true
+					$scope.canNotRemove = true
+					$scope.canNotRemovePrototype = true
+
+					if ($rootScope.curUser == "") {
+						$location.path("/login")
+					}
+					
+					$rootScope.cleanFlag = 0;
+					
+					$scope.$watch('cleanFlag',  function(newValue, oldValue) {
+						if(newValue != oldValue){
+			        	   		$scope.currentFolderModel = {
+			        				"id" : "",
+			        				"text" : "",
+			        				"type" : "WIDGET",
+			        				"desc" : "",
+			        				"parent":""
+			        			};
+			           }
+					});
+					
+					$scope.updateWidgetLocalStorage = function(){
+						localStorage.setItem("selectedData.name",$scope.currentWidgetModel.name);
+						localStorage.setItem("selectedData.desc",$scope.currentWidgetModel.desc);
+						localStorage.setItem("selectedData.value",$scope.currentWidgetModel.xp_param);
+						localStorage.setItem("selectedData.folder",ex1_value.value);
+						localStorage.setItem("selectedData.protoType",acPrototypeName_value.value);
+						localStorage.setItem("selectedData.xpattern",acXpatternName_value.value);
+					}
+					
+					
+					$rootScope.checkBeforeLeaveInWidget = function(targetUrl){
+						if($scope.currentWidgetModel.name!=""||ex1_value.value!=""||$scope.currentWidgetModel.xp_param!=""||$scope.currentWidgetModel.desc!=""||acPrototypeName_value.value!=""||acXpatternName_value.value!=""){
+							if ($scope.currentWidgetModel.id != ""){
+								var preName = localStorage.getItem("selectedData.name");
+								var preValue = localStorage.getItem("selectedData.value");
+								var folder = localStorage.getItem("selectedData.folder");
+								var preDesc = localStorage.getItem("selectedData.desc");
+								var preProtoType = localStorage.getItem("selectedData.protoType");
+								var preXpattern = localStorage.getItem("selectedData.xpattern");
+								if($scope.currentWidgetModel.name!=preName||ex1_value.value!=folder||$scope.currentWidgetModel.xp_param!=preValue||$scope.currentWidgetModel.desc!=preDesc||acPrototypeName_value.value!=preProtoType||acXpatternName_value.value!=preXpattern){
+									swal({
+					                    title: '',
+					                    text: "Are you sure to leave without save?",
+					                    type: 'warning',
+					                    showCancelButton: true,
+					                    confirmButtonText: "YES",
+					                    cancelButtonText: "NO",
+					                    }).then(function () {		                        
+					                    		$location.path(targetUrl);
+					                    		$scope.$apply();
+					                    		},function() {
+					                    			$log.info("User give up leave");
+					                    			}
+					                    		);
+										} else {
+											$location.path(targetUrl);
+										}																					
+							} else {
+								swal({
+				                    title: '',
+				                    text: "Are you sure to leave without save?",
+				                    type: 'warning',
+				                    showCancelButton: true,
+				                    confirmButtonText: "YES",
+				                    cancelButtonText: "NO",
+				                    }).then(function () {		                        
+				                    		$location.path(targetUrl);
+				                    		$scope.$apply();
+				                    		},function() {
+				                    			$log.info("User give up leave");
+				                    			}
+				                    		);
+									} 				
+						} else {
+							$location.path(targetUrl);
+						}
+					};
+					// set the style to "active" for the users input URL
+					// directly.
+					$rootScope.activeNavButton("widget");
+					BuildTree.searchTree("#search-widget", "#widget-tree");
+					BuildTree.searchTree("#search-prototype", "#prototype-tree");
+
+					$scope.initCurrentWidgetModel = function() {
+						$scope.currentWidgetModel = {
+							"id" : "",
+							"name" : "",
+							"desc" : "",
+							"xp_param" : "",
+							"prototype_id" : "",
+							"xpattern_id" : null
+						}
+						// $scope.folderId = "";
+						$scope.$broadcast('angucomplete-alt:clearInput',
+								'acXpatternName');
+						$scope.$broadcast('angucomplete-alt:clearInput',
+								'acPrototypeName');
+					};
+
+					$scope.initCurrentPrototypeModel = function() {
+						$scope.currentPrototypeModel = {
+							"id" : "",
+							"name" : "",
+							"desc" : "",
+							"methods" : []
+						}
+						$log.debug("$scope.initCurrentPrototypeModel",
+								$scope.currentPrototypeModel)
+						if ($scope.gridPrototypeResults != undefined) {
+							$scope.gridPrototypeResults.data = $scope.currentPrototypeModel.methods;
+						}
+
+					};
+
+					$scope.initCurrentXpatternModel = function() {
+						$scope.currentXpatternModel = {
+							"id" : "",
+							"name" : "",
+							"desc" : "",
+							"pattern" : ""
+						}
+					}
+
+					$scope.initCurrentMethodModel = function() {
+						$scope.currentMethodModel = {
+							"id" : "",
+							"name" : "",
+							"desc" : "",
+							"content" : "",
+							"types" : []
+						}
+
+						if ($scope.gridMethodOptions != undefined) {
+							$scope.reloadMethodGrid();
+						}
+
+					};
+
+					$scope.initCurrentWidgetModel();
+					BuildTree.initCurrentFolderModel();
+					$scope.initCurrentPrototypeModel();
+					$scope.initCurrentXpatternModel();
+					$scope.initCurrentMethodModel();
+					$scope.folderId = "";
+
+					$scope.argsTableOptions = {
+						selectable : true,
+						checkboxSelection : true,
+						multiSelect : true,
+						columns : [ {
+							name : "Name",
+							prop : "name",
+							width : 30,
+							isCheckboxColumn : true
+						}, {
+							name : "Desc",
+							prop : "desc",
+						}, {
+							name : "Content",
+							prop : "content",
+						} ]
+					};
+
+					$scope.methodsLeftTableOptions = {
+						selectable : true,
+						checkboxSelection : true,
+						multiSelect : true,
+						rowHeight : 100,
+						headerHeight : 50,
+						columns : [ {
+							name : "Name",
+							prop : "name",
+							width : 150,
+							isCheckboxColumn : true
+						}, {
+							name : "Desc",
+							prop : "description"
+						}, {
+							name : "User name",
+							prop : "uname"
+						}, {
+							name : "Content",
+							prop : "content"
+						} ]
+					};
+					
+					$scope.widgetTreeConfigFromBuildTree = BuildTree.widgetTreeConfig;
+
+					// /Context Menu Config for right prototype tree
+					var contextMenuPt = function(node) {
+						var items = {
+							createPrototype : {
+								label : "Create Prototype",
+								action : function() {
+									$scope.createPrototype();
+								}
+							},
+							createMethod : {
+								label : "Create Method",
+								action : function() {
+									$scope.initCurrentMethodModel();
+									$('#modal-Method').modal({
+										backdrop : 'static'
+									});
+								}
+							},
+						};
+
+						if (node.original.type.toLowerCase() == 'folder') {
+							var folderItems = angular.copy(items);
+							// delete folderItems["createMethod"];
+							// delete folderItems["removeMethod"];
+							return folderItems;
+						} else {
+							var leafItems = angular.copy(items);
+							delete leafItems["createPrototype"];
+							// delete leafItems["remove"];
+							return leafItems;
+						}
+					};
+
+					$scope.ptTreeConfig = {
+						plugins : [ 'contextmenu', 'wholerow', 'themes',
+								'types', 'search'],
+						core : {
+							multiple : false,
+							animation : true,
+							error : function(error) {
+								$log.error('treeCtrl: error from js tree - '
+										+ angular.toJson(error));
+							},
+							themes : {
+								'name' : 'proton',
+								'responsive' : true,
+								'dot' : false
+							},
+							check_callback : true,
+							worker : true
+						},
+						types : {
+							leaf : {
+								"icon" : "/CTAP/app/resources/file-icon.png"
+							}
+
+						},
+						contextmenu : {
+							items : contextMenuPt
+						},
+						version : 1
+					};
+
+					$scope.loadWidgetTreeFromBuildTree = function(){
+						BuildTree.loadWidgetTree();
+					}
+
+					$scope.getAllMethods = function() {
+								WidgetService
+										.getAllMethods()
+										.then(
+												function(data) {
+													if (data.value) {
+														$scope.gridPrototypeOptions.data = [];
+														for (var i = 0; i < data.value.length; i++) {
+															if (data.value[i].user_name != "sys"
+																	&& data.value[i].user_name != "basic") {
+																$scope.gridPrototypeOptions.data
+																		.push(data.value[i]);
+															}
+														}
+
+													}
+												}), function(result) {
+									swal('', 'Can not retrieve all methods!',
+											'error');
+								}
+					}
+
+					$scope.loadPrototypeById = function(id, updateWidget) {
+						// This function will get the prototype and
+						// corresponding methods
+						WidgetService
+								.getPrototypeById(id)
+								.then(
+										function(data) {
+											if (data.value) {
+												$scope.currentPrototypeModel = data.value;
+												$scope.widgetPtName = data.value.name;
+												localStorage.setItem("selectedData.protoType",data.value.name);
+												if (updateWidget) {
+													$scope
+															.$broadcast(
+																	'angucomplete-alt:changeInput',
+																	'acPrototypeName',
+																	data.value.name)
+												}
+												$log
+														.debug(
+																"Get Prototype with methods by ID completed, ",
+																$scope.currentPrototypeModel);
+												$scope.gridPrototypeResults.data = $scope.currentPrototypeModel.methods;
+											}
+										})
+					}
+					// BDC - 05/03/2017 - load widget by id
+					$scope.loadWidgetById = function(id, updateWidget) {
+						WidgetService
+								.getWidgetById(id)
+								.then(
+										function(data) {
+											$scope.initCurrentWidgetModel();
+											$scope.initCurrentPrototypeModel();
+											$scope.initCurrentXpatternModel();
+											$scope.currentWidgetModel = data.value;
+											localStorage.setItem("selectedData.name",data.value.name);
+											localStorage.setItem("selectedData.desc",data.value.desc);
+											localStorage.setItem("selectedData.value",data.value.xp_param);
+											if ($scope.currentWidgetModel.prototype_id != "") {
+												$scope
+														.loadPrototypeById(
+																$scope.currentWidgetModel.prototype_id,
+																updateWidget);
+											}
+											if ($scope.currentWidgetModel.xpattern_id != ""
+													&& $scope.currentWidgetModel.xpattern_id != null) {
+												$scope
+														.getXpatternById(
+																$scope.currentWidgetModel.xpattern_id,
+																updateWidget)
+											} else {
+												localStorage.setItem("selectedData.xpattern","");
+											}
+
+											$log
+													.debug(
+															"scope.loadWidgetById completed. CurrentWIdgetModel:",
+															data.value);
+										},
+										function(reason) {
+											swal(
+													'',
+													'Failed processing $scope.loadWidgetById.',
+													'error');
+										});
+
+					}
+					
+					$scope.loadWidgetByIdForCopy = function(id, updateWidget) {
+						WidgetService
+								.getWidgetById(id)
+								.then(
+										function(data) {
+											$scope.initCurrentWidgetModel();
+											$scope.initCurrentPrototypeModel();
+											$scope.initCurrentXpatternModel();
+											$scope.currentWidgetModel = data.value;
+											$scope.currentWidgetModel.name = "copied from "+ $scope.currentWidgetModel.name;
+											$scope.currentWidgetModel.id = "";
+											if ($scope.currentWidgetModel.prototype_id != "") {
+												$scope
+														.loadPrototypeById(
+																$scope.currentWidgetModel.prototype_id,
+																updateWidget);
+											}
+											if ($scope.currentWidgetModel.xpattern_id != ""
+													&& $scope.currentWidgetModel.xpattern_id != null) {
+												$scope
+														.getXpatternById(
+																$scope.currentWidgetModel.xpattern_id,
+																updateWidget)
+											}
+											var node = $scope.widgetTreeInstance.jstree(
+													"get_selected", true)[0]
+											$scope.folderName = node.original.parent.name;
+											$scope.folderId = node.original.parent.id;
+											$scope.$broadcast('angucomplete-alt:changeInput',
+													'ex1', $scope.folderName);											
+											$scope.$broadcast('angucomplete-alt:changeInput',
+													'acPrototypeName', $scope.widgetPtName)
+										},
+										function(reason) {
+											swal(
+													'',
+													'Failed processing $scope.loadWidgetByIdForCopy.',
+													'error');
+										});
+
+					}
+
+					$scope.getXpatternById = function(id, updateWidget) {
+						WidgetService
+								.getXpatternById(id)
+								.then(
+										function(xpattern) {
+											if (updateWidget) {
+												$scope
+														.$broadcast(
+																'angucomplete-alt:changeInput',
+																'acXpatternName',
+																xpattern.value.name);
+											}
+											$scope.currentXpatternModel = xpattern.value;
+											localStorage.setItem("selectedData.xpattern",xpattern.value.name);
+										},
+										function() {
+											$log
+													.info("Get X-pattern by ID failed")
+										})
+					}
+
+					$rootScope.loadAllWidgetFolder = function() {
+						WidgetService
+								.getAllWidgetFolder()
+								.then(
+										function(data) {
+											$log
+													.info(
+															"Get widget folder success",
+															data);
+											$scope.folderModel = data.value;
+											$scope.folderPromptDefault = "Select Folder";
+											$scope.isFolderInputDisabled = false;
+											if ($scope.folderModel.length == 0) {
+												$scope.folderPromptDefault = "Create Folder First"
+												$scope.isFolderInputDisabled = "true";
+											}
+											$scope.loadWidgetPrototypes();
+											$scope.loadXpatterns();
+										},
+										function(reason) {
+											$log
+													.info("Get widget folder failed");
+
+										});
+					};
+
+					$scope.loadWidgetPrototypes = function() {
+						WidgetService
+								.getWidgetPrototypes()
+								.then(
+										function(data) {
+											$log
+													.info(
+															"Get widget prototypes success",
+															data);
+											var tmpData = [];
+											for (var i = 0; i < data.value.length; i++) {
+												switch (data.value[i].name) {
+												case "WEBDRIVER":
+													continue;
+												case "ASSERTION":
+													continue;
+												case "SYSTEM":
+													continue;
+												default:
+													tmpData.push(data.value[i]);
+												}
+											}
+											$scope.prototypeModel = tmpData;
+											$scope.prototypePromptDefault = "Select Widget Prototype";
+											$scope.isPrototypeInputDisabled = false;
+											if ($scope.prototypeModel.length == 0) {
+												$scope.prototypePromptDefault = "Create Prototype First"
+												$scope.isPrototypeInputDisabled = "true";
+											}
+										},
+										function(reason) {
+											$log
+													.info("Get widget prototypes failed");
+										});
+					};
+
+					$scope.loadXpatterns = function() {
+						WidgetService.getXpatterns().then(function(data) {
+							$log.info("Get Xpatterns successfully", data)
+							$scope.xpatternModel = data.value;
+							$scope.xpatternPromptDefault = "Select Xpattern";
+							$scope.isXpatternInputDisabled = false;
+							if ($scope.xpatternModel.length == 0) {
+								$scope.xpatternPromptDefault = "Create Xpattern First"
+								$scope.isXpatternInputDisabled = "true";
+							}
+							
+							
+							$scope.gridOptions.data = data.value;
+						}, function(reason) {
+							$log.info("Get Xpatterns failed");
+						});
+					};
+
+					$scope.getDefaultPrototypeId = function(all) {
+						for (var i = 0; i < all.length; i++) {
+							var curName = all[i].prototype_name;
+							if (curName != null) {
+								if (curName.toLowerCase() == "commonactions") {
+									$scope.defaultPrototypeId = all[i].prototype_id;
+									$scope.defaultPrototypeName = curName;
+								}
+							}
+						}
+					}
+
+					$scope.loadWidgetPrototypeTree = function() {
+						WidgetService
+								.getWidgetPrototypeTreeData()
+								.then(
+										function(data) {
+											$log
+													.debug(
+															'After get widgetPrototype tree success',
+															data);
+											$scope
+													.getDefaultPrototypeId(data.value);
+											$scope.dataForWidgetPrototypeTree = $rootScope
+													.phaseWidgetPrototypeTree(data.value);
+											$timeout(
+													function() {
+														angular
+																.copy(
+																		$scope.dataForWidgetPrototypeTree,
+																		$scope.widgetPrototypeTreeData);
+														$scope.ptTreeConfig.version++;
+													}, 500, true);
+											$scope.prototypeNames = $rootScope
+													.getFolderNamesFromData(
+															$scope.dataForWidgetPrototypeTree,
+															new Array());
+										},
+										function(reason) {
+											$log
+													.debug('Get widgetPrototype tree failed');
+										});
+					};
+					$scope.initWidget = function() {
+						$scope.initCurrentWidgetModel();
+						$scope.folderId = "";
+						$scope.folderName = "";
+						$scope.$broadcast('angucomplete-alt:clearInput', 'ex1');
+						$scope.initCurrentPrototypeModel();
+						$scope.initCurrentXpatternModel();
+					}
+					$rootScope.createWidget = function() {
+						if ($scope.currentWidgetModel.id !== "") {
+							$scope.initWidget();
+						} else {
+							$scope.initCurrentWidgetModel();
+							$scope.folderId = "";
+							$scope.$broadcast('angucomplete-alt:clearInput',
+									'ex1');
+							$scope.initCurrentPrototypeModel();
+							$scope.initCurrentXpatternModel();
+						}
+
+					}
+
+					$scope.doCreateFolder = function(){
+						BuildTree.doCreateFolderInBuildTree($scope.currentFolderModel);
+					}
+					
+					$scope.doRenameFolder = function(){
+						BuildTree.doRenameFolderInBuildTree($scope.currentFolderModel);
+					}
+					
+					$rootScope.doRemoveFolder = function(){
+						BuildTree.doRemoveFolderInBuildTree($scope.currentFolderModel);
+					}
+					
+					$rootScope.removeWidget = function(node) {
+						swal(
+								{
+									title : '',
+									text : "Are you sure to remove the folder/widget:"
+											+ node.text + "?",
+									type : 'warning',
+									showCancelButton : true,
+									confirmButtonText : "YES",
+									cancelButtonText : "NO",
+								}).then(function() {
+							$log.info("User confirm remove");
+							$scope.doRemoveWidget();
+
+						}, function(dismiss) {
+							// dismiss can be 'cancel', 'overlay',
+							// 'close', and 'timer'
+							if (dismiss === 'cancel') {
+								$log.info("User cancel remove");
+							}
+						});
+
+					};
+
+					$scope.doRemoveWidget = function() {
+						var node = $scope.widgetTreeInstance.jstree(
+								"get_selected", true)[0];
+						$scope.selectedWidgetData = {
+							id : node.id,
+							name : node.text
+						};
+						if($scope.currentWidgetModel.user_name == "sys"){
+							swal(
+									"",
+									"Can not delete system widget!",
+									"info");
+							return;
+						}
+						WidgetService
+								.removeWidget($scope.selectedWidgetData)
+								.then(
+										function(data) {
+											if(data.value){
+							                    $log.info("Remove widget successfully!");							                   
+							                    SwalMessage.swalRemoveWidgetSuccess();
+							                    $scope.loadWidgetTreeFromBuildTree();
+							                    $rootScope.createWidget();//clean the input data
+							                }
+							                else{
+							                    $log.info("Remove widget failed");						
+							                    SwalMessage.swalWidgetUsed();
+							                }
+										},
+										function(reason) {
+											$log.info("Delete widget failed");											
+											SwalMessage.swalRemoveWidgetFailed();
+//											$scope.loadWidgetTree();
+										});
+					};
+
+					$scope.onWidgetSelected = function() {
+						var node = $scope.widgetTreeInstance.jstree(
+								"get_selected", true)[0]
+						if (node.original.type.toLowerCase() == 'leaf') {
+							$scope.initCurrentWidgetModel();
+							$scope.loadWidgetById(node.original.id, true);
+							$scope.folderName = node.original.parent.name;
+							$scope.folderId = node.original.parent.id;
+							localStorage.setItem("selectedData.folder",node.original.parent.name);
+							$scope.$broadcast('angucomplete-alt:changeInput',
+									'ex1', $scope.folderName);
+							$scope.$broadcast('angucomplete-alt:changeInput',
+									'acPrototypeName', $scope.widgetPtName)
+
+						} else if (node.original.type.toLowerCase() == 'folder') {
+							$scope.currentFolderModel = node.original;
+						}
+					};
+					
+					$rootScope.copyWidget = function(node){
+			            swal({
+			                    title: '',
+			                    text: "Are you sure to copy this Widget?",
+			                    type: 'warning',
+			                    showCancelButton: true,
+			                    confirmButtonText: "YES",
+			                    cancelButtonText: "NO",
+			                    }).then(function (p) {
+			                        $log.info("User confirm copy Widget");
+			                        $scope.doCopyWidget(node);
+			                    },function(p) {
+			                        $log.info("User give up copy Widget");
+			                }
+			            );
+			        };
+			        
+			        $scope.doCopyWidget = function(){
+			        		$scope.loadWidgetByIdForCopy($scope.currentWidgetModel.id, true);
+			            $scope.showFolderInput=false;
+			            $timeout(function(){
+			                $scope.showFolderInput=true;
+			            });
+			        };
+
+					$scope.deletePrototype = function(id) {
+
+						swal({
+							title : '',
+							text : "Are you sure to delete this prototype?",
+							type : 'warning',
+							showCancelButton : true,
+							confirmButtonText : "YES",
+							cancelButtonText : "NO",
+						})
+								.then(
+										function() {
+											$log
+													.info("User confirm delete this prototype");
+											if ($scope.currentPrototypeModel.user_name == "sys") {
+												swal(
+														"",
+														"Can not delete system prototype!",
+														"info");
+												return;
+											}
+													WidgetService
+															.removePrototype(id)
+															.then(
+																	function(
+																			data) {
+																		if (data.value) {
+																			swal(
+																					"",
+																					"Delete the Prototype Successfully!",
+																					"success");
+																			$scope
+																					.loadWidgetPrototypes();
+																			$(
+																					'#modal-WidgetPrototypes')
+																					.modal(
+																							"hide");
+																		} else {
+																			swal(
+																					"",
+																					"Can not delete the prototype!",
+																					"info");
+																		}
+
+																		$scope
+																				.loadWidgetPrototypeTree();
+																	}),
+													function() {
+														swal(
+																"",
+																"Delete prototype failed!",
+																"error");
+														$scope
+																.loadWidgetPrototypeTree();
+														$log
+																.error("$scope.deletePrototype running failed");
+													}
+
+										},
+										function(dismiss) {
+											// dismiss can be 'cancel',
+											// 'overlay',
+											// 'close', and 'timer'
+											if (dismiss === 'cancel') {
+												$log
+														.info("User cancel delete this prototype");
+											}
+										});
+
+					}
+					$scope.removePrototypeOrMethod = function(id) {
+						if ($scope.currentMethodModel.name != "") {
+							// Remove a Method
+							swal({
+								title : '',
+								text : "Are you sure to remove this method?",
+								type : 'warning',
+								showCancelButton : true,
+								confirmButtonText : "YES",
+								cancelButtonText : "NO",
+							}).then(function() {
+								$log.info("User confirm remove method");
+								$scope.initCurrentMethodModel();
+							}, function(dismiss) {
+								// dismiss can be 'cancel', 'overlay',
+								// 'close', and 'timer'
+								if (dismiss === 'cancel') {
+									$log.info("User cancel remove method");
+								}
+							});
+
+						} else {
+							// Remove a Prototype
+							swal(
+									{
+										title : '',
+										text : "Are you sure to remove this prototype?",
+										type : 'warning',
+										showCancelButton : true,
+										confirmButtonText : "YES",
+										cancelButtonText : "NO",
+									})
+									.then(
+											function() {
+												$log
+														.info("User confirm remove this prototype.");
+												$scope
+														.initCurrentPrototypeModel();
+
+											},
+											function(dismiss) {
+												// dismiss can be 'cancel',
+												// 'overlay',
+												// 'close', and 'timer'
+												if (dismiss === 'cancel') {
+													$log
+															.info("User give up remove the prototype.");
+												}
+											});
+						}
+					}
+
+					var createFolder = function(node) {
+						BuildTree.initCurrentFolderModel();
+						$scope.currentFolderModel.parent = node.original.id;
+						$('#create-folder-modal').modal({
+							backdrop : 'static'
+						});
+					};
+
+					var renameFolder = function(node) {
+						$scope.currentFolderModel = node.original;
+						$('#rename-folder-modal').modal({
+							backdrop : 'static'
+						});
+					};
+
+					$scope.cancelWidget = function() {
+						if ($scope.currentWidgetModel.id != "") {
+							$scope.loadWidgetById($scope.currentWidgetModel.id,
+									true);
+							$scope
+									.setFolderIdByWidgetId($scope.currentWidgetModel.id)
+
+						} else {
+							$scope.createWidget();
+						}
+					}
+
+					$scope.setFolderIdByWidgetId = function(widgetId) {
+						WidgetService
+								.getFolderByWidgetId(widgetId)
+								.then(
+										function(data) {
+											if (data.value) {
+												$log
+														.debug(
+																"$scope.getFolderIdByWidgetId: ",
+																data.value);
+												$scope.folderId = data.value;
+												$scope
+														.setFolderNameById($scope.folderId)
+											}
+										})
+					}
+
+					$scope.setFolderNameById = function(id) {
+						WidgetService
+								.getAllWidgetFolder()
+								.then(
+										function(data) {
+											if (data.value) {
+												for (var i = 0; i < data.value.length; i++) {
+													if (data.value[i].id == id) {
+														$scope.folderName = data.value[i].name;
+														$scope
+																.$broadcast(
+																		'angucomplete-alt:changeInput',
+																		'ex1',
+																		$scope.folderName);
+
+													}
+												}
+											}
+
+										})
+					}
+					$scope.saveWidget = function() {
+
+						var promptString = "";
+
+						$log.info("User confirm save, folder: "
+								+ $scope.folderName);
+						if ($scope.currentWidgetModel.user_name == "sys") {
+							promptString = promptString + "<br>"
+									+ "Can not update system widgets."
+						}
+						if ($scope.currentWidgetModel.name == "") {
+							promptString = promptString + "<br>"
+									+ "Widget name can not be blank."
+						}
+						var duplicated = BuildTree.existSameName(
+								$scope.currentWidgetModel, $rootScope.widgetNames);
+						if (duplicated) {
+							promptString = promptString
+									+ "<br>"
+									+ "Widget name already exists."
+						}
+						if ($scope.currentWidgetModel.xp_param == "") {
+							promptString = promptString + "<br>"
+									+ "Widget value can not be blank."
+						}
+						if ($scope.folderId == ""
+								|| $scope.folderId == undefined) {
+							promptString = promptString + "<br>"
+									+ "Widget folder can not be blank."
+						}
+
+						if ($scope.folderName == $scope.curUser) {
+							promptString = promptString + "<br>"
+									+ "Can not save to the root folder."
+						}
+						
+						if ($scope.isFolderInputDisabled) {
+							promptString = promptString + "<br>"
+							+ "Please create at least 1 folder before saving."
+						}
+						if (promptString != "") {
+							swal("", promptString, "info");
+							return;
+						}
+
+						if ($scope.currentWidgetModel.prototype_id == ""
+								|| $scope.currentWidgetModel.prototype_id == null) {
+							if ($scope.defaultPrototypeId == null) {
+								alert("can not get the defaultPrototypeId");
+								return;
+							}
+							$scope.currentWidgetModel.prototype_id = $scope.defaultPrototypeId;
+							$scope.$broadcast('angucomplete-alt:changeInput',
+									'acPrototypeName',
+									$scope.defaultPrototypeName)
+							swal("", "Set the prototype to the default value.",
+									"info");
+						}
+
+						if ($scope.currentWidgetModel.id != "") {
+							$scope.doUpdateWidget($scope.currentWidgetModel);
+						} else {
+							$scope.doCreateWidget($scope.currentWidgetModel);
+						}
+
+					}
+
+					$scope.ex1SelectedFolder = function(selected) {
+						if (selected) {
+							$scope.folderName = selected.originalObject.name;
+							$scope.folderId = selected.originalObject.id;
+						} else {
+							$scope.folderName = null;
+							$scope.folderId = null;
+						}
+					}
+					$scope.folderFocusOut = function() {
+						if ($scope.folderName == null) {
+							$scope.$broadcast('angucomplete-alt:clearInput',
+									'ex1');
+						}
+					}
+
+					$scope.prototypeSelectedName = function(selected) {
+						if (selected) {
+							$scope.currentWidgetModel.prototype_id = selected.originalObject.id;
+						} else {
+							$scope.currentWidgetModel.prototype_id = null;
+						}
+					}
+					$scope.prototypeFocusOut = function() {
+						if ($scope.currentWidgetModel.prototype_id == null) {
+							$scope.$broadcast('angucomplete-alt:clearInput',
+									'acPrototypeName');
+						}
+					}
+					$scope.xpatternSelectedName = function(selected) {
+						if (selected) {
+							$scope.currentWidgetModel.xpattern_id = selected.originalObject.id;
+						} else {
+							$scope.currentWidgetModel.xpattern_id = null;
+						}
+					}
+
+					$scope.xPatternFocusOut = function() {
+						if ($scope.currentWidgetModel.xpattern_id == null) {
+							$scope.$broadcast('angucomplete-alt:clearInput',
+									'acXpatternName');
+						}
+					}
+
+					$scope.doUpdateWidget = function(model) {
+						WidgetService
+								.updateWidget(model)
+								.then(
+										function(data) {
+											if (data.value) {
+												$log
+														.info("Update widget success");
+												$log.info("$scope.folderId",
+														$scope.folderId)
+														WidgetService
+																.mappingFolder(
+																		model.id,
+																		$scope.folderId)
+																.then(
+																		function(
+																				data) {
+																			if (data.value) {
+																				swal(
+																						'',
+																						'Update widget successfully!',
+																						'success')
+																				$scope
+																						.loadWidgetTreeFromBuildTree();
+																				$scope.updateWidgetLocalStorage();
+																			}
+																		}),
+														function(reason) {
+															$log
+																	.error(
+																			"Can not mapping folder - WidgetService.mappingFolder("
+																					+ model.id
+																					+ ","
+																					+ $scope.folderId
+																					+ ")",
+																			reason.data.value);
+															swal(
+																	'',
+																	'Can not mapping folder - WidgetService.mappingFolder('
+																			+ model.id
+																			+ ','
+																			+ $scope.folderId
+																			+ ')',
+																	'info')
+
+														}
+
+											}
+										},
+										function(reason) {
+											$log.info("Update widget failed",
+													reason);
+											alert(reason.data.value)
+											$scope.loadWidgetTreeFromBuildTree();
+
+										});
+
+					};
+
+					$scope.doCreateWidget = function(model) {
+						WidgetService
+								.createWidget(model)
+								.then(
+										function(data) {
+											$log
+													.debug(
+															"WidgetService.createWidget(model)",
+															model)
+											if (data.value) {
+												$scope.currentWidgetModel = data.value;
+
+												$log
+														.debug(
+																"$scope.folderId: ",
+																$scope.folderId,
+																",scope.currentWidgetModel.id: ",
+																$scope.currentWidgetModel)
+												WidgetService
+														.mappingFolder(
+																data.value.id,
+																$scope.folderId)
+														.then(
+																function(data1) {
+																	if (data1.value) {
+																		swal(
+																				'',
+																				'Create Widget successfully!',
+																				'success')
+																		$scope
+																				.loadWidgetTreeFromBuildTree();
+																		$scope.updateWidgetLocalStorage();
+																		$log
+																				.info("Create Widget successfully!");
+																	}
+
+																},
+																function(
+																		reason1) {
+																	$log
+																			.error(
+																					"Create widget success but mapping folder failed",
+																					reason1);
+																	swal(
+																			'',
+																			'Create widget success but mapping folder failed!',
+																			'info')
+																	$scope
+																			.loadWidgetTreeFromBuildTree();
+																});
+
+											}
+										},
+										function(reason) {
+											swal('', 'Create widget failed',
+													'error');
+											$log.error("Create widget failed",
+													reason);
+											// $scope.loadWidgetTreeFromBuildTree();
+										})
+
+					};
+
+					// Left Case Tree Loading Action and context menu
+					$scope.onWidgetTreeLoaded = function() {
+						// make sure the highlight is the same height as the
+						// node text
+						$.vakata.context.settings.hide_onmouseleave = 1;
+						$.jstree.defaults.contextmenu.select_node = false;
+						$scope.widgetTreeInstance.bind('hover_node.jstree',
+								function(e, data) {
+									var bar = $(this).find(
+											'.jstree-wholerow-hovered');
+									bar.css('height', bar.parent().children(
+											'a.jstree-anchor').height()
+											+ 'px');
+									var node_id = data.node.a_attr.id;
+									var node = jQuery('#' + node_id);
+									// setTimeout(function () {
+									// data.rslt.obj.children('a').trigger('contextmenuLeft');
+									// }, 0);
+									// $scope.caseTreeInstance.show_contextmenuLeft(node);
+									if (data.node.type !== 'leaf') {
+										// node.trigger('contextmenu');
+									} else {
+										$.vakata.context.hide();
+									}
+								});
+
+						$scope.widgetTreeInstance
+								.bind(
+										"show_contextmenu.jstree",
+										function(e, data) {
+											var $node = $('#' + data.node.id), $menu = $(
+													'.vakata-context').first(), nodeTop = $node
+													.offset().top, menuTop = nodeTop
+													+ $node.height()
+													- $menu.height(), menuLeft = 150;
+											if (menuTop > 500) {
+												menuTop = 76;
+											}
+											$menu.offset({
+												left : menuLeft,
+												top : menuTop + 20
+											});
+										})
+										$log
+										.debug("$scope.onWidgetTreeLoaded() running completed.");
+					};
+					// /////////////////////////////////////////////////////////////////
+					$scope.gridPrototypeOptions = {
+						enableRowSelection : true,
+						enableFullRowSelection : false,
+						enableRowHeaderSelection : true,
+						enableSorting : false,
+						enableColumnMenus : false,
+						rowHeight : 50
+					};
+
+					$scope.gridPrototypeOptions.columnDefs = [
+							{
+								name : 'id',
+								displayName : 'ID',
+								visible : false
+							},
+							{
+								name : 'name',
+								displayName : 'Name',
+								width : '28%',
+								cellTooltip : function(row, col) {
+									return row.entity.name;
+								},
+								cellTemplate : '<div class="ui-grid-cell-contents wrap" white-space: normal title="TOOLTIP">{{COL_FIELD CUSTOM_FILTERS}}</div>'
+							},
+							{
+								name : 'desc',
+								displayName : 'Description',
+								width : '45%',
+								cellTooltip : function(row, col) {
+									return row.entity.desc;
+								},
+								cellTemplate : '<div class="ui-grid-cell-contents wrap" white-space: normal title="TOOLTIP">{{COL_FIELD CUSTOM_FILTERS}}</div>'
+							},
+							{
+								name : 'user_name',
+								displayName : 'User',
+								width : '11%',
+								visible : false,
+								cellTooltip : function(row, col) {
+									return row.entity.user_name;
+								},
+							},
+							{
+								name : 'content',
+								displayName : 'Content',
+								cellTooltip : function(row, col) {
+									return row.entity.content;
+								},
+								cellTemplate : '<div class="ui-grid-cell-contents wrap" white-space: normal title="TOOLTIP">{{COL_FIELD CUSTOM_FILTERS}}</div>'
+							}, ];
+
+					$scope.gridPrototypeOptions.multiSelect = true;
+					$scope.gridPrototypeOptions.modifierKeysToMultiSelect = false;
+					$scope.gridPrototypeOptions.noUnselect = false;
+					$scope.gridPrototypeOptions.onRegisterApi = function(
+							gridApi) {
+						$scope.gridPrototypeOptionsApi = gridApi;
+						gridApi.selection.on.rowSelectionChanged($scope,
+								function(row) {
+									// alert("gridPrototypeOptions - row
+									// selected...");
+								});
+					};
+
+					// /////////////////////////////////////////////////////////////////
+					$scope.gridPrototypeResults = {
+						enableRowSelection : true,
+						enableFullRowSelection : false,
+						enableRowHeaderSelection : true,
+						enableSorting : false,
+						enableColumnMenus : false,
+						minRowsToShow : 10
+					};
+
+					$scope.gridPrototypeResults.columnDefs = [
+							{
+								name : 'id',
+								visible : false
+							},
+							{
+								name : 'name',
+								visible : true,
+								displayName : 'Method List',
+								cellTooltip : function(row, col) {
+									var name = row.entity.name;
+									var desc = row.entity.desc;
+									var user_name = row.entity.user_name;
+									var content = row.entity.content;
+
+									if (name == null) {
+										name = "";
+									}
+									if (desc == null) {
+										desc = "";
+									}
+									if (content == null) {
+										content = "";
+									}
+
+									return "Name:\t\t" + name
+											+ "\nUser Name:\t" + user_name
+											+ "\nDescription:\t" + desc
+											+ "\n\nContent:\n" + content;
+								},
+								cellTemplate : '<div class="ui-grid-cell-contents wrap" white-space: normal title="TOOLTIP">{{COL_FIELD CUSTOM_FILTERS}}</div>'
+							} ];
+
+					$scope.gridPrototypeResults.multiSelect = true;
+					$scope.gridPrototypeResults.modifierKeysToMultiSelect = false;
+					$scope.gridPrototypeResults.noUnselect = false;
+					$scope.gridPrototypeResults.onRegisterApi = function(
+							gridApi) {
+						$scope.gridPrototypeResultsApi = gridApi;
+					};
+
+					// ////////////////////////////////////////////////////////////////
+					$scope.methodRowTemplate = function() {
+						return $timeout(
+								function() {
+									return '<div ng-class="{ \'my-css-class\': grid.appScope.rowFormatter( row ) }">'
+											+ '  <div class="text-center" ng-if="grid.appScope.isLastArg(grid.renderContainers.body.visibleRowCache.indexOf(row), row.grid.rows.length)"><button class="btn btn-success" ng-click="grid.appScope.addArg()">New Argument Type</button></div>'
+											+ '  <div ng-if="grid.appScope.notLastArg(grid.renderContainers.body.visibleRowCache.indexOf(row), row.grid.rows.length)" ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{ \'ui-grid-row-header-cell\': col.isRowHeader }"  ui-grid-cell></div>'
+											+ '</div>';
+								}, 1000);
+					}
+
+					$scope.getGridMethodData = function() {
+						var gridData = new Array()
+						var argRow = null;
+						var types = $scope.currentMethodModel.types;
+
+						function getArgRow(seq, type) {
+							var argRow1 = {
+								seq : "",
+								type : ""
+							}
+							argRow1.seq = seq;
+							argRow1.type = type;
+							return (argRow1);
+						}
+
+						for (var m = 0; m < (types.length); m++) {
+							argRow = null;
+							argRow = function(seq) {
+								return getArgRow(seq, types[seq]);
+							}(m);
+							gridData.push(argRow);
+						}
+
+						return gridData;
+					}
+					$scope.reloadMethodGrid = function() {
+						$scope.gridMethodOptions.data = $scope
+								.getGridMethodData();
+						if ($scope.gridMethodOptions.data != undefined) {
+							if ($scope.gridMethodOptions.data[$scope.gridMethodOptions.data.length - 1] != "") {
+								$scope.gridMethodOptions.data.push("");
+							}
+						}
+						$scope.gridMethodOptionsApi.core.refresh();
+					}
+					$scope.gridMethodOptions = {
+						// enableFullRowSelection : true,
+						enableRowHeaderSelection : false,
+						enableSorting : false,
+						enableColumnMenus : false,
+						rowTemplate : $scope.methodRowTemplate(),
+						rowHeight : 35
+					};
+
+					$scope.gridMethodOptions.columnDefs = [
+							{
+								name : 'seq',
+								displayName : 'Seq',
+								width : '15%',
+								cellTooltip : function(row, col) {
+									return row.entity.seq;
+								},
+							// cellTemplate : '<div class="ui-grid-cell-contents
+							// wrap" white-space: normal
+							// title="TOOLTIP">{{grid.renderContainers.body.visibleRowCache.indexOf(row)}}</div>'
+							},
+							{
+								name : 'type',
+								displayName : 'Argument Type',
+								width : '80%',
+								cellTooltip : function(row, col) {
+									return row.entity.type;
+								},
+								cellTemplate : '<div ng-if="grid.appScope.notLastArg(grid.renderContainers.body.visibleRowCache.indexOf(row), row.grid.rows.length)" class="ui-grid-cell-contents wrap" white-space: normal title="TOOLTIP">{{row.entity.type}}</div>'
+							},
+							{
+								name : '#',
+								displayName : '',
+								cellTemplate : '<div class="ui-grid-cell-contents"><button class="btn btn-link glyphicon glyphicon-trash" ng-click="grid.appScope.removeArg(grid.renderContainers.body.visibleRowCache.indexOf(row))"></button></div>'
+							}, ];
+
+					$scope.gridMethodOptions.multiSelect = false;
+					$scope.gridMethodOptions.modifierKeysToMultiSelect = false;
+					$scope.gridMethodOptions.noUnselect = false;
+					$scope.gridMethodOptions.onRegisterApi = function(gridApi) {
+						$scope.gridMethodOptionsApi = gridApi;
+					};
+
+					// ////////////////////////////////////////////////////////////////////
+					$scope.gridOptions = {
+						enableFullRowSelection : true,
+						enableRowHeaderSelection : false,
+						enableSorting : false,
+						enableColumnMenus : false,
+						minRowsToShow : 3
+					};
+
+					$scope.gridOptions.columnDefs = [ {
+						name : 'id',
+						visible : false
+					}, {
+						name : 'name',
+						visible : true
+					}, {
+						name : 'desc',
+						displayName : 'Description',
+						width : '50%'
+					}, {
+						name : 'pattern'
+					}, ];
+
+					$scope.gridOptions.multiSelect = false;
+					$scope.gridOptions.modifierKeysToMultiSelect = false;
+					$scope.gridOptions.noUnselect = false;
+					$scope.gridOptions.onRegisterApi = function(gridApi) {
+						$scope.gridApi = gridApi;
+						$scope.gridApi.core.handleWindowResize();
+						gridApi.selection.on.rowSelectionChanged($scope,
+								function(row) {
+									$scope.getSelectedXpattern();
+								});
+					};
+					$scope.getSelectedXpattern = function() {
+						$scope.currentXpatternModel.id = $scope.gridApi.selection
+								.getSelectedGridRows()[0].entity.id;
+						$scope.currentXpatternModel.name = $scope.gridApi.selection
+								.getSelectedGridRows()[0].entity.name;
+						$scope.currentXpatternModel.desc = $scope.gridApi.selection
+								.getSelectedGridRows()[0].entity.desc;
+						$scope.currentXpatternModel.pattern = $scope.gridApi.selection
+								.getSelectedGridRows()[0].entity.pattern;
+					}
+					$scope.saveXpattern = function() {
+						if ($scope.currentXpatternModel.name == "") {
+							swal('', 'Please input the Xpattern name.', 'info');
+							return;
+						}
+
+						if ($scope.currentXpatternModel.id == "") {
+							$scope
+									.createNewXpattern($scope.currentXpatternModel);
+
+						} else if ($scope.currentXpatternModel.id == $scope.currentWidgetModel.xpattern_id) {
+							swal('', 'Can not update the current Xpattern!',
+									'info');
+
+						} else {
+							$scope.updateXpattern($scope.currentXpatternModel);
+						}
+
+					}
+					$scope.updateXpattern = function(model) {
+						WidgetService
+								.updateXpattern(model)
+								.then(
+										function(data) {
+											if (data.value) {
+												swal(
+														'',
+														'Saving Xpattern Successfully!',
+														'success');
+												$log
+														.info("Saving Xpattern Successfully!");
+												$scope.loadXpatterns();
+											} else {
+												$scope.loadXpatterns();
+												swal(
+														'',
+														'Can not save the current Xpattern!',
+														'info');
+
+												$log
+														.error("Saving Xpattern failed!");
+
+											}
+
+										})
+					}
+					$scope.createNewXpattern = function(model) {
+						WidgetService
+								.addXpattern(model)
+								.then(
+										function(data) {
+											if (data.value) {
+												$scope.currentXpatternModel = data.value;
+												swal(
+														'',
+														'Creating Xpattern Successfully!',
+														'success')
+												$log
+														.info(
+																"Creating Xpattern Successfully!",
+																data.value);
+												$scope.loadXpatterns();
+											} else {
+												$log
+														.error("Creating Xpattern failed!");
+
+											}
+
+										})
+					}
+					$scope.doDeleteXpattern = function() {
+						WidgetService
+								.removeXpattern($scope.currentXpatternModel.id)
+								.then(
+										function(data) {
+											if (data.value) {
+												swal(
+														'',
+														'Delete Xpattern Successfully!',
+														'success')
+												$log
+														.info(
+																"Delete Xpattern Successfully",
+																data.value);
+												$scope
+														.initCurrentXpatternModel();
+											} else {
+												swal(
+														'',
+														'Can not delete the Xpattern!',
+														'info');
+												$log
+														.info("Can not delete Xpattern: "
+																+ $scope.currentXpatternModel.id);
+
+											}
+											$scope.loadXpatterns();
+										},
+										function(reason) {
+											swal(
+													'',
+													'Can not delete Xpattern: '
+															+ $scope.currentXpatternModel.name
+															+ '.', 'error')
+											$log
+													.info(
+															"Can not delete Xpattern: "
+																	+ $scope.currentXpatternModel.id,
+															reason);
+											$scope.loadXpatterns();
+										})
+
+					}
+
+					$scope.deleteXpattern = function() {
+						swal(
+								{
+									title : '',
+									text : "Are you sure to remove the Xpattern: "
+											+ $scope.currentXpatternModel.name
+											+ " ?",
+									type : 'warning',
+									showCancelButton : true,
+									confirmButtonText : "YES",
+									cancelButtonText : "NO",
+								}).then(function() {
+							$log.info("User confirm delete the xpattern.");
+							$scope.doDeleteXpattern();
+
+						}, function(dismiss) {
+
+							if (dismiss === 'cancel') {
+								$log.info("User cancel delete the xpattern.");
+							}
+						});
+
+					};
+					$scope.closeXpattern = function() {
+						$scope.loadXpatterns();
+					}
+
+					$scope.openPrototype = function() {
+						if ($scope.currentWidgetModel.prototype_id == "" || $scope.currentWidgetModel.prototype_id == null) {
+							swal('', 'Can not open a blank prototype!', 'info');
+							return;
+						}
+						$scope.getAllMethods();
+						$scope.loadPrototypeById(
+								$scope.currentWidgetModel.prototype_id, false);
+						$('#modal-WidgetPrototypes').modal({
+							backdrop : 'static'
+						});
+						$log.info('$scope.gridPrototypeOptionsApi',
+								$scope.gridPrototypeOptionsApi);
+					}
+					$scope.createPrototype = function() {
+						$scope.initCurrentPrototypeModel();
+						$scope.getAllMethods();
+						$('#modal-WidgetPrototypes').modal({
+							backdrop : 'static'
+						});
+					}
+					$scope.openXpattern = function() {
+						if ($scope.currentWidgetModel.xpattern_id == undefined
+								|| $scope.currentWidgetModel.xpattern_id == ""
+								|| $scope.currentWidgetModel.xpattern_id == null) {
+							swal('', 'Please choose an Xpattern!', 'info')
+						} else {
+							$scope
+									.getXpatternById(
+											$scope.currentWidgetModel.xpattern_id,
+											true);
+							$('#modal-Xpattern').modal({
+								backdrop : 'static'
+							});
+						}
+
+					}
+					$scope.createXpattern = function() {
+						$scope.initCurrentXpatternModel();
+						$scope.loadXpatterns();
+						$('#modal-Xpattern').modal({
+							backdrop : 'static'
+						});
+					}
+
+					$scope.onPtTreeLoaded = function() {
+						// make sure the highlight is the same height as the
+						// node text
+						$.vakata.context.settings.hide_onmouseleave = 1;
+						$.jstree.defaults.contextmenu.select_node = false;
+						$scope.ptTreeInstance.bind('hover_node.jstree',
+								function(e, data) {
+									var bar = $(this).find(
+											'.jstree-wholerow-hovered');
+									bar.css('height', bar.parent().children(
+											'a.jstree-anchor').height()
+											+ 'px');
+									var node_id = data.node.a_attr.id;
+									var node = jQuery('#' + node_id);
+									if (data.node.type !== 'leaf') {
+										// node.trigger('contextmenu');
+									} else {
+										$.vakata.context.hide();
+									}
+								});
+
+						$scope.ptTreeInstance
+								.bind(
+										"show_contextmenu.jstree",
+										function(e, data) {
+											var $node = $('#' + data.node.id), $menu = $(
+													'.vakata-context').first(), nodeTop = $node
+													.offset().top, menuTop = nodeTop
+													+ $node.height()
+													- $menu.height(), menuLeft = 1000;
+											if (menuTop > 500) {
+												menuTop = 76;
+											}
+											$menu.offset({
+												left : menuLeft,
+												top : menuTop + 20
+											});
+										});
+						$log
+								.debug("$scope.onPtTreeLoaded() running completed.");
+
+					};
+
+					$scope.getMethodById = function(methodId) {
+								WidgetService
+										.getMethodById(methodId)
+										.then(
+												function(data) {
+													if (data.value) {
+														$log
+																.debug(
+																		"getMethodByMethodId("
+																				+ methodId
+																				+ ") completed.",
+																		data.value);
+														$scope.currentMethodModel = data.value;
+														$scope
+																.reloadMethodGrid();
+
+														$log
+																.debug(
+																		"$scope.gridMethodOptions.data: ",
+																		$scope.gridMethodOptions.data);
+														$log
+																.debug(
+																		"$scope.currentMethodModel.types",
+																		$scope.currentMethodModel.types);
+													}
+												}), function(reason) {
+									$log.error("getMethodByMethodId("
+											+ methodId + ") failed.", reason);
+								}
+					}
+
+					$scope.saveMethod = function() {
+						if ($scope.currentMethodModel.user_name == "sys") {
+							swal("", "Can not save the system method", "info");
+							return;
+						}
+						if ($scope.currentMethodModel.name == "") {
+							swal("", "Method name can not be blank", "info");
+							return;
+						}
+						if ($scope.currentMethodModel.types[$scope.currentMethodModel.types.length - 1] == "") {
+							$scope.currentMethodModel.types.pop();
+							$log.debug("saving method: model.types - ",
+									$scope.currentMethodModel.types)
+						}
+						if ($scope.currentMethodModel.id == "") {
+									WidgetService
+											.addMethod(
+													$scope.currentMethodModel)
+											.then(
+													function(data) {
+														if (data.value) {
+															$scope.currentMethodModel = data.value;
+															swal(
+																	"",
+																	"Method created successfully, plesae check it under the 'Default' category",
+																	"success");
+															$scope
+																	.loadWidgetPrototypeTree();
+														}
+													}), function(result) {
+										alert("create failed!");
+									}
+						} else {
+									WidgetService
+											.updateMethod(
+													$scope.currentMethodModel)
+											.then(
+													function(data) {
+														if (data.value) {
+															swal(
+																	"",
+																	"Method updated successfully!",
+																	"success");
+															$scope
+																	.loadWidgetPrototypeTree();
+														}
+
+													}), function(data) {
+										alert("update failed!" + data.value);
+									}
+						}
+						$scope.reloadMethodGrid();
+					}
+					$scope.deleteMethod = function() {
+						if ($scope.currentMethodModel.user_name == "sys") {
+							swal("", "Can not delete the system method", "info");
+							return;
+						}
+						swal(
+								{
+									title : '',
+									text : "Are you sure to delete the method: "
+											+ $scope.currentMethodModel.name
+											+ "?",
+									type : 'warning',
+									showCancelButton : true,
+									confirmButtonText : "YES",
+									cancelButtonText : "NO",
+								}).then(function() {
+							$log.info("User confirm delete method.");
+							$scope.doRemoveMethod();
+
+						}, function(dismiss) {
+							// dismiss can be 'cancel', 'overlay',
+							// 'close', and 'timer'
+							if (dismiss === 'cancel') {
+								$log.info("User give up remove");
+							}
+						});
+					}
+					$scope.doRemoveMethod = function() {
+						WidgetService
+								.removeMethod($scope.currentMethodModel.id)
+								.then(
+										function(data) {
+											if (data.value) {
+												$scope
+														.loadWidgetPrototypeTree();
+												swal(
+														"",
+														"Delete the method successfully!",
+														"success");
+												$('#modal-Method')
+														.modal("hide");
+											}
+										},
+										function(reason) {
+											swal(
+													'',
+													'Can not delete the system method',
+													'error')
+										})
+					}
+					$scope.onPtSelected = function() {
+						var node = $scope.ptTreeInstance.jstree("get_selected",
+								true)[0]
+						$log.debug("$scope.onPtSelected", $scope.ptTreeInstance
+								.jstree("get_selected", true));
+						$log.debug("selected prototype id length:",
+								$scope.ptTreeInstance.jstree("get_selected",
+										true)[0].id.length);
+						if ($scope.ptTreeInstance.jstree("get_selected", true)[0].id.length != 32) {
+							return;
+						}
+						if (node.original.type.toLowerCase() == 'leaf') {
+							$log.debug("Method selected: ", node.original)
+							$scope.getMethodById(node.original.id);
+							$scope.reloadMethodGrid();
+							$('#modal-Method').modal({
+								backdrop : 'static'
+							});
+						} else if (node.original.type.toLowerCase() == 'folder') {
+							$scope.getAllMethods();
+							$scope.loadPrototypeById(node.original.id, false);
+							$('#modal-WidgetPrototypes').modal({
+								backdrop : 'static'
+							});
+						}
+					}
+
+					$scope.addMethods = function() {
+						$log.debug("selected:",
+								$scope.gridPrototypeOptionsApi.selection
+										.getSelectedRows());
+						var rows = $scope.gridPrototypeOptionsApi.selection
+								.getSelectedRows();
+						var duplicateFound = false;
+						var sysMethodFound = false;
+						var msgInfo = "";
+						for (var i = 0; i < rows.length; i++) {
+							if (rows[i].user_name == "sys") {
+								sysMethodFound = true;
+								continue;
+							}
+							if (!$scope.containsMethod(rows[i].id,
+									$scope.gridPrototypeResults.data)) {
+								$scope.gridPrototypeResults.data.push($scope
+										.populateMethod(rows[i]));
+								$scope.currentPrototypeModel.methods = $scope.gridPrototypeResults.data;
+							} else {
+								duplicateFound = true;
+							}
+
+						}
+						if (duplicateFound) {
+							msgInfo = msgInfo
+									+ "\n"
+									+ "Ignore the methods already in target list."
+						}
+
+						if (sysMethodFound) {
+							msgInfo = msgInfo + "\n"
+									+ "Ignore the system methods."
+						}
+
+						if (msgInfo != "") {
+							swal("", msgInfo, "info");
+						}
+						$scope.gridPrototypeOptionsApi.selection
+								.clearSelectedRows()
+						$log.debug("$scope.currentPrototypeModel: ",
+								$scope.currentPrototypeModel)
+
+					}
+
+					$scope.containsMethod = function(id, rows) {
+						for (var i = 0; i < rows.length; i++) {
+							if (id == rows[i].id) {
+								return true;
+							}
+						}
+
+						return false;
+					}
+
+					$scope.populateMethod = function(row) {
+						var method = {
+							id : row.id,
+							name : row.name,
+							desc : row.desc,
+							user_name : row.user_name,
+							content : row.content
+						}
+						return method;
+					}
+
+					$scope.removeMethods = function() {
+						$log.debug("selected:",
+								$scope.gridPrototypeResultsApi.selection
+										.getSelectedRows());
+						var rows = $scope.gridPrototypeResultsApi.selection
+								.getSelectedRows();
+						for (var j = 0; j < rows.length; j++) {
+							for (var i = 0; i < $scope.gridPrototypeResults.data.length; i++) {
+								if ($scope.gridPrototypeResults.data[i].id == rows[j].id) {
+									$scope.gridPrototypeResults.data.splice(i,
+											1);
+									break;
+								}
+							}
+						}
+
+						$log.debug("$scope.currentPrototypeModel: ",
+								$scope.currentPrototypeModel)
+						$scope.gridPrototypeResultsApi.selection
+								.clearSelectedRows()
+
+					}
+
+					$scope.removeArg = function(index) {
+						// $scope.gridMethodOptions.data.splice(index, 1);
+						$scope.currentMethodModel.types.splice(index, 1);
+						$scope.reloadMethodGrid();
+					}
+
+					$scope.addArg = function() {
+						$scope.argModel = new Array();
+						$scope.$broadcast('angucomplete-alt:clearInput',
+								'acArg')
+
+						var types = [ "STRING", "NUMBER", "BOOLEAN", "WIDGET",
+								"List of Basic Type" ];
+						var arg = {
+							type : "",
+						}
+
+						var popArg = function(type) {
+							var tmpArg = {
+								type : "",
+							}
+							tmpArg.type = type
+							return tmpArg;
+						}
+
+						for (var i = 0; i < types.length; i++) {
+							$scope.argModel.push(function(para) {
+								return popArg(types[para])
+							}(i))
+
+						}
+
+						$('#modal-argument-type').modal({
+							backdrop : 'static'
+						});
+
+					}
+
+					$scope.doAddArg = function() {
+						if ($scope.newArgType != ""
+								&& $scope.newArgType != undefined) {
+							if ($scope.currentMethodModel.types[$scope.currentMethodModel.types.length - 1] == "") {
+								$scope.currentMethodModel.types.pop()
+							}
+
+						} else {
+							swal('', 'Please select the argument type!', 'info');
+						}
+						$scope.currentMethodModel.types.push($scope.newArgType);
+						$scope.reloadMethodGrid();
+						$scope.newArgType = "";
+						$('#modal-argument-type').modal("hide");
+
+					}
+
+					$scope.acArgSelected = function(selected) {
+						if (selected) {
+							$scope.newArgType = selected.originalObject.type;
+						} else {
+							$scope.newArgType = "";
+						}
+					}
+
+					$scope.getSeq = function(index, length) {
+						if (index < (length - 1)) {
+							return index;
+						}
+						return '';
+					}
+					$scope.notLastArg = function(index, length) {
+						return !($scope.isLastArg(index, length))
+					}
+					$scope.isLastArg = function(index, length) {
+						if (index < (length - 1)) {
+							return false;
+						}
+						return true;
+					}
+
+					$scope.savePrototype = function() {
+						var promptString = "";
+
+						var duplicated = BuildTree.existSameName(
+								$scope.currentPrototypeModel, $scope.prototypeNames);
+						if (duplicated) {
+							promptString = promptString
+									+ "<br>"
+									+ "Prototype name already exists."
+						}
+						if ($scope.currentPrototypeModel.name == "") {
+							promptString = promptString + "<br>"
+									+ "Widget prototype name can not be blank."
+						}
+						if ($scope.currentPrototypeModel.user_name == "sys") {
+							// If it is system prototype, no need to show other
+							// prompt.
+							promptString = "Can not save system prototype.";
+						}
+						if (promptString != "") {
+							swal('', promptString, 'info');
+							return;
+						}
+						if ($scope.currentPrototypeModel.id != "") {
+							$scope
+									.doUpdatePrototype($scope.currentPrototypeModel);
+						} else {
+							$scope
+									.doCreatePrototype($scope.currentPrototypeModel);
+						}
+
+					}
+
+					$scope.doUpdatePrototype = function(currentPrototypeModel) {
+								WidgetService
+										.updatePrototype(
+												$scope.currentPrototypeModel)
+										.then(
+												function(data) {
+													if (data.value) {
+
+														swal(
+																'',
+																'Update Widget Prototype Successfully!',
+																'success')
+														$(
+																'#modal-WidgetPrototypes')
+																.modal("hide");
+														$scope
+																.loadWidgetPrototypes();
+														$scope
+																.loadWidgetPrototypeTree();
+													}
+												}), function(reason) {
+									swal('', 'Update widget prototype failed.',
+											'error')
+									$scope.loadWidgetPrototypeTree();
+								}
+					}
+
+					$scope.doCreatePrototype = function(currentPrototypeModel) {
+						$log
+								.debug("doCreatePrototype: ",
+										currentPrototypeModel);
+								WidgetService
+										.addPrototype(
+												$scope.currentPrototypeModel)
+										.then(
+												function(data) {
+													if (data.value) {
+
+														swal(
+																"",
+																"Save Widget Prototype Successfully!",
+																"success");
+														$(
+																'#modal-WidgetPrototypes')
+																.modal("hide");
+														$scope
+																.loadWidgetPrototypes();
+														$scope
+																.loadWidgetPrototypeTree();
+													}
+												}),
+								function(reason) {
+									swal(
+											'',
+											'Create prototype failed, please try it later.',
+											'error')
+									$scope.loadWidgetPrototypeTree();
+								}
+					}
+
+				});

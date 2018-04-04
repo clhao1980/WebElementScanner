@@ -1,0 +1,50 @@
+"use strict";
+app.service('ReportService',function(Utils,Config) {
+        var service = {};
+        service.getHistoryData = function (from, to) {
+        	var data = {
+                "from": from,
+                "to": to
+            };
+            return Utils.ctapPost(Config.RestMapping.loadTestHistoryUrl,data);
+        };
+        
+        service.getResultData = function (resultId) {
+            return Utils.ctapGet(Config.RestMapping.loadTestResultUrl(resultId));
+        };
+        
+        service.getDetailData = function (id,app_url,env) {
+        	var data = {
+        		"resultDetailId":id,
+        	    "app_url": app_url,
+        	    "env": env
+        	}
+            return Utils.ctapPost(Config.RestMapping.loadTestDetailUrl,data);
+        };
+        
+        service.getPDFData = function (id,app_url,env) {
+        	var data = {
+        		"resultDetailId":id,
+        	    "app_url": app_url,
+        	    "env": env
+        	}
+            return Utils.ctapPost(Config.RestMapping.generatePDFUrl,data);
+        };
+        
+        service.getXLSData = function (id, type, app_name, app_url, run, passed, failed, children, envs) {
+        	var data = {
+        		"highId": id,
+        		"type": type,
+        		"appName": app_name,
+        		"appUrl": app_url,
+        		"run": run,
+        		"passed": passed,
+        		"failed": failed,
+        		"children": children,
+        		"envs": envs
+        	}
+            return Utils.ctapPost(Config.RestMapping.generateXLSUrl,data);
+        };
+        
+        return service;
+    });

@@ -1,0 +1,63 @@
+/**
+ * Created by Ran on 2017/5/2.
+ */
+"use strict";
+app.service('debugCaseService',function(Utils,Config) {
+        var service = {};
+        service.getCaseDebugData = function (id) {
+            return Utils.ctapGet(Config.RestMapping.getCaseDebugDataUrl(id));
+        };
+        
+        service.getCaseStepData = function (id) {
+            return Utils.ctapGet(Config.RestMapping.getCaseStepDataUrl(id));
+        };
+
+        service.getExecutionEnv = function () {
+            return Utils.ctapGet(Config.RestMapping.getExecutionEnvUrl);
+        };
+        
+        service.getProductionAppUrl = function () {
+            return Utils.ctapGet(Config.RestMapping.getProductionAppUrl);
+        };
+       
+        service.updateCaseData = function (model) {
+        	var data= {"case_id":model.case_id,"case_name":"",profile:[]};
+        	for(var i=0; i< model.profile.length;i++)
+        	{
+//        		delete model.profile[i].seq;
+        		for(var j=0; j< model.profile[i].data.length;j++)
+        			{
+        				delete model.profile[i].data[j].defaultvalue;
+        			}
+        	}
+
+            var data = model;
+            return Utils.ctapPost(Config.RestMapping.updateCaseDataUrl,data);
+        };
+        
+        service.runCase = function (caseId,execute_meta) {
+        	return Utils.ctapPost(Config.RestMapping.execCase(caseId),execute_meta);
+        };
+
+        service.updateprod = function (data) {
+        	if(data.id ==""){
+        		 return Utils.ctapPost(Config.RestMapping.addProdUrl,data);
+        	}
+        	else
+            return Utils.ctapPost(Config.RestMapping.updateProdUrl,data);
+        };
+        
+        service.createUrl = function (data) {
+        	return Utils.ctapPost(Config.RestMapping.createProdAppUrl,data);
+        };
+        
+        service.getWidgetUrl = function (id) {
+        	return Utils.ctapGet(Config.RestMapping.widgetByIdUrl(id));
+        };
+        
+        
+        service.checkDebugData= function (id) {
+        	return Utils.ctapGet(Config.RestMapping.checkDebugDataUrl(id));
+        };
+        return service;
+    });

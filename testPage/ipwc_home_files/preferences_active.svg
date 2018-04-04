@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 48.2 (47327) - http://www.bohemiancoding.com/sketch -->
+    <title>Combined Shape</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="iconography" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" transform="translate(-477.000000, -358.000000)">
+        <path d="M477,358 L495,358 L495,372 L491,376 L477,376 L477,358 Z M486.047619,364.646571 C485.666598,364.020502 484.973677,363.599976 484.179487,363.599976 C482.97571,363.599976 482,364.562419 482,365.749829 C482,366.343496 482.236864,366.888024 482.622711,367.285439 C483.499176,368.188224 486.047619,370.970903 486.047619,370.970903 C486.047619,370.970903 488.596063,368.188224 489.472528,367.285439 C489.858375,366.888024 490.095238,366.343496 490.095238,365.749829 C490.095238,364.562419 489.119529,363.599976 487.915751,363.599976 C487.121562,363.599976 486.42864,364.020502 486.047619,364.646571 Z" id="Combined-Shape" fill="#3E76C0" fill-rule="nonzero"></path>
+    </g>
+</svg>

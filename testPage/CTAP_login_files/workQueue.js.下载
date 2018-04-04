@@ -1,0 +1,386 @@
+'use strict';
+
+angular.module('myApp.workQueue', ['ngRoute', 'data-table', 'ui.bootstrap', 'ui.grid'])
+
+.config(['$routeProvider', function($routeProvider) {
+    $routeProvider.when('/workQueue', {
+        templateUrl: './modules/workQueue/workQueue.html',
+        controller: 'WorkQueueCtrl'
+    });
+}])
+
+.controller('WorkQueueCtrl', function($location, $scope,$rootScope,$log,$timeout,WorkQueueService,uiGridConstants) {
+	if($rootScope.curUser == ""){
+		$rootScope.checkBeforeLeaveInQueue("/login");
+	}
+	//set the style to "active" for the users input URL directly.
+	$rootScope.activeNavButton("queue");
+	
+	var lastId= "";
+	var hitCount = 0;
+	var currentWidth = document.body.clientWidth;
+	$scope.currentHighId = null;
+	$scope.currentLowId = null;
+	$scope.currentLowType = null;
+	$scope.currentLowResult = null;
+	$scope.removingHighId = null;
+	$scope.removingLowId = null;
+	$scope.lowData = [];
+	
+	$rootScope.checkBeforeLeaveInQueue = function(targetUrl){
+		if ($scope.highFlashId) {
+			window.clearInterval($scope.highFlashId);
+		}
+		if ($scope.lowFlashId) {
+			window.clearInterval($scope.lowFlashId);
+		}
+		$location.path(targetUrl);
+	}
+	
+	$scope.initWorkQueue = function(){
+		$scope.gridWorks.data=[];
+		$scope.gridDetails.data = [];
+		loadWorkQueue();
+		$scope.highFlashId = setInterval(loadWorkQueue, 10000);
+		$scope.lowFlashId = setInterval(loadLow, 5000);
+	};
+    
+	var loadWorkQueue = function() {
+    	    WorkQueueService.getWorkQueueData().then(function (data) {
+    	    	data = data.value;
+    	    	var index = 0;
+    	    	if (data == null || data.length == 0) {
+    	    		$scope.currentHighId = null;
+    	    		$scope.gridWorks.data=[];
+    	    		return;
+    	    	}
+    	    	for (var i in data) {
+    	    		while (index < $scope.gridWorks.data.length && $scope.gridWorks.data.length>0) {
+    	    			if ($scope.gridWorks.data[index].id !== data[i].id) {
+    	    				if($scope.currentHighId==$scope.gridWorks.data[index].id) {
+    	    					$scope.currentHighId = null;
+    	    				}
+    	    				$scope.gridWorks.data.splice(index,1);
+    	    			} else {
+    	    				break;
+    	    			}
+    	    		}
+    	    		if (index < $scope.gridWorks.data.length && $scope.gridWorks.data[index].id == data[i].id) {
+    	    			var status = data[i].status == "fresh"? "waiting": data[i].status;
+    	    			if ($scope.gridWorks.data[index].status !== status) {
+        				$scope.gridWorks.data[index].status = status;
+        			}
+    	    			index++;
+    	    			continue;
+	    		}
+    	    		var addTime = new Date(data[i].add_time);
+    	    		var workData = {"id": data[i].id, "name": data[i].name, "user": data[i].user_name,
+    	    			"productionName": data[i].production_name, "url": data[i].app_url, "status": data[i].status == "fresh"? "waiting": data[i].status,
+    	    			"environment": data[i].envs[0].platform + "-" + data[i].envs[0].browser + "-" + data[i].envs[0].version,
+    	    			"addTime": (addTime.getMonth()+1)+'/'+addTime.getDate()+'/'+addTime.getFullYear()+
+    		    		" " +addTime.getHours()+':'+addTime.getMinutes()+':'+addTime.getSeconds()};
+    	    		$scope.gridWorks.data.push(workData);
+    	    		index++;
+    	    	}
+    	}, function (reason) {
+        	$log.debug('Not login');
+        	$rootScope.checkBeforeLeaveInQueue("/login");
+        });
+	}
+		///////////////////////
+        $scope.gridWorks = {
+			enableFullRowSelection : true,
+			enableRowHeaderSelection : false,
+			enableSorting : true,
+			enableColumnMenus : false,
+			enableCellEdit: false,
+			minRowsToShow : 3,
+			showTreeExpandNoChildren : false,
+		};
+    
+    $scope.gridWorks.columnDefs = [
+		{
+			name : 'id',
+			visible : false
+		},
+		{
+			name : 'name',
+			displayName : 'Name',
+			width: '25%',
+			headerCellClass: "left",
+			enableSorting: false
+		},
+		{
+			name : 'user',
+			displayName : 'User',
+			width: '15%',
+			headerCellClass: "left",
+			enableSorting: false
+		},
+		{
+			name : 'productionName',
+			displayName : 'Production Name',
+			width: '20%',
+			headerCellClass: "left",
+			enableSorting: false
+		},
+		{
+			name : 'status',
+			displayName : 'Status',
+			width: '15%',
+			headerCellClass: "center",
+			cellClass: "center",
+			enableSorting: false
+		},
+		{
+			name : 'addTime',
+			displayName : 'Add Time',
+			headerCellClass: "center",
+			cellClass: "center",
+			enableSorting: false
+		}];
+    
+        $scope.gridWorks.multiSelect = false;
+        $scope.gridWorks.onRegisterApi = function(gridApi) {
+		$scope.gridWorkApi = gridApi;
+		$scope.gridWorkApi.core.handleWindowResize();
+		gridApi.selection.on.rowSelectionChanged($scope,
+			function(wrow) {
+			   var row = wrow.entity;
+			   $scope.currentHighId = row.id;
+			   $scope.gridDetails.data = [];
+			   loadLow();
+		});
+	};
+	
+	var loadLow = function() {
+		if ($scope.currentHighId==null) {
+			$scope.gridDetails.data = [];
+			return;
+		}
+	    	
+		WorkQueueService.getLowData($scope.currentHighId).then(function(data) {
+			data = data.value;
+			renderLow(data);
+		});
+	};
+	
+	var parseLowerObjects = function(data, layer) {
+		if (data == null) return;
+		for (var i in data) {
+			data[i].level=layer;
+			$scope.lowData.push(data[i]);
+			parseLowerObjects(data[i].lowers, layer+1);
+		}
+	};
+	
+	var renderLow = function (data) {
+    		var index = 0;
+    		if (data == null || data.length == 0) {
+    			$scope.currentLowId = null;
+    			$scope.gridDetails.data=[];
+    			return;
+    		}
+    		$scope.lowData = [];
+    		for (var i in data) {
+    			data[i].level=0;
+			$scope.lowData.push(data[i]);
+    			if (data[i].lowers != null) {
+    				parseLowerObjects(data[i].lowers,1);
+    			} 
+    		}
+    		for (var i in $scope.lowData) {
+    			if (index < $scope.gridDetails.data.length && $scope.gridDetails.data[index].id == $scope.lowData[i].id) {
+    				if ($scope.gridDetails.data[index].result !== $scope.lowData[i].result) {
+    					$scope.gridDetails.data[index].result = $scope.lowData[i].result;
+    				}
+    				
+    				if ($scope.gridDetails.data[index].status !== $scope.lowData[i].status) {
+    					$scope.gridDetails.data[index].status = $scope.lowData[i].status;
+    				}
+    				
+    				if ($scope.gridDetails.data[index].percent !== $scope.lowData[i].percent) {
+    					var percent = parseInt(parseFloat($scope.lowData[i].percent) * 100);
+    					$scope.gridDetails.data[index].percent = percent;
+    				}
+    				
+    				if ($scope.gridDetails.data[index].id === $scope.currentLowId) {
+    					$scope.currentLowResult = $scope.gridDetails.data[index].result;
+    				}
+    				
+    				index++;
+    				continue;
+    			}
+	   
+    			var addTime = new Date($scope.lowData[i].add_time);
+    			var env = null;
+    			if($scope.lowData[i].env) {
+    				env = $scope.lowData[i].env.platform + "-" + $scope.lowData[i].env.browser + "-" + $scope.lowData[i].env.version;
+    			}
+    			var percent = parseInt(parseFloat($scope.lowData[i].percent) * 100);
+    			$scope.gridDetails.data.push({"id": $scope.lowData[i].id, "type": $scope.lowData[i].low_type, "name": $scope.lowData[i].name,
+    				"result": $scope.lowData[i].result, "environment": env,
+    				"addTime": (addTime.getMonth()+1)+'/'+addTime.getDate()+'/'+addTime.getFullYear()+
+    				" " +addTime.getHours()+':'+addTime.getMinutes()+':'+addTime.getSeconds(),
+    				"percent": percent, $$treeLevel: $scope.lowData[i].level});
+    		}
+	};
+	
+///////////////////////
+    $scope.gridDetails = {
+		enableFullRowSelection : true,
+		enableRowHeaderSelection : false,
+		enableSorting : true,
+		enableColumnMenus : false,
+		enableCellEdit: false,
+		minRowsToShow : 3,
+		showTreeExpandNoChildren : false,
+	};
+
+$scope.gridDetails.columnDefs = [
+	{
+		name : 'id',
+		visible : false
+	},
+	{
+		name : 'level',
+		visible : false
+	},
+	{
+		name : 'type',
+		displayName : '',
+		width : '3%',
+		cellTemplate : '<div class="ui-grid-cell-contents" title="TOOLTIP">{{}}</div>',
+		cellTooltip : function(row, col) {
+			if (row.entity.type == 'sub') return 'sequential suite';
+			if (row.entity.type == 'single') return 'case';
+			return row.entity.type;
+		},
+		cellClass : function(grid, row, col,
+				rowRenderIndex, colRenderIndex) {
+			if (grid.getCellValue(row, col) === 'suite') {
+				return 'suite';
+			}
+			if (grid.getCellValue(row, col) === 'sub') {
+				return 'subsuite';
+			}
+			if (grid.getCellValue(row, col) === 'case' || grid.getCellValue(row, col) === 'single') {
+				return 'case';
+			}
+		},
+		enableSorting: false
+	},
+	{
+		name : 'name',
+		width: '20%',
+		displayName : 'Name',
+		headerCellClass: "left",
+		enableSorting: false
+	},
+	{
+		name : 'result',
+		displayName : 'Result',
+		width: '10%',
+		headerCellClass: "center",
+		cellClass: "center",
+		enableSorting: false
+	},
+	{
+		name : 'environment',
+		displayName : 'Environment',
+		width: '20%',
+		headerCellClass: "center",
+		cellClass: "center",
+		enableSorting: false
+	},
+	{
+		name : 'addTime',
+		displayName : 'Add Time',
+		width: '18%',
+		headerCellClass: "center",
+		cellClass: "center",
+		enableSorting: false
+	},
+	{
+		name : 'percent',
+		displayName : 'Percent',
+		headerCellClass: "center",
+		cellClass: "center",
+		cellTemplate: '<uib-progressbar style="margin:5px 5px 5px 5px;" animate="false" value="row.entity.percent" type="success"><b>{{row.entity.percent}}%</b></uib-progressbar>',
+		enableSorting: false
+	}];
+
+    $scope.gridDetails.multiSelect = false;
+    $scope.gridDetails.onRegisterApi = function(gridApi) {
+    $scope.gridDetailApi = gridApi;
+    $scope.gridDetailApi.core.handleWindowResize();
+    gridApi.selection.on.rowSelectionChanged($scope,
+	    function(wrow) {
+	       var row = wrow.entity;
+	       $scope.currentLowId = row.id;
+	       $scope.currentLowType = row.type;
+	       $scope.currentLowResult = row.result;
+        });
+    };
+    
+    $scope.remove = function() {
+        	$scope.removingLowId = $scope.currentLowId;
+	    WorkQueueService.removeLow($scope.currentLowId).then(function (result) {
+	    	    $scope.removingLowId = null;
+	        	swal('','Remove item success', 'success');
+	        	loadLow();
+	    }, function (reason) {
+		    $log.debug('Remove item failed');
+		    swal('','Remove item failed, please try later!', 'error');
+	    });
+    };
+ 
+    $scope.pause = function() {
+        	WorkQueueService.pauseLow($scope.currentLowId).then(function (result) {
+        		swal('','Pause item success', 'success');
+        		loadLow();
+ 	    }, function (reason) {
+ 		    $log.debug('Pause item failed');
+ 		    swal('','Pause item failed, please try later!', 'error');
+ 	    });
+    };
+    
+    $scope.resume = function() {
+        	WorkQueueService.resumeLow($scope.currentLowId).then(function (result) {
+        		swal('','Resume item success', 'success');
+        		loadLow();
+ 	    }, function (reason) {
+ 		    $log.debug('Resume item failed');
+ 		    swal('','Resume item failed, please try later!', 'error');
+ 	    });
+     };
+     
+     $scope.removeHigh = function() {
+    	    $scope.removingHighId = $scope.currentHighId;
+    	    WorkQueueService.removeHigh($scope.currentHighId).then(function (result) {
+    	        	for (var i = 0; i < $scope.gridWorks.data.length; i++) {
+    	    	        if ($scope.gridWorks.data[i].id === $scope.currentHighId) {
+    	    	    	        $scope.gridWorks.data.splice(i, 1);
+    	    	    	        break;
+    	    	        }
+    	        }
+    	        	$scope.removingHighId = null;
+    	        $scope.currentHighId = null;
+    	        loadWorkQueue();
+     		swal('','Remove item success', 'success');
+	    }, function (reason) {
+		    $log.debug('Remove item failed');
+		    swal('','Remove item failed, please try later!', 'error');
+	    });
+     };
+     
+     /* $scope.openVNC = function() {
+     	WorkQueueService.getgetVNCurl($scope.currentLowId).then(function (result) {
+     		window.open(result);
+	    }, function (reason) {
+		    $log.debug('Open VNC failed');
+		    swal('','Open VNC failed, please try later!', 'error');
+	    });
+     }; */
+     
+});

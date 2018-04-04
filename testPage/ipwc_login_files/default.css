@@ -1,0 +1,110 @@
+/* toolbar starts */
+#masthead-toolbar li,#masthead-toolbar li a
+{
+    color: #858992;
+    font-family: Arial, sans-serif;
+}
+
+#masthead-toolbar:hover, #masthead-toolbar:hover a,#masthead-user:hover label
+{
+    color: #333B4A;
+}
+#masthead-toolbar ul
+{
+    background-color: #E8E8E8;
+}
+/* toolbar starts ends */
+
+/* header starts */
+#masthead-mainbar
+{
+    background-color: #3E76C0;
+}
+#nav_toggle
+{
+    background-color: #3E76C0;
+}
+#nav_toggle span
+{
+    background-color: #ffffff;
+}
+#masthead-separator
+{
+    background-color: transparent;
+}
+#masthead-dropdown #label
+{
+    color: #ffffff;
+    font-family: "Helvetica Neue", HelveticaNeue, Verdana, Arial, sans-serif;
+}
+#masthead-dropdown button
+{
+    background-color: #5D8CCA;
+    color: #ffffff;
+}
+#masthead-mainbar .dropdown-arrow
+{
+    fill: #ffffff;
+}
+.masthead-search input.masthead-search-bar
+{
+    background: #5D8CCA;
+    color: #ffffff;
+}
+#masthead-logo a
+{
+    width: 77px;
+    background: url(../../images/branding/ibm_logo.svg) center/47px no-repeat;
+}
+#masthead-product-name
+{
+    width: 133px;
+    background: url(../../images/branding/ma_logo_w-on-b.svg) center no-repeat;
+}
+.masthead-search-button
+{
+    fill: #dbdee1;
+}
+#masthead-help
+{
+    fill: #ffffff;
+}
+
+#masthead-quickLink button
+{
+    background-color: #5D8CCA;
+    color: #ffffff;
+}
+
+#masthead-mainbar .add
+{
+    fill: #ffffff;
+}
+/* header ends */
+
+/* footer starts */
+.footer-column h3
+{
+    color: #F4B113;
+    font-family: Arial, sans-serif;
+}
+div .footer-expended
+{
+    background-color: #3E76C0;
+}
+.footer-column a {
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+}
+.footer-links li a:link, .footer-links li a:visited, .footer-links-collapsed li a:link, .footer-links-collapsed li a:visited {
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+}
+div .footer-links-collapsed{
+    background-color: #3E76C0;
+}
+div.footer{
+    color:#FFF;
+    background-color:#3E76C0;
+}
+/* footer ends */

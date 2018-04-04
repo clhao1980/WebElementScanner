@@ -1,0 +1,208 @@
+
+  app.factory('Config', function () {
+      var Config = {
+        httpTimedout: 30000,
+        RestMapping: {
+          	caseTreeUrl: 'case/tree',
+          	suiteTreeUrl: 'suite/tree',
+          	seSuiteTreeUrl: 'sub-suite/tree',
+            taskTreeUrl: 'egg/get_all_egg_with_yolk',
+            caseByIdUrl: function (id) {
+              return 'case/'+id+'/get_case_with_task'
+            },
+
+            taskByIdUrl: function(id) {
+              return 'task/'+id+'/get_task_with_step'
+            },
+            
+            getAllCaseUrl:'case/get_all',
+            allCaseFolderUrl:'folder/get_all_folder/CASE',
+            allTaskFolderUrl:'egg/get_all_folder',
+            removeCaseUrl:'case/remove',
+            updateCaseUrl:'case/update',
+            createCaseUrl:'case/add',
+            mappingCaseFolderUrl:'folder/set_folder_mapping/CASE',
+            mappingCaseTasksUrl:'case/set_case_mapping_task',
+            mappingTaskFolderUrl:'egg/mapping_command',
+            suiteByIdUrl: function (id) {
+                return 'suite/'+id+'/get_suite_with_sub_case'
+              },
+            subSuiteByIdUrl: function (id) {
+                  return 'sub-suite/'+id+'/get_sub_with_case'
+            },
+            suiteWithTagByIdUrl: function (id) {
+                return 'suite/'+id+'/get_with_tag'
+            },
+            subSuiteWithTagByIdUrl: function (id) {
+                  return 'sub-suite/'+id+'/get_with_tag'
+            },            
+            removeSuiteFolderUrl:'suite/remove',
+            removeSeSuiteFolderUrl:'sub-suite/remove',
+            updateSuiteUrl:'suite/update',
+            updateSeSuiteUrl:'sub-suite/update',
+            
+            createSuiteUrl:'suite/add',
+            createSeSuiteUrl:'sub-suite/add',
+            
+            mappingSuiteCasesUrl:'suite/set_suite_mapping_sub_case',
+            mappingSeSuiteCasesUrl:'sub-suite/set_sub_mapping_case',
+            getAllTaskUrl:'task/get_all',
+            createTaskUrl:'task/add',
+            removeTaskUrl:'task/remove',
+            updateTaskUrl:'task/update',
+            setTaskSStep:'task/set_task_s_step',
+            getTaskWithStepUrl: function(id){
+                return 'task/'+id+'get_task_with_step'
+            },
+            createTaskFolderUrl:'egg/add',
+            renameTaskFolderUrl:'egg/rename',
+            removeTaskFolderUrl:'egg/remove',
+            getMehtodWithTypeUrl: function(id){
+                return 'method/'+id+'/get_method_with_type'
+            },
+            
+            createFolderUrl:'folder/add',
+            renameFolderUrl:'folder/rename',
+            removeCaseFolderUrl:'folder/remove_folder/CASE',
+            removeWidgetFolderUrl:'folder/remove_folder/WIDGET',
+
+            allWidgetFolderUrl:'folder/get_all_folder/WIDGET',
+            folderByWidgetIdUrl:function(widgetId){
+            	return 'widget/' + widgetId + '/get_folder_id'
+            },
+            widgetGetAllUrl:'widget/get_all',
+            widgetAddUrl:'widget/add',
+            widgetRemoveUrl:'widget/remove',
+            widgetUpdateUrl:'widget/update',
+            widgetByIdUrl:function(widgetId){
+              return 'widget/'+widgetId+'/get'
+            },
+            // getWidgetWithOthersSimpleUrl:function(widgetId){
+            //   return 'widget/'+widgetId+'/get_widget_with_others_simple'
+            // },
+            // getWidgetWithOthersUrl:function(widgetId){
+            //   return 'widget/'+widgetId+'/get_widget_with_others'
+            // },
+            getWidgetPrototypeWithOthersUrl: function(widgetId){
+                return 'widget_prototype/'+widgetId+'/get_prototype_with_others'
+            },
+            getWidgetTreeUrl:'widget/tree',
+            mappingWidgetFolderUrl:'folder/set_folder_mapping/WIDGET',
+            setCaseMappingTaskUrl:'widget/set_case_mapping_task',
+
+            getAllByWidgetPrototypeUrl:'method/get_all_by_widget_prototype',
+            getCaseDebugDataUrl:function(caseId){
+            	return 'testdata/case/'+ caseId +'/get_case_debugdata'
+            },
+            getCaseStepDataUrl:function(caseId){
+            	return 'testdata/case/'+ caseId +'/get_case_step_data'
+            },
+            updateCaseDataUrl:'testdata/case/update_case_debugdata',
+            checkDebugDataUrl: function(caseId){
+            	return 'testdata/case/'+ caseId +'/check_case_debugdata'
+            },
+            getExecutionEnvUrl:'execute/envs',
+            getProductionAppUrl:'production/get_all',
+            execCase : function(caseId) {
+    			var url = "execute/case/" + caseId;
+    			return url;
+    		},
+            updateProdUrl: 'production/update',
+            createProdAppUrl:'production/add',
+            getAllMethodsUrl:'method/get_all',
+            
+            prototypeByIdUrl:function(id){
+            	return 'widget_prototype/' + id + '/get_prototype_with_others';
+            },
+            prototypeUpdateUrl:'widget_prototype/update_ex',
+            prototypeAddUrl:'widget_prototype/add_ex',
+            prototypeRemoveUrl:function(id){
+            	return 'widget_prototype/' + id + '/remove';
+            },
+            
+            methodByIdUrl:function(methodId){
+            	return 'method/' + methodId + '/get_method_with_type';
+            },
+            methodUpdateUrl:'method/update',
+            methodAddUrl:'method/add',
+            methodRemoveUrl:function(id){
+            	return 'method/' + id + '/remove';
+            },
+            
+            getWidgetPrototypes: 'widget_prototype/get_all',
+            xpatternByIdUrl:function(xpatternId){
+            	return 'xpattern/' + xpatternId + '/get'; 
+            },
+            getXpatterns:'xpattern/get_all',
+            xpatternUpdateUrl:'xpattern/update',
+            xpatternRemoveUrl:function(xpatternId){
+            	return 'xpattern/' + xpatternId + '/remove';
+            },
+            xpatternAddUrl:'xpattern/add',
+            loadTestHistoryUrl:"report/high/time",
+            loadTestResultUrl:function(resultId) {
+            	return "report/"+resultId +"/low";
+            },
+            loadTestDetailUrl:"report/detail",
+            generatePDFUrl:"report/generatepdf",
+            generateXLSUrl:"report/generate_summary",
+              tagsByTaskIdUrl:function(taskId){
+            	return 'testdata/task/' + taskId + '/tags'; 
+            },
+            updateSuiteExecutionUrl:'testdata/suite/update_executedata',
+            executeSuiteUrl:function(suiteId){
+            	return 'execute/suite/' + suiteId;
+            },
+            executeSubSuiteUrl: function(subSuiteId){
+            	return 'execute/sub-suite/' + subSuiteId;
+            },
+            scheduleSuiteUrl:function(suiteId){
+            	return 'schedule/suite/' + suiteId;
+            },
+            scheduleSubSuiteUrl: function(subSuiteId){
+            	return 'schedule/sub-suite/' + subSuiteId;
+            },
+            loadWorkQueueUrl: function(){
+            	return 'work_queue/high';
+            },
+            deleteWorkQueueUrl: function(){
+            	return 'work_queue/delete';
+            },
+            getLowByHighIDUrl: function(highId) {
+            	return "work_queue/"+highId +"/low";
+            },
+            queryProgressByLowIDUrl: function(lowId) {
+    			return "work_queue/"+lowId +"/progress";
+    		    },
+    		    pushQueueUrl: function(id, type){
+    			return "workqueue/push?id=" + id + "&type="+ type;
+    		    },
+    		    pauseLowUrl: function(lowId){
+    				return "work_queue/"+lowId+"/pause";
+    			},
+    			resumeLowUrl : function(lowId){
+    				return "work_queue/"+lowId+"/resume";
+    			},
+    			removeLowUrl : function(lowId){
+    				return "work_queue/"+lowId+"/remove";
+    			},
+    			pauseDelayUrl: function(lowId){
+    				return "work_queue/"+lowId+"/pause/delay";
+    			},
+    			getLeftPausetimeUrl:  function(lowId){
+    				return "work_queue/"+lowId+"/pause/time";
+    			},
+    			getWorkQueueStatusUrl:  function(lowId){
+    				return "work_queue/"+lowId+"/status";
+    			},
+    			getVNCurlUrl: function(lowid){
+    				return "work_queue/" + lowid + "/get_vnc_url";
+    			},
+    			removeHighUrl : function(highId){
+    				return "work_queue/" + highId + "/removeHigh";
+    			},
+    			getCaseWithAllTasksUrl: 'case/get_all_with_task',
+    			getAllEggWithYolkUrl:'egg/get_all_egg_with_yolk'
+      }}
+      return Config;
+    });

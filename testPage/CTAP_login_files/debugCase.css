@@ -1,0 +1,82 @@
+.debug-middle-header-container{
+    width: 100%;
+ /* height: 45px; */
+    border: none;
+ /*    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);*/
+}
+
+.debug-middle-top-button-group{
+    float: right;
+    margin-top:10px;
+}
+
+.debug-middle-top-button-group button{
+	width: 110px;
+    color: white;
+    border: none;
+    padding: 10px;
+    margin-right: 10px;
+    
+}
+
+.debug-middle-center-button-group{
+    margin-left: 15px;
+    display: inline-block;    
+}
+
+.debug-middle-center-button-group button{
+	width: 80px;
+    color: white;
+    border: none;
+    padding: 10px;
+    margin-right: 10px;   
+}
+
+.debug-data-choose{
+	width:40%;
+    display: inline-block;
+}
+
+.case-data{
+    margin-left: 0px;
+    margin-top: 10px;
+}
+.debug-customizedata-container{
+	margin-left: 0px;
+    margin-top: 5px;
+    height: calc(100% - 50px);
+    margin-right: 10px;
+}
+
+.debugtable{
+border-collapse:collapse;
+border:1px solid #d4d4d4;
+width: 100%;
+height:100%;
+display:block;
+overflow-y: auto;
+margin-top:10px;
+}
+
+/*table td[rowspan] */
+
+.debugcolumn{
+  border:1px solid #d4d4d4;
+  padding :5px;
+  width:16%;
+  max-width:220px;
+  word-wrap:break-word;
+}
+
+.debuginput{
+	width:100%;
+	height:70%;
+}
+
+.debuglastcolumn{
+	border:1px solid #d4d4d4;
+	padding :5px;
+    min-width:180px;
+    width:250px;
+}
+

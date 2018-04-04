@@ -1,0 +1,13 @@
+
+"use strict";
+app.service('DiagramService',function(Utils,Config) {
+        var service = {};
+        service.getCaseWithAllTasks = function () {
+            return Utils.ctapGet(Config.RestMapping.getCaseWithAllTasksUrl);
+        };
+        service.getAllEggWithYolk = function () {
+            return Utils.ctapGet(Config.RestMapping.getAllEggWithYolkUrl);
+        };
+        
+        return service;
+    });

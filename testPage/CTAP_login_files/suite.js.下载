@@ -1,0 +1,996 @@
+'use strict';
+
+angular.module('myApp.suite', ['ngRoute'])
+
+.config(['$routeProvider', function($routeProvider) {
+    $routeProvider.when('/suite', {
+        templateUrl: './modules/suite/suite.html',
+        controller: 'SuiteCtrl'
+    });
+}])
+
+.controller('SuiteCtrl', function($location, $scope,$rootScope,$log,$timeout,SuiteService,BuildTree,SwalMessage) {
+	if($rootScope.curUser == ""){
+		$location.path("/login")
+	}
+	//set the style to "active" for the users input URL directly.
+	$rootScope.activeNavButton("suite");
+	
+	//init configs and vars
+    $scope.currentCases = [];
+    $scope.currentSuites = [];
+    $scope.currentSubSuites = [];
+    $scope.seSuiteIndex = 0;
+    $scope.suiteIndex = 0;
+    
+    $rootScope.cleanFlag = 0;
+    
+    $scope.$watch('cleanFlag',  function(newValue, oldValue) {
+		if(newValue != oldValue){
+    	   		$scope.currentFolderModel = {"id":"","text":"","type":"folder","desc":"","parent":""};
+       }
+	});
+    
+    $scope.updateSuiteLocalStorage = function(){
+		localStorage.setItem("selectedData.name",$scope.currentSuiteModel.name);
+		localStorage.setItem("selectedData.desc",$scope.currentSuiteModel.desc);
+		localStorage.setItem("selectedData.table",JSON.stringify(angular.copy($scope.gridOptions.data)));
+	}
+    
+    $rootScope.checkBeforeLeaveInSuite = function(targetUrl){
+		if($scope.currentSuiteModel.name!=""||$scope.currentSuiteModel.desc!=""||$scope.gridOptions.data!=""){
+			if ($scope.currentSuiteModel.id != ""){
+				var preName = localStorage.getItem("selectedData.name");
+				var preDesc = localStorage.getItem("selectedData.desc");
+				var preTable = localStorage.getItem("selectedData.table");
+				var newTable = angular.copy($scope.gridOptions.data);//clean the $$hashKey
+				if($scope.currentSuiteModel.name!=preName||$scope.currentSuiteModel.desc!=preDesc||JSON.stringify(newTable)!=preTable){
+					swal({
+	                    title: '',
+	                    text: "Are you sure to leave without save?",
+	                    type: 'warning',
+	                    showCancelButton: true,
+	                    confirmButtonText: "YES",
+	                    cancelButtonText: "NO",
+	                    }).then(function () {		                        
+	                    		$location.path(targetUrl);
+	                    		$scope.$apply();
+	                    		},function() {
+	                    			$log.info("User give up leave");
+	                    			}
+	                    		);
+						} else {
+							$location.path(targetUrl);
+						}																					
+			} else {
+				swal({
+                    title: '',
+                    text: "Are you sure to leave without save?",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: "YES",
+                    cancelButtonText: "NO",
+                    }).then(function () {		                        
+                    		$location.path(targetUrl);
+                    		$scope.$apply();
+                    		},function() {
+                    			$log.info("User give up leave");
+                    			}
+                    		);
+					}				
+		} else {
+			$location.path(targetUrl);
+		}
+	};
+    
+    BuildTree.searchTree("#search-suite", "#suite-tree");
+    BuildTree.searchTree("#search-case", "#case-tree");
+    
+    $scope.initCurrentSuiteModel = function () {
+    	SuiteService.getSuiteTreeData().then(function (data) {
+            $scope.currentSuiteModel = {"id":"","name":"","desc":"","user_name":"","suiteType":"suite","isNew":true};
+            //suite/{id}/get_suite_with_case
+            //$scope.suiteTreeData = [];
+            $scope.currentCases = [];
+            $scope.currentSuites = [];
+            $scope.currentSubSuites = [];
+            if ($scope.gridOptions) {
+        	    $scope.gridOptions.data = [];
+            }
+    	}, function (reason) {
+            $log.debug('Refresh failed');
+        });
+    };
+    
+    $scope.initCurrentCaseModel = function () {
+        $scope.currentCaseModel = {"id":"","name":"","desc":"","user_name":"",tasks:[]};
+        //case/{id}/get_case_with_task
+        //$scope.caseTreeData = [];
+    };
+
+    $scope.initCurrentCaseModel();
+    $scope.initCurrentSuiteModel();
+
+    $scope.initCurrentFolderModel = function () {
+        $scope.currentFolderModel = {"id":"","text":"","type":"folder","desc":"","parent":""};
+    };
+
+    $scope.initCurrentSuiteFolderModel = function () {
+        $scope.currentSuiteFolderModel = {"id":"","text":"","type":"folder","desc":""};
+    };
+
+    $scope.gridOptions = {
+            enableSorting: false,
+            enableRowSelection: true,
+            multiSelect:false,
+            enableColumnMenus: false,
+            enableFullRowSelection:true,
+        		enableSelectAll: false,
+            selectionRowHeaderWidth: 35,
+            rowTemplate: '<div grid="grid" class="ui-grid-draggable-row" draggable="true"><div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ng-class="{ \'ui-grid-row-header-cell\': col.isRowHeader, \'custom\': true }" ui-grid-cell></div></div>',
+            columnDefs: [
+            	{
+                    name: 'Type', 
+                    field: 'type',
+                    width: 100,
+                    enableCellEdit: false
+                },
+                {
+                    name: 'Name', 
+                    field: 'name',
+                    enableCellEdit: false
+                },
+                {
+                    name: 'Description',
+                    field: 'desc',
+                    cellTemplate: '<div class="ui-grid-cell-contents"><p title="{{row.entity.desc}}" class="oneline-hide">{{row.entity.desc}}</p><p class="edit-cell glyphicon glyphicon-trash" style="float:right;"ng-click="grid.appScope.deleteRow(row)"></p></div>'
+                }
+            ]
+    };
+    
+    $scope.gridOptions.multiSelect = true;
+    $scope.initGridFunctionData = function(){
+    		$scope.gridRowIndex = [];
+        $scope.gridRowIndexForCutOrCopy = [];
+        $scope.gridStoreForCutOrCopy = [];
+        $scope.gridStoreForMovePosition = [];
+        $scope.cutRowFlag = false;
+    }
+    $scope.initGridFunctionData();
+    
+    $scope.gridOptions.onRegisterApi = function(gridApi) {
+			$scope.gridApi = gridApi;
+			gridApi.selection.on.rowSelectionChanged($scope,function(row){
+				if(row.isSelected ==true){//store selected index
+					$scope.gridRowIndex.push($scope.gridOptions.data.indexOf(row.entity));
+				}else{
+					for(var i=0; i<$scope.gridRowIndex.length; i++) {//clean the copy index array after cancel select
+					    if($scope.gridRowIndex[i] == row.entity.No) {
+					    		$scope.gridRowIndex.splice(i, 1);
+					    		break;
+					    }
+					}
+				}
+				$scope.gridRowIndex.sort();
+			});
+			
+			gridApi.draggableRows.on.rowDropped($scope, function(info, dropTarget) {
+			     console.log("Dropped", info);
+			     $scope.gridApi.selection.clearSelectedRows();
+			     $scope.rebuildGridNoValue();
+			     $scope.initGridFunctionData();			     
+			});
+    };
+    
+    $scope.cutRow = function(){
+    		for(var i=0; i<$scope.gridRowIndex.length; i++){
+    			$scope.gridStoreForCutOrCopy.push($scope.gridOptions.data[$scope.gridRowIndex[i]])//store selected row data for cut
+    		}
+    		$scope.gridRowIndexForCutOrCopy = $scope.gridRowIndex;//store row index for cut
+    		$scope.gridApi.selection.clearSelectedRows();
+    		$scope.gridRowIndex = [];
+    		$scope.cutRowFlag = true;
+    }
+    
+    $scope.copyRow = function(){	
+    		for(var i=0; i<$scope.gridRowIndex.length; i++){
+			$scope.gridStoreForCutOrCopy.push($scope.gridOptions.data[$scope.gridRowIndex[i]])//store selected row data for copy
+		}
+		$scope.gridRowIndexForCutOrCopy = $scope.gridRowIndex;//store row index for copy
+		$scope.gridApi.selection.clearSelectedRows();
+		$scope.gridRowIndex = [];
+		$scope.cutRowFlag = false;
+    }
+    
+    $scope.pasteRow = function(){
+    	 	if($scope.gridRowIndex.length != 1){
+    	 		swal('','Please choose one position to paste', 'warning');
+    	 		return;
+    	 	}
+    	 	var indexTemp = [];       	 
+    	 	for(var i=$scope.gridRowIndex[0]; i<$scope.gridOptions.data.length; i++){
+    	 		indexTemp.push(i);
+    	 	}
+    	 	if($scope.cutRowFlag == true){
+    	 		for(var j=0; j<indexTemp.length; j++){//clean the cut data from move data
+        	 		for(var k=0; k<$scope.gridRowIndexForCutOrCopy.length; k++){
+        	 			if(indexTemp[j]==$scope.gridRowIndexForCutOrCopy[k]){
+        	 				indexTemp.splice(j, 1);
+        	 			}
+        	 		}
+        	 	}	
+    	 	}        	 	
+    	 	for(var i=0; i<indexTemp.length; i++){//store row data for move
+    	 		$scope.gridStoreForMovePosition.push($scope.gridOptions.data[indexTemp[i]]);
+    	 	}
+    	 	$scope.gridOptions.data.splice($scope.gridRowIndex[0],$scope.gridOptions.data.length-$scope.gridRowIndex[0]);//remove data from grid
+    	 	if($scope.cutRowFlag == true){
+    	 		for(var i=$scope.gridRowIndexForCutOrCopy.length-1; i>=0; i--){
+        	 		$scope.gridOptions.data.splice($scope.gridRowIndexForCutOrCopy[i],1);
+        	 	}
+    	 	}
+    	 	for(var i=0; i<$scope.gridStoreForCutOrCopy.length; i++){//push rebuilding data into grid, it should rebuild the row data just like adding row from tree because of the copy bug
+    	 		//$scope.gridOptions.data.push($scope.gridStoreForCutOrCopy[i]);
+    	 		var newSuite={"No":"",id: $scope.gridStoreForCutOrCopy[i].id,
+             	       "desc":$scope.gridStoreForCutOrCopy[i].desc, type : $scope.gridStoreForCutOrCopy[i].type, name : $scope.gridStoreForCutOrCopy[i].name};
+    	 		$scope.gridOptions.data.push(newSuite);
+    	 	}
+    	 	for(var i=0; i<$scope.gridStoreForMovePosition.length; i++){
+    	 		$scope.gridOptions.data.push($scope.gridStoreForMovePosition[i]);
+    	 	}
+    	 	$scope.gridApi.selection.clearSelectedRows();
+    	 	$scope.rebuildGridNoValue();
+    	 	$scope.initGridFunctionData();
+    }
+    
+    $scope.rebuildGridNoValue = function(){
+    		var GridTemp = [];
+    		GridTemp = $scope.gridOptions.data;
+    		$scope.gridOptions.data = [];
+    		for(var i=0; i<GridTemp.length;i++){
+    			GridTemp[i].No = $scope.gridOptions.data.length;
+    			$scope.gridOptions.data.push(GridTemp[i]);
+    		}
+    }
+    
+    $scope.deleteRow = function(value){	
+  	  swal({
+			title : '',
+			text : "Are you sure to remove this row?",
+			type : 'warning',
+			showCancelButton : true,
+			confirmButtonText : "YES",
+			cancelButtonText : "NO",
+		})
+		.then(function() {
+  	 		var rowIndex=0;
+  	 		for(var i=0;i<$scope.gridOptions.data.length;i++){
+  	 			if($scope.gridOptions.data[i].id==value.entity.id){
+          			rowIndex=i;break;
+  	 			}
+  	 		}
+  	 		$scope.gridOptions.data.splice(rowIndex,1);
+  	 		$scope.$apply();
+  	 		$scope.gridApi.selection.clearSelectedRows();
+	 		$scope.initGridFunctionData();
+		},function(dismiss) {
+			if (dismiss === 'cancel') {
+				$log.info("User give up remove");
+				}
+			}
+		)
+    };
+    
+    $scope.suiteTreeConfigFromBuildTree = BuildTree.suiteTreeConfig;
+    $scope.suiteTreeConfigFromBuildTree.contextmenu.items = BuildTree.contextmenuSuite;
+
+    $scope.caseTreeConfigFromBuildTree = BuildTree.caseTreeConfig;
+    $scope.caseTreeConfigFromBuildTree.contextmenu.items = BuildTree.contextmenuCase;
+
+    // loadCaseTree
+    $scope.loadCaseTreeFromBuildTree = function(){
+		BuildTree.loadCaseTree();
+	}
+
+    // loadSuiteTree
+    $scope.loadSuiteTreeFromBuildTree = function(){
+		BuildTree.loadSuiteTree();
+	}
+
+    $scope.getAllCases = function () {
+    	SuiteService.getAllCases().then(function (data) {
+            $log.debug('After get all suites success', data);
+            $scope.allCasesModel = data.value;
+        }, function (reason) {
+            $log.debug('Get all suite failed');
+        });
+    };
+
+    $scope.loadCaseById = function (id) {
+    	SuiteService.getCaseById(id).then(function (data) {
+            $log.info("Get case by id",data);
+            $scope.selectedCase = data.value;
+        }, function (reason) {
+            $log.info("Get case by id failed");
+
+        });
+    };
+
+    $scope.loadAllSuiteFolder = function () {
+    	SuiteService.getAllSuiteFolder().then(function (data) {
+            $log.info("Get suite folder success",data);
+            $scope.folderModel = data.value;
+        }, function (reason) {
+            $log.info("Get suite folder failed");
+
+        });
+    };
+    
+    $scope.deleteSuite = function () {
+    	swal({
+  		  title: '',
+  		  text: "Are you sure to remove this suite?",
+  		  type: 'warning',
+  		  showCancelButton: true,
+  		  confirmButtonText: "YES",
+      	  cancelButtonText: "NO",
+  		}).then(function () {
+  			$log.info("User confirm delete");
+            $scope.doRemoveSuiteFolder();
+  		},function (dismiss) {
+  			  // dismiss can be 'cancel', 'overlay',
+  			  // 'close', and 'timer'
+  			  if (dismiss === 'cancel') {
+  				  $log.info("User give up delete");
+  			  }
+  	    });
+    };
+
+    $scope.onCaseSelected = function(){
+        var node = $scope.caseTreeInstance.jstree("get_selected",true)[0];
+        if(node.original.type.toLowerCase() == 'leaf'){
+            return;
+        }
+        else if(node.original.type.toLowerCase() == 'folder'){
+            $scope.currentFolderModel = node.original;
+        }
+    };
+    
+    var composeSuite = function(node) {
+    	if(node.original.suitetype.toLowerCase() == 'suite') {
+        	$scope.selectedSubSuite = null;
+        	$scope.loadSuiteById(node.original.node_id);
+        } else if(node.original.suitetype.toLowerCase() == 'sequential suite') {
+        	$scope.selectedSuite = null;
+        	$scope.loadSubSuiteById(node.original.node_id);
+        }
+    };
+    
+    $scope.loadSuiteById = function (id) {
+    	SuiteService.getSuiteById(id).then(function (data) {
+            $log.info("Get suite by id",data);
+            $scope.selectedSuite = data.value;
+            $("input[type='radio']").eq(0).attr("checked",true);
+            $scope.loadSuiteModel(data, "suite");
+        }, function (reason) {
+            $log.info("Get suite by id failed");
+        });
+    };
+    
+    $scope.loadSubSuiteById = function (id) {
+    	SuiteService.getSubSuiteById(id).then(function (data) {
+            $log.info("Get subsuite by id",data);
+            $scope.selectedSubSuite = data.value;
+            $("input[type='radio']").eq(1).attr("checked",true);
+            $scope.loadSuiteModel(data, "sequential suite");
+        }, function (reason) {
+            $log.info("Get subsuite by id failed");
+        });
+    };
+
+    // load currentSuiteModel by data and suiteType
+    $scope.loadSuiteModel = function(data, suiteType) {
+    	$scope.currentSuiteModel.id = data.value.id;
+    	$scope.currentSuiteModel.name = data.value.name;
+    	$scope.currentSuiteModel.desc = data.value.desc;
+    	$scope.currentSuiteModel.suiteType = suiteType;
+    	localStorage.setItem("selectedData.name",data.value.name);
+	localStorage.setItem("selectedData.desc",data.value.desc);
+    	$scope.currentSuiteModel.isNew = false;
+    	$scope.gridOptions.data = [];
+    	if (data.value.cases) {
+    		$scope.seSuiteIndex = data.value.cases.length;
+    		for (var i = 0; i < data.value.cases.length; i++) {
+    			$scope.gridOptions.data.push({id: data.value.cases[i].id, 
+                	  type : "case", name : data.value.cases[i].name,
+                	  desc : data.value.cases[i].desc});
+            }
+    	}
+    	if (data.value.sub_suites) {
+    		$scope.suiteIndex = $scope.seSuiteIndex + data.value.sub_suites.length;
+            for (var i = 0; i < data.value.sub_suites.length; i++) {
+            	$scope.gridOptions.data.push({id: data.value.sub_suites[i].id, 
+        	          type : "sequential suite", name : data.value.sub_suites[i].name,
+        	          desc : data.value.sub_suites[i].desc});
+            }
+    	}
+    	if (data.value.suites) {
+            for (var i = 0; i < data.value.suites.length; i++) {
+            	$scope.gridOptions.data.push({id: data.value.suites[i].id, 
+        	          type : "suite", name : data.value.suites[i].name,
+        	          desc : data.value.suites[i].desc});
+            }
+    	}
+    	localStorage.setItem("selectedData.table",JSON.stringify($scope.gridOptions.data));
+    	$scope.gridApi.selection.clearSelectedRows();
+	$scope.initGridFunctionData();
+    };
+    
+    $scope.loadSuiteByIdForCopy = function (id, node) {
+    		if(node.original.suitetype.toLowerCase() == 'suite') {
+    			$scope.selectedSubSuite = null;
+    		   	SuiteService.getSuiteById(id).then(function (data) {
+    	            $log.info("Get suite by id for copy",data);
+    	            $scope.selectedSuite = data.value;
+    	            data.value.id="";
+    	            data.value.name = "copied from "+ data.value.name;
+    	            //$("input[type='radio']").eq(0).attr("checked",true);
+    	            $scope.loadSuiteModel(data, "suite");
+    		   		}, function (reason) {
+    	            $log.info("Get suite by id for copy failed");
+    	        });
+        } 
+    		else if(node.original.suitetype.toLowerCase() == 'sequential suite') {
+    			$scope.selectedSuite = null;
+    			SuiteService.getSubSuiteById(id).then(function (data) {
+    	            $log.info("Get subsuite by id for copy",data);
+    	            $scope.selectedSubSuite = data.value;
+    	            data.value.id="";
+    	            data.value.name = "copied from "+ data.value.name;
+    	            //$("input[type='radio']").eq(1).attr("checked",true);
+    	            $scope.loadSuiteModel(data, "sequential suite");
+    	        		}, function (reason) {
+    	            $log.info("Get subsuite by id for copy failed");
+    	        });
+        }
+    };
+    
+    $scope.deleteCase = function (id,name) {
+    	swal({
+    		  title: '',
+    		  text: "Are you sure to remove this case?",
+    		  type: 'warning',
+    		  showCancelButton: true,
+    		  confirmButtonText: "YES",
+        	  cancelButtonText: "NO",
+    		}).then(function () {
+    			$log.info("User confirm delete");
+                $scope.doDeleteCase(id,name);
+    		},function (dismiss) {
+    			  // dismiss can be 'cancel', 'overlay',
+    			  // 'close', and 'timer'
+    			  if (dismiss === 'cancel') {
+    				  $log.info("User give up delete");
+    			  }
+    	});
+    };
+    
+    $scope.doUpdateSuite = function (model) {
+    	$log.info("User confirm save");
+    	if (!($scope.currentSuiteModel.suiteType == "sequential suite")) {
+    		SuiteService.updateSuite($scope.currentSuiteModel);
+        	reMapping();
+        	SuiteService.mappingSuite($scope.currentSuiteModel.id,$scope.currentCases,
+            	$scope.currentSubSuites,$scope.currentSuites).then(function (data) {
+                if(data.value){
+                	swal('',"Save suite successfully!", 'success');
+                    $scope.loadSuiteTreeFromBuildTree();
+                    $scope.loadSuiteById($scope.currentSuiteModel.id);
+                    $scope.updateSuiteLocalStorage();
+                    $scope.initGridFunctionData();
+                    $log.info("Update suite success");
+                }
+                else{
+                    $log.info("Update suite failed");
+                    swal('',"Save suite failed, please try again later.", 'error');
+                    $scope.loadSuiteTreeFromBuildTree();
+                }
+            }, function (reason) {
+                $log.info("Update suite failed");
+                swal('',"Save suite failed, please try again later.", 'error');
+                $scope.loadSuiteTreeFromBuildTree();
+            });
+        } else {
+        	SuiteService.updateSeSuite($scope.currentSuiteModel);
+        	reMapping();
+        	SuiteService.mappingSeSuite($scope.currentSuiteModel.id,$scope.currentCases).then(function (data) {
+                if(data.value){
+                	swal('',"Save suite successfully!", 'success');
+                    $scope.loadSuiteTreeFromBuildTree();
+                    $scope.loadSubSuiteById($scope.currentSuiteModel.id);
+                    $scope.updateSuiteLocalStorage();
+                    $scope.initGridFunctionData();
+                    $log.info("Update suite success");
+                } else{
+                    $log.info("Update suite failed");
+                    swal('',"Save suite failed, please try again later.", 'error');
+                    $scope.loadSuiteTreeFromBuildTree();
+                }
+            }, function (reason) {
+                $log.info("Update suite failed");
+                swal('',"Save suite failed, please try again later.", 'error');
+                $scope.loadSuiteTreeFromBuildTree();
+            });
+        }
+    }
+
+    $scope.doCreateSuite = function (model) {
+    		if (!($scope.currentSuiteModel.suiteType == "sequential suite")) {
+    			SuiteService.createSuite(model).then(function (data) {
+                    if(data.value) {
+                        $scope.currentSuiteModel.id = data.value.id;
+                        $scope.currentSuiteModel.name = data.value.name;
+                        $scope.currentSuiteModel.desc = data.value.desc;
+                        $scope.currentSuiteModel.user_name = data.value.user_name;
+                        reMapping();
+                        SuiteService.mappingSuite($scope.currentSuiteModel.id,$scope.currentCases,
+                        		$scope.currentSubSuites,$scope.currentSuites).then(function (data) {
+                        	swal('',"Save suite successfully!", 'success');
+                            $scope.loadSuiteTreeFromBuildTree();
+                            $scope.loadSuiteById($scope.currentSuiteModel.id);
+                            $scope.updateSuiteLocalStorage();
+                            $scope.initGridFunctionData();
+                        }, function (reason) {
+                            $scope.loadSuiteTreeFromBuildTree();
+                            swal('',"Save suite failed, please try again later.", 'error');
+                        });
+                    } else {
+                        $log.info("Create suite failed");
+                        $scope.loadSuiteTreeFromBuildTree();
+                        swal('',"Save suite failed, please try again later.", 'error');
+                    }
+                }, function (reason) {
+                    $log.info("Create suite failed");
+                    swal('',"Save suite failed, please try again later.", 'error');
+                });
+    		} else {
+    			SuiteService.createSeSuite(model).then(function (data) {
+                    if(data.value) {
+                        $scope.currentSuiteModel.id = data.value.id;
+                        $scope.currentSuiteModel.name = data.value.name;
+                        $scope.currentSuiteModel.desc = data.value.desc;
+                        $scope.currentSuiteModel.user_name = data.value.user_name;
+                        reMapping();
+                        SuiteService.mappingSeSuite($scope.currentSuiteModel.id,$scope.currentCases).then(function (data) {
+                        	swal('',"Save suite successfully!", 'success');
+                            $scope.loadSuiteTreeFromBuildTree();
+                            $scope.loadSubSuiteById($scope.currentSuiteModel.id);
+                            $scope.updateSuiteLocalStorage();
+                            $scope.initGridFunctionData();
+                        }, function (reason) {
+                            $scope.loadSuiteTreeFromBuildTree();
+                            swal('',"Save suite failed, please try again later.", 'error');
+                        });
+                    } else {
+                        $log.info("Create suite failed");
+                        $scope.loadSuiteTreeFromBuildTree();
+                        swal('',"Save suite failed, please try again later.", 'error');
+                    }
+                }, function (reason) {
+                    $log.info("Create suite failed");
+                    swal('',"Save suite failed, please try again later.", 'error');
+                });
+    		}
+    };
+
+    $scope.saveSuite = function () {
+    	if ($scope.currentSuiteModel.name == "") {
+			swal('',"You don't input a name, please give a suite name first!",'info');  
+			return;
+		}
+    	var list = $rootScope.dataForSuiteTree;
+    	if (BuildTree.existSameName($scope.currentSuiteModel, list)) {
+    		swal('',"Suite name already exists",'info');  
+    	}else{
+    	if($scope.currentSuiteModel.id != ""){
+  	        $scope.doUpdateSuite($scope.currentSuiteModel);
+  	    } else{
+  	        $scope.doCreateSuite($scope.currentSuiteModel);
+  	    }
+     }
+  };
+    
+    var reMapping = function () {
+    	$scope.currentCases = [];
+        $scope.currentSuites = [];
+        $scope.currentSubSuites = [];
+        for (var i = 0; i < $scope.gridOptions.data.length; i++) {
+            if ($scope.gridOptions.data[i].type == "case"){
+            	$scope.currentCases.push($scope.gridOptions.data[i])
+            } else if ($scope.gridOptions.data[i].type == "suite") {
+            	$scope.currentSuites.push($scope.gridOptions.data[i]);
+            } else {
+            	$scope.currentSubSuites.push($scope.gridOptions.data[i]);
+            }
+        }
+    };
+    
+
+    $rootScope.createSuite = function (node) {
+        if($scope.currentCaseModel.id != ""){
+        	swal({
+        		  title: '',
+        		  text: "Do you want to continue without saving?",
+        		  type: 'warning',
+        		  showCancelButton: true,
+        		  confirmButtonText: "YES",
+            	  cancelButtonText: "NO",
+        		}).then(function () {
+        			$log.info("User confirm without saving");
+        			$scope.initCurrentSuiteModel();
+                    $("input[type='radio']").eq(0).attr("checked",true);
+        		},function (dismiss) {
+        			  // dismiss can be 'cancel', 'overlay',
+        			  // 'close', and 'timer'
+        			  if (dismiss === 'cancel') {
+        				  $log.info("User give up edit");
+        			  }
+        	});
+            
+        }
+        else{
+        	$scope.initCurrentSuiteModel();
+            $scope.selectedCase = {"name":"","id":"","desc":""};
+        }
+    };
+    
+    $scope.doCreateCaseFolder = function (){
+		BuildTree.doCreateCaseFolderInBuildTree($scope.currentFolderModel);
+    }
+
+    $scope.doRenameCaseFolder = function (){
+		BuildTree.doRenameCaseFolderInBuildTree($scope.currentFolderModel);
+    }
+
+    $rootScope.doRemoveCaseFolder = function (){
+    		BuildTree.doRemoveCaseFolderInBuildTree($scope.currentFolderModel);
+    }
+
+    // Do Suite Tree New Folder Action
+    $scope.doSuiteTreeNewFolder = function(){
+    	SuiteService.createFolderInSuiteTree($scope.currentSuiteFolderModel).then(function(data){
+    		swal('',"Add folder successfully!", 'success');
+            $('#create-Suite-folder-modal').modal("hide");
+            $scope.loadSuiteTreeFromBuildTree();
+        },function(reason){
+            $log.info("create suite folder failed");
+            swal('',"Create folder failed, please try again later.", 'error');
+        });
+    };
+
+    // Do Suite Tree Rename Folder Action
+    $scope.doRenameSuiteFolder = function () {
+    	SuiteService.renameFolderInSuiteTree($scope.currentSuiteFolderModel).then(function (data) {
+    		swal('',"Update folder name successfully!", 'success');
+            $('#rename-Suite-folder-modal').modal("hide");
+            $scope.loadSuiteTreeFromBuildTree();
+        }, function (reason) {
+            $log.info("rename suite folder failed");
+            swal('',"Rename folder failed, please try again later.", 'error');
+        });
+    };
+
+    // Do Suite Tree Remove Folder Action
+    $scope.doRemoveSuiteFolder = function () {
+    	if ($scope.selectedSuite) {
+    		SuiteService.removeSuiteFolder($scope.selectedSuite).then(function (data) {
+    			swal('',"Remove suite successfully!", 'success');
+                $scope.loadSuiteTreeFromBuildTree();
+            }, function (reason) {
+                $log.info("remove suite folder failed");
+                swal('',"Remove suite failed, please try again later.", 'error');
+            });
+    	} else if ($scope.selectedSubSuite) {
+    		SuiteService.removeSeSuiteFolder($scope.selectedSubSuite).then(function (data) {
+    			swal('',"Remove suite successfully!", 'success');
+                $scope.loadSuiteTreeFromBuildTree();
+            }, function (reason) {
+                $log.info("remove suite folder failed");
+                swal('',"Remove suite failed, please try again later.", 'error');
+            });
+    	}
+    	
+    };
+
+    $rootScope.removeSuite = function(node){
+    	swal({
+    		  title: '',
+    		  text: "Are you sure to remove this suite?",
+    		  type: 'warning',
+    		  showCancelButton: true,
+    		  confirmButtonText: "YES",
+        	  cancelButtonText: "NO",
+    		}).then(function () {
+    			$log.info("User confirm remove");
+                if (node.original.suitetype == "suite") {
+                	$scope.doRemoveSuite(node);
+                } else {
+                	$scope.doRemoveSeSuite(node);
+                }
+    		},function (dismiss) {
+    			  // dismiss can be 'cancel', 'overlay',
+    			  // 'close', and 'timer'
+    			  if (dismiss === 'cancel') {
+    				  $log.info("User give up remove");
+    			  }
+    	});
+    };
+
+    var createSuiteFolder = function(node){
+        $scope.initCurrentSuiteFolderModel();
+        $('#create-Suite-folder-modal').modal({
+            backdrop: 'static'
+        });
+    };
+
+    var renameSuiteFolder = function(node){
+        $scope.currentSuiteFolderModel = node.original;
+        $('#rename-Suite-folder-modal').modal({
+            backdrop: 'static'
+        });
+    };
+
+    var removeSuiteFolder = function(node){
+    	swal({
+    		  title: '',
+    		  text: "Are you sure to remove this suite?",
+    		  type: 'warning',
+    		  showCancelButton: true,
+    		  confirmButtonText: "YES",
+        	  cancelButtonText: "NO",
+    		}).then(function () {
+    			$log.info("User confirm remove");
+                $scope.doRemoveSuiteFolder();
+    		},function (dismiss) {
+    			  // dismiss can be 'cancel', 'overlay',
+    			  // 'close', and 'timer'
+    			  if (dismiss === 'cancel') {
+    				  $log.info("User give up remove");
+    			  }
+    	});
+    };
+
+    $scope.addCase = function(){
+    	    var node = $scope.caseTreeInstance.jstree("get_selected",true)[0];
+    	    if(node.type == 'leaf'){
+ 
+//    	    	Commnet by ran, allow same case in a suite
+//    		    for (var i = 0; i < $scope.gridOptions.data.length; i++) {
+//        		    if ($scope.gridOptions.data[i].id == node.original.id) {
+//        			    swal('','Same case exists', 'info');
+//        			    return;
+//        		    }
+//        	    }
+    		    $scope.initCurrentCaseModel();
+            $scope.loadCaseById(node.original.id);
+            SuiteService.getCaseById(node.original.id).then(function (data) {
+                $log.info("Get case by id",data);
+                $scope.selectedCase = data.value;
+                $scope.folderName = node.original.parent.name;
+                $scope.gridOptions.data.splice($scope.seSuiteIndex, 0, 
+                	    {"No":$scope.gridOptions.data.length,id: $scope.selectedCase.id,
+                	       "desc":$scope.selectedCase.desc, type : "case", name : $scope.selectedCase.name});
+                $scope.seSuiteIndex += 1;
+                $scope.suiteIndex += 1;
+            }, function (reason) {
+                $log.info("Add case failed");
+            });
+        }      
+    };
+    
+    $rootScope.addSuite = function(node){
+    	if ($scope.currentSuiteModel.suiteType == "sequential suite") {
+    		swal('','Can\'t add suites to sequential suites', 'info');
+    		return;
+    	}
+    	if ($scope.currentSuiteModel.id == node.original.node_id) {
+    		swal('','Can\'t add own suite', 'info');
+    		return;
+    	}
+        if(node.original.suitetype == "suite"){
+        	for (var i = 0; i < $scope.gridOptions.data.length; i++) {
+        		if ($scope.gridOptions.data[i].id == node.original.node_id) {
+        			swal('','Same suite exists', 'info'); 
+        			return;
+        		}
+        	}
+        	SuiteService.getSuiteById(node.original.node_id).then(function (data) {
+                $log.info("Get suite by id",data);
+                $scope.selectedSuite = data.value;
+                $scope.gridOptions.data.push({"No":$scope.gridOptions.data.length,id: data.value.id,
+                	type : "suite", name : data.value.name, "desc":data.value.desc});
+            }, function (reason) {
+                $log.info("Get suite by id failed");
+            });
+        } else {
+        	for (var i = 0; i < $scope.gridOptions.data.length; i++) {
+        		if ($scope.gridOptions.data[i].id == node.original.node_id) {
+        			swal('','Same suite exists', 'info'); 
+        			return;
+        		}
+        	}
+        	SuiteService.getSubSuiteById(node.original.node_id).then(function (data) {
+                $log.info("Get suite by id",data);
+                $scope.selectedSubSuite = data.value;
+                $scope.gridOptions.data.splice($scope.suiteIndex, 0, 
+                	{"No":$scope.gridOptions.data.length, id: data.value.id, 
+                	    type : "sequential suite", name : data.value.name, "desc": data.value.desc});
+                $scope.suiteIndex += 1;
+            }, function (reason) {
+                $log.info("Get suite by id failed");
+            });
+        }
+    };
+    
+    $scope.doRemoveSuite = function (node) {
+        $scope.selectedSuiteData={
+                    id:node.original.node_id,
+                    name:node.text
+            };
+        SuiteService.removeSuiteFolder($scope.selectedSuiteData).then(function (data) {
+        	if (data.value == false) {
+				swal('',"Suite is used, can’t remove it!", 'error');
+			} else {
+				swal('',"Remove suite successfully!", 'success');
+		    	if ($scope.currentSuiteModel.id == node.original.node_id) {
+		    		$scope.initCurrentSuiteModel();
+				}
+	        	$scope.loadSuiteTreeFromBuildTree();
+			}
+        }, function (reason) {
+            $log.info("remove Suite failed");
+            $scope.loadSuiteTreeFromBuildTree();
+            swal('', reason, 'error');
+        });
+    };
+    
+    $scope.doRemoveSeSuite = function (node) {
+        $scope.selectedSuiteData={
+                    id:node.original.node_id,
+                    name:node.text
+            };
+        SuiteService.removeSeSuiteFolder($scope.selectedSuiteData).then(function (data) {
+        	swal('',"Remove suite successfully!", 'success');
+        	$scope.loadSuiteTreeFromBuildTree();
+        }, function (reason) {
+            $log.info("remove Suite failed");
+            swal('',"Remove suite failed, please try again later.", 'error');
+        });
+    };
+    
+    $scope.cancel = function(){
+    	swal({
+    		  title: '',
+    		  text: "Are you sure to give up operation?",
+    		  type: 'warning',
+    		  showCancelButton: true,
+    		  confirmButtonText: "YES",
+        	  cancelButtonText: "NO",
+    		}).then(function () {
+    			$log.info("User confirm give up operation");
+    			if ($scope.currentSuiteModel.isNew == true) {
+    				$scope.initCurrentSuiteModel();
+    			} else {
+    		        if ($scope.currentSuiteModel.suiteType.toLowerCase() == 'suite') {
+    		        	$scope.selectedSubSuite = null;
+    		        	$scope.loadSuiteById($scope.currentSuiteModel.id);
+    		        } else if($scope.currentSuiteModel.suiteType.toLowerCase() == 'sequential suite') {
+    		        	$scope.selectedSuite = null;
+    		        	$scope.loadSubSuiteById($scope.currentSuiteModel.id);
+    		        }
+    			}
+    			swal('',"Cancel successfully!", 'success');
+    		},function (dismiss) {
+    			  // dismiss can be 'cancel', 'overlay',
+    			  // 'close', and 'timer'
+    			  if (dismiss === 'cancel') {
+    				  $log.info("User give up remove");
+    			  }
+    	});
+    };
+    
+    $rootScope.copySuite = function(node){
+        swal({
+                title: '',
+                text: "Are you sure to copy this Suite?",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonText: "YES",
+                cancelButtonText: "NO",
+                }).then(function (p) {
+                    $log.info("User confirm copy Suite");
+                    $scope.doCopySuite(node);
+                },function(p) {
+                    $log.info("User give up copy Suite");
+            }
+        );
+    };
+    
+    $scope.doCopySuite = function(node){
+    		$scope.loadSuiteByIdForCopy($scope.currentSuiteModel.id, node);
+        $scope.showFolderInput=false;
+        $timeout(function(){
+            $scope.showFolderInput=true;
+        });
+    };
+
+    // Left Case Tree Loading Action and context menu
+    $scope.onCaseTreeLoaded = function () {
+        //make sure the highlight is the same height as the node text
+        $.vakata.context.settings.hide_onmouseleave = 1;
+//        $scope.caseTreeInstance.bind('hover_node.jstree', function(e, data) {
+//            var bar = $(this).find('.jstree-wholerow-hovered');
+//            bar.css('height',
+//                bar.parent().children('a.jstree-anchor').height() + 'px');
+//            var node_id = data.node.a_attr.id;
+//            var node = jQuery('#'+node_id);
+//            //setTimeout(function () { data.rslt.obj.children('a').trigger('contextmenuLeft'); }, 0);
+//            //$scope.caseTreeInstance.show_contextmenuLeft(node);
+//            node.trigger('contextmenu');
+//        });
+
+        $scope.caseTreeInstance.bind("show_contextmenu.jstree", function (e, data) {
+            var $node = $('#'+data.node.id),
+                $menu = $('.vakata-context').first(),
+                nodeTop = $node.offset().top,
+                menuTop = nodeTop + $node.height() - $menu.height(),
+                menuRight = $node.offset().right-100;
+            if(menuTop>800){
+                menuTop=76;
+                // menuLeft=menuLeft+20
+            }
+            $menu.offset({right: menuRight, top: menuTop+20});
+        })
+    };
+
+    // Right Suite Tree Loading Action and context menu
+    $scope.onSuiteTreeLoaded = function () {
+        //make sure the highlight is the same height as the node text
+        $.vakata.context.settings.hide_onmouseleave = 1;
+//        $scope.suiteTreeInstance.bind('hover_node.jstree', function(e, data) {
+//            var bar = $(this).find('.jstree-wholerow-hovered');
+//            bar.css('height',
+//                bar.parent().children('a.jstree-anchor').height() + 'px');
+//            var node_id = data.node.a_attr.id;
+//            var node = jQuery('#'+node_id);
+//            //setTimeout(function () { data.rslt.obj.children('a').trigger('contextmenuLeft'); }, 0);
+//            //$scope.caseTreeInstance.show_contextmenuLeft(node);               
+//            if(data.node.type !== 'leaf'){
+//                node.trigger('contextmenu');
+//            }
+//            else{
+//                $.vakata.context.hide();
+//            }
+//        });
+
+        $scope.suiteTreeInstance.bind("show_contextmenu.jstree", function (e, data) {
+            var $node = $('#'+data.node.id),
+                $menu = $('.vakata-context').first(),
+                nodeTop = $node.offset().top,
+                menuTop = nodeTop + $node.height() - $menu.height(),
+                menuLeft = $node.offset().left+100;
+                if(menuTop>800){
+                    menuTop=76;
+                    // menuLeft=menuLeft+20
+                }
+                $menu.offset({left: menuLeft, top: menuTop+20});
+        });
+        $scope.suiteTreeInstance.bind('click.jstree',function(event) {
+   		 if (event.target.className != "jstree-icon jstree-ocl") {
+   			 composeSuite($scope.suiteTreeInstance.jstree("get_selected",true)[0]);
+   		 }
+   	    });
+    };
+    
+    
+});

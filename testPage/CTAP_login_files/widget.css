@@ -1,0 +1,89 @@
+.widget-folder-selection-container{
+    width:calc(100% - 159px);
+    margin-left: 5px;
+    float: left;
+}
+
+.xpattern-folder-selection-container{
+    width:calc(100% - 141px);
+    margin-left: 5px;
+    float: left;
+}
+
+.widget-css div.row.content-row{
+	margin:10px;
+    height: 60px;
+}
+
+.inp-content{
+    width: 88%;
+    height: 100%;
+}
+
+.prototype-modal-inp{
+    height: 100%;
+    width: 100%;
+}
+
+.widget-css .dt-cell,.dt-header-cell {
+    vertical-align: top;
+    overflow: hidden;
+    white-space: normal !important;
+    line-height: 1.4 !important;
+    display: block;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.xpattern-grid {
+  width: 100%;
+  height: 200px;
+}
+.prototype-grid {
+  width: 100%;
+  height: 300px;
+}
+.method-grid {
+  width: 100%;
+  height: 200px;
+}
+.wrap {
+	white-space: normal;
+}
+
+.argument-modal-dialog{
+    width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    float: none;
+    margin-top: 10%;
+}
+
+.angucomplete-container {
+	float:right; 
+	width:calc(100% - 70px);
+}
+.nopadding {
+	padding: 0px;
+}
+
+.widget-css .middle-top-container{
+    height: 100%;
+}
+
+.widget-css .middle-bottom-container{
+    height: calc(50% - 5px);
+}
+
+.widget-css .prototype-title {
+    float: left;
+    width: 74px;
+}
+
+.widget-css .xpattern-title {
+    float: left;
+    width: 56px;
+}

@@ -1,0 +1,36 @@
+/**
+ * Created by Hawk on 2017/9/11.
+ */
+"use strict";
+app.service('WorkQueueService',function(Utils,Config) {
+        var service = {};
+        service.getWorkQueueData = function () {
+            return Utils.ctapGet(Config.RestMapping.loadWorkQueueUrl());
+        };
+        
+        service.getLowData = function (highId) {
+            return Utils.ctapGet(Config.RestMapping.getLowByHighIDUrl(highId));
+        };
+        
+        service.getgetVNCurl = function (lowId) {
+            return Utils.ctapGet(Config.RestMapping.getVNCurlUrl(lowId));
+        };
+        
+        service.removeLow = function (lowId) {
+            return Utils.ctapGet(Config.RestMapping.removeLowUrl(lowId));
+        };
+        
+        service.pauseLow = function (lowId) {
+            return Utils.ctapGet(Config.RestMapping.pauseLowUrl(lowId));
+        };
+        
+        service.resumeLow = function (lowId) {
+            return Utils.ctapGet(Config.RestMapping.resumeLowUrl(lowId));
+        };
+        
+        service.removeHigh = function (highId) {
+            return Utils.ctapGet(Config.RestMapping.removeHighUrl(highId));
+        };
+
+        return service;
+    });
